@@ -19,21 +19,13 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
-}
 
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
-
-  --color-border: var(--vt-c-divider-light-2);
-  --color-border-hover: var(--vt-c-divider-light-1);
-
-  --color-heading: var(--vt-c-text-light-1);
-  --color-text: var(--vt-c-text-light-1);
-
-  --section-gap: 160px;
+  /* Custom colors */
+  --color-primary: #f4b400; /* Yellow/Orange */
+  --color-secondary: #202124; /* Dark Gray/Black */
+  --color-accent: #e8f0fe; /* Light Blue */
+  --color-background: #ffffff; /* White */
+  --color-text: #5f6368; /* Gray */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -47,6 +39,13 @@
 
     --color-heading: var(--vt-c-text-dark-1);
     --color-text: var(--vt-c-text-dark-2);
+
+    /* Custom colors for dark mode */
+    --color-primary: #f4b400; /* Yellow/Orange */
+    --color-secondary: #e8eaed; /* Light Gray */
+    --color-accent: #3c4043; /* Darker Blue */
+    --color-background: #181818; /* Dark Background */
+    --color-text: #e8eaed; /* Light Gray Text */
   }
 }
 

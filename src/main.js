@@ -11,4 +11,15 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
+Sentry.init({
+  app,
+  dsn: 'https://2bf19811c3497fe39d4a2e05c6d73c77@o4509254309117952.ingest.us.sentry.io/4509254311804928',
+
+  // Adds request headers and IP for users, for more info visit:
+  // https://docs.sentry.io/platforms/javascript/guides/vue/configuration/options/#sendDefaultPii
+  sendDefaultPii: true,
+
+  integrations: [],
+})
+
 app.mount('#app')
