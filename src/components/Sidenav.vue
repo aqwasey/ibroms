@@ -42,7 +42,7 @@
             <!-- Children (submenu) -->
             <div
               v-if="item.open.value"
-              class="ml-5 pl-4 py-2 flex flex-col gap-2"
+              class="ml-5 pl-4 py-2 px-3 flex flex-col gap-2"
             >
               <RouterLink
                 v-for="(sub, i) in item.children"
