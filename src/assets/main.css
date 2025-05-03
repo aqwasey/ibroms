@@ -1,6 +1,7 @@
 @import './base.css';
 @import 'tailwindcss';
 
+
 #app {
   margin: 0 auto;
   font-weight: normal;
@@ -51,7 +52,7 @@
 }
 
 .border-secondary {
-  border-color: var(--color-secondary);
+  border-color: #FCFCFD;
 }
 
 .border-accent {
