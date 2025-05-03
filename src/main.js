@@ -2,6 +2,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import * as Sentry from "@sentry/vue";
 
 import App from './App.vue'
 import router from './router'
