@@ -24,8 +24,9 @@
   --color-primary: #f4b400; /* Yellow/Orange */
   --color-secondary: #202124; /* Dark Gray/Black */
   --color-accent: #e8f0fe; /* Light Blue */
-  --color-background: #ffffff; /* White */
-  --color-text: #5f6368; /* Gray */
+  --color-background: #F9FAFB; /* White */
+  --color-background-secondary: #CF7F081A; /* White */
+  --color-text: #0b0f13; /* Gray */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +56,7 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: normal;
+  /* outline: 1px solid; */
 }
 
 body {
