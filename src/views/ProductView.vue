@@ -13,6 +13,8 @@
       @edit-item="onEditItem"
       @delete-item="onDeleteItem"
       title="Products"
+      search-placeholder="Search product"
+      button-label="New Product"
     />
   </div>
 </template>

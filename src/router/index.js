@@ -14,6 +14,26 @@ const router = createRouter({
       name: 'product',
       component: () => import('../views/ProductView.vue'),
     },
+    {
+      path: '/category',
+      name: 'category',
+      component: () => import('../views/CategoryView.vue'),
+    },
+    {
+      path: '/underwriters',
+      name: 'underwriters',
+      component: () => import('../views/UnderWritersView.vue'),
+    },
+    {
+      path: '/pricing',
+      name: 'pricing',
+      component: () => import('../views/PricingView.vue'),
+    },
+    {
+      path: '/age-groups',
+      name: 'age-groups',
+      component: () => import('../views/AgeGroupsView.vue'),
+    },
   ],
 })
 

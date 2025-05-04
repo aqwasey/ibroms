@@ -5,11 +5,11 @@
       <div class="flex gap-4 items-center">
           <InputField
             v-model="searchQuery"
-            placeholder="Search product"
+            :placeholder="searchPlaceholder"
             type="text"
             class="text-center border border-gray-200 rounded bg-gray-50 text-sm"
           />
-        <Button @click="$emit('add-item')">New Product</Button>
+        <Button @click="$emit('add-item')">{{ buttonLabel }}</Button>
       </div>
     </div>
 
@@ -122,6 +122,14 @@ const props = defineProps({
   showSearch: {
     type: Boolean,
     default: true,
+  },
+  searchPlaceholder: {
+    type: String,
+    default: 'Search ...',
+  },
+  buttonLabel: {
+    type: String,
+    default: 'Add item',
   },
 })
 
