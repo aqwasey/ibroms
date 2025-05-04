@@ -23,7 +23,7 @@
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
 
   /* Custom colors */
-  --color-primary: #f4b400; /* Yellow/Orange */
+  --color-primary: #CF7F08; /* Yellow/Orange */
   --color-secondary: #202124; /* Dark Gray/Black */
   --color-accent: #e8f0fe; /* Light Blue */
   --color-background: #F9FAFB; /* White */
@@ -44,7 +44,7 @@
     --color-text: var(--vt-c-text-dark-2);
 
     /* Custom colors for dark mode */
-    --color-primary: #f4b400; /* Yellow/Orange */
+    --color-primary: #CF7F08; /* Yellow/Orange */
     --color-secondary: #e8eaed; /* Light Gray */
     --color-accent: #3c4043; /* Darker Blue */
     --color-background: #181818; /* Dark Background */

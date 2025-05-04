@@ -1,37 +1,38 @@
 <template>
   <div class="w-full overflow-hidden" @click="closeDropdowns">
-    <div class="flex justify-between items-center shadow-sm py-4">
-      <h2 class="text-2xl font-bold">{{ title }}</h2>
+    <div class="flex justify-between items-center py-4">
+      <h2 class="text-[30px] font-medium text-i-gray-900">{{ title }}</h2>
       <div class="flex gap-4 items-center">
           <InputField
             v-model="searchQuery"
             :placeholder="searchPlaceholder"
             type="text"
-            class="text-center border border-gray-200 rounded bg-gray-50 text-sm"
+            class="text-center rounded bg-gray-50 text-sm"
           />
         <Button @click="$emit('add-item')">{{ buttonLabel }}</Button>
       </div>
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full rounded-lg border-collapse">
-        <thead>
+      <div class="border rounded-lg">
+        <table class="w-full border-collapse">
+          <thead>
           <tr>
             <th
               v-for="column in columns"
               :key="column.key"
-              class="bg-gray-100 text-left text-gray-500 font-semibold p-3 text-sm border-b border-gray-200"
+              class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs"
             >
               {{ column.label }}
             </th>
-            <th class="w-12 bg-gray-100 border-b border-gray-200"></th>
+            <th class="w-12 bg-i-gray-50 rounded-tr-lg"></th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           <tr
             v-for="item in paginatedData"
             :key="item.id || item.key"
-            class="border-b border-gray-200 last:border-b-0"
+            class="even:bg-gray-50 text-i-gray-800 text-base"
           >
             <td
               v-for="column in columns"
@@ -68,29 +69,30 @@
               </div>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
 
-    <div class="flex justify-between items-center p-4 border-t border-gray-200">
-      <div class="text-sm text-gray-500">Page {{ currentPage }} of {{ totalPages }}</div>
-      <div class="flex gap-2">
-        <button
-          :disabled="currentPage === 1"
-          @click="previousPage"
-          class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
-        >
-          Previous
-        </button>
-        <button
-          :disabled="currentPage === totalPages"
-          @click="nextPage"
-          class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
-        >
-          Next
-        </button>
+        <div class="flex justify-between items-center p-4 border-t border-gray-200">
+          <div class="text-sm text-gray-500">Page {{ currentPage }} of {{ totalPages }}</div>
+          <div class="flex gap-2">
+            <button
+              :disabled="currentPage === 1"
+              @click="previousPage"
+              class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
+            >
+              Previous
+            </button>
+            <button
+              :disabled="currentPage === totalPages"
+              @click="nextPage"
+              class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -1,7 +1,7 @@
 <template>
   <button
     :type="type"
-    class="bg-primary hover:bg-secondary cursor-pointer text-white font-medium py-2 px-4 rounded-md w-full"
+    class="bg-primary hover:bg-secondary cursor-pointer text-sm text-white font-medium h-11 px-4 rounded-lg"
     @click="$emit('click')"
   >
     <slot />

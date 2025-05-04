@@ -2,6 +2,12 @@
 @import 'tailwindcss';
 
 
+@theme {
+  --color-i-gray-50: #E9EFF4;
+  --color-i-gray-800: #334054;
+  --color-i-gray-900: #101828;
+}
+
 #app {
   margin: 0 auto;
   font-weight: normal;

@@ -1,20 +1,20 @@
 <template>
     <aside class="w-64 h-screen bg-white border-r border-gray-200 flex flex-col">
       <span class="p-6 text-2xl font-bold text-gray-800">AGENT APP</span>
-  
+
       <nav class="flex-1 px-4 text-sm space-y-3">
         <template v-for="(item, index) in menuItems" :key="index">
           <!-- Single menu item -->
           <div
             v-if="!item.children"
-            class="flex items-center gap-2 font-medium text-gray-600 px-3 py-2 rounded hover:bg-[#CF7F081A] hover:text-[#CF7F08] transition"
+            class="flex items-center gap-2 font-medium text-gray-600 px-3 py-2 rounded hover:bg-[#CF7F081A] hover:text-primary transition"
           >
             <component :is="item.icon" />
             <RouterLink :to="item.to" class="w-full">
               {{ item.label }}
             </RouterLink>
           </div>
-  
+
           <!-- Grouped item with children -->
           <div
             v-else
@@ -26,7 +26,7 @@
               @click="item.open.value = !item.open.value"
               class="w-full flex justify-between items-center px-3 py-2 font-medium rounded transition"
               :class="{
-                'text-[#CF7F08] bg-[#CF7F081A]': item.hovered.value,
+                'text-primary bg-[#CF7F081A]': item.hovered.value,
                 'text-gray-600': !item.hovered.value
               }"
             >
@@ -38,7 +38,7 @@
                 <component :is="item.open.value ? ChevronDown : ChevronUp" />
               </span>
             </button>
-  
+
             <!-- Children (submenu) -->
             <div
               v-if="item.open.value"
@@ -48,7 +48,7 @@
                 v-for="(sub, i) in item.children"
                 :key="i"
                 :to="sub.to"
-                class="block px-2 py-1 text-gray-600 hover:text-[#CF7F08] hover:bg-[#CF7F081A] rounded transition"
+                class="block px-2 py-1 text-gray-600 hover:text-primary hover:bg-[#CF7F081A] rounded transition"
               >
                 {{ sub.label }}
               </RouterLink>
@@ -58,17 +58,17 @@
       </nav>
     </aside>
   </template>
-  
-  
+
+
   <script setup>
   import { ref } from 'vue'
   import { RouterLink } from 'vue-router'
-  import { UsersRound, Layers, ChevronDown, ChevronUp } from 'lucide-vue-next'
-  
+  import { Users, Layers, ChevronDown, ChevronUp } from 'lucide-vue-next'
+
   const menuItems = [
     {
       label: 'People',
-      icon: UsersRound,
+      icon: Users,
       to: '/people',
     },
     {
@@ -94,4 +94,3 @@
     },
   ]
   </script>
-  
