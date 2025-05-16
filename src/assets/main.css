@@ -73,5 +73,5 @@
 }
 
 .btn-primary {
-  @apply bg-primary hover:!bg-primary text-base !border !border-primary h-10 px-4 rounded-lg transition-all !text-white;
+  @apply bg-primary hover:!bg-primary text-base !border !border-primary h-10 px-4 rounded-lg transition-all !text-white cursor-pointer;
 }
