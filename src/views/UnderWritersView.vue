@@ -1,42 +1,66 @@
 <template>
-    <div class="p-4">
+  <div class="p-4">
 
-      <Modal title="Add Underwriter" :show="isOpen" :close="() => isOpen = false">
-        <a-form
-          size="large"
-          layout="vertical"
-          :model="formState"
-          name="basic"
-          autocomplete="off"
-          @finish="onFinish"
-          @finishFailed="onFinishFailed"
-        >
-          <a-form-item
-            label="Username"
-            name="username"
-            :rules="[{ required: true, message: 'Please input your username!' }]"
-          >
-            <a-input v-model:value="formState.username" />
-          </a-form-item>
+    <Modal title="Add Underwriter" :show="isOpen" :close="() => isOpen = false">
+      <a-form
+        size="large"
+        layout="vertical"
+        :model="formState"
+        name="basic"
+        autocomplete="off"
+        @finish="onFinish"
+        @finishFailed="onFinishFailed">
+        <a-form-item
+          label="Title"
+          name="title"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-input v-model:value="formState.title" />
+        </a-form-item>
 
-          <a-form-item
-            label="Password"
-            name="password"
-            :rules="[{ required: true, message: 'Please input your password!' }]"
-          >
-            <a-input-password v-model:value="formState.password" />
-          </a-form-item>
+        <a-form-item
+          label="Sector"
+          name="sector"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-select placeholder="Select Sector" show-search allow-clear v-model:value="formState.sector" >
+            <a-select-option value="1">Option 1</a-select-option>
+            <a-select-option value="2">Option 2</a-select-option>
+            <a-select-option value="3">Option 3</a-select-option>
+          </a-select>
+        </a-form-item>
 
-          <div class="flex justify-end gap-3">
-            <button @click="isOpen = false" class="btn-light">
-              Cancel
-            </button>
-            <a-button type="primary" class="btn-primary" html-type="submit">Submit</a-button>
-          </div>
-        </a-form>
+        <a-form-item
+          label="Province"
+          name="province"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-select placeholder="Select Province" allow-clear v-model:value="formState.province" >
+            <a-select-option value="1">Option 1</a-select-option>
+            <a-select-option value="2">Option 2</a-select-option>
+            <a-select-option value="3">Option 3</a-select-option>
+          </a-select>
+        </a-form-item>
 
-      </Modal>
+        <a-form-item
+          label="Town/City"
+          name="town_city"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-input v-model:value="formState.town_city" />
+        </a-form-item>
+        <div class="flex justify-end gap-3">
+          <button @click="isOpen = false" class="btn-light">
+            Cancel
+          </button>
+          <a-button type="primary" class="btn-primary" html-type="submit">Submit</a-button>
+        </div>
+      </a-form>
+
+    </Modal>
+    {{JSON.stringify(loading)}}
+    <div v-if="loading" class="text-black text-2xl">Loading underwriters...</div>
+    <div v-else-if="error" class="text-red-600">{{ error }}</div>
+    <div v-else>
+      <div v-if="!data.length" class="text-gray-500 text-center py-4">No underwriters found</div>
       <TableComponent
+        v-else
         :columns="columns"
         :data="data"
         :items-per-page="itemsPerPage"
@@ -52,205 +76,104 @@
         button-label="New Underwriter"
       />
     </div>
-  </template>
+  </div>
+</template>
 
-  <script setup>
-  import { ref, computed, reactive } from 'vue'
-  import TableComponent from '@/components/TableComponent.vue';
-  import Modal from '@/components/Modal.vue'
+<script setup>
+import { computed, onMounted, reactive, ref, watch } from 'vue'
+import TableComponent from '@/components/TableComponent.vue'
+import Modal from '@/components/Modal.vue'
+import { useUnderwritersStore } from '@/stores/underwriters.js'
 
-  const isOpen = ref(false);
-  // Define columns configuration
-  const columns = [
-    { key: 'itemCode', label: 'ITEM CODE' },
-    { key: 'title', label: 'TITLE' },
-    { key: 'createdOn', label: 'CREATED ON' },
-    { key: 'updatedOn', label: 'UPDATED ON' },
-    { key: 'description', label: 'DESCRIPTION' },
-  ];
+const underwritersStore = useUnderwritersStore();
+const { underwriters, loading, error, fetchUnderwriters } = underwritersStore;
 
-  // Pagination settings
-  const itemsPerPage = ref(10);
-  const currentPage = ref(1);
+// Debug watchers
+watch(underwriters, (newVal) => {
+  console.log('Underwriters updated:', newVal);
+}, { deep: true });
 
-  // Dummy data - represents products from an API
-  const allProducts = ref([
-    {
-      id: 'R492',
-      itemCode: 'R492',
-      title: 'Harmony',
-      createdOn: 'Just now',
-      updatedOn: '3 hours ago',
-      description: 'This is a dummy text for the description'
-    },
-    {
-      id: 'A948',
-      itemCode: 'A948',
-      title: 'Harmony',
-      createdOn: '3 days ago',
-      updatedOn: '3 days ago',
-      description: 'There is an asset that needs to be updated'
-    },
-    {
-      id: 'T459',
-      itemCode: 'T459',
-      title: 'Harmony',
-      createdOn: 'Last week',
-      updatedOn: 'Last week',
-      description: 'This is also a good idea that needs implementation'
-    },
-    {
-      id: 'D943',
-      itemCode: 'D943',
-      title: 'Harmony',
-      createdOn: 'Sept. 6, 2023',
-      updatedOn: 'Sept. 7, 2023',
-      description: 'For the benefits of people who are also viewing'
-    },
-    {
-      id: 'S946',
-      itemCode: 'S946',
-      title: 'Harmony',
-      createdOn: 'Sept. 9, 2023',
-      updatedOn: 'Sept. 19, 2023',
-      description: 'This is a title for the description that needs to be updated'
-    },
-    {
-      id: 'P493',
-      itemCode: 'P493',
-      title: 'Harmony',
-      createdOn: 'Aug. 12, 2023',
-      updatedOn: 'Aug. 21, 2023',
-      description: 'Could there be a reason for the implementation to be delayed'
-    },
-    {
-      id: 'B944',
-      itemCode: 'B944',
-      title: 'Harmony',
-      createdOn: 'Aug. 02, 2023',
-      updatedOn: 'Aug. 12, 2023',
-      description: 'A very descriptive part of the whole process'
-    },
-    {
-      id: 'C425',
-      itemCode: 'C425',
-      title: 'Harmony',
-      createdOn: 'Aug. 04, 2023',
-      updatedOn: 'Aug. 14, 2023',
-      description: 'Description that talks about the way things work'
-    },
-    {
-      id: 'X123',
-      itemCode: 'X123',
-      title: 'Serenity',
-      createdOn: 'Jul. 15, 2023',
-      updatedOn: 'Jul. 25, 2023',
-      description: 'A new product with enhanced features and improved design'
-    },
-    {
-      id: 'Y456',
-      itemCode: 'Y456',
-      title: 'Tranquility',
-      createdOn: 'Jul. 10, 2023',
-      updatedOn: 'Jul. 20, 2023',
-      description: 'Premium version with additional customization options'
-    },
-    {
-      id: 'Z789',
-      itemCode: 'Z789',
-      title: 'Bliss',
-      createdOn: 'Jun. 28, 2023',
-      updatedOn: 'Jul. 05, 2023',
-      description: 'Entry-level model with essential features only'
-    },
-    {
-      id: 'G111',
-      itemCode: 'G111',
-      title: 'Harmony Plus',
-      createdOn: 'Jun. 15, 2023',
-      updatedOn: 'Jun. 25, 2023',
-      description: 'Enhanced version with premium materials and extended warranty'
-    },
-    {
-      id: 'H222',
-      itemCode: 'H222',
-      title: 'Harmony Pro',
-      createdOn: 'Jun. 05, 2023',
-      updatedOn: 'Jun. 15, 2023',
-      description: 'Professional grade model with advanced capabilities'
-    },
-    {
-      id: 'J333',
-      itemCode: 'J333',
-      title: 'Harmony Lite',
-      createdOn: 'May. 25, 2023',
-      updatedOn: 'Jun. 05, 2023',
-      description: 'Compact version designed for portability and convenience'
-    },
-    {
-      id: 'K444',
-      itemCode: 'K444',
-      title: 'Harmony Ultra',
-      createdOn: 'May. 15, 2023',
-      updatedOn: 'May. 25, 2023',
-      description: 'Ultimate version with all available features and premium support'
-    },
-  ]);
+watch(loading, (newVal) => {
+  console.log('Loading state:', newVal);
+});
 
-  // Calculate total items for pagination
-  const totalItems = computed(() => allProducts.value.length);
+onMounted(() => {
+  console.log('Component mounted, fetching underwriters...');
+  fetchUnderwriters();
+});
 
-  // Get current page data - in a real app, this would likely come from an API
-  const data = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return allProducts.value.slice(start, end);
-  });
+const isOpen = ref(false)
+// Define columns configuration
+const columns = [
+  { key: 'id', label: 'ID' },
+  { key: 'title', label: 'TITLE' },
+  { key: 'sector', label: 'SECTOR' },
+  { key: 'province', label: 'PROVINCE' },
+  { key: 'town_city', label: 'TOWN/CITY' },
+  { key: 'created_at', label: 'CREATED ON' },
+  { key: 'updated_at', label: 'UPDATED ON' }
+]
 
-  // Event handlers
-  const onPageChanged = (page) => {
-    currentPage.value = page;
-    console.log(`Page changed to: ${page}`);
-    // In a real app, you might fetch data for the new page here
-  };
+// Pagination settings
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
 
-  const onAction = ({ action, item }) => {
-    console.log(`Action ${action} performed on:`, item);
-  };
+// Calculate total items for pagination
+const totalItems = computed(() => underwriters.length)
 
-  const onAddItem = () => {
-    isOpen.value = true;
-    // In a real app, you might show a form or modal here
-  };
+// Get current page data - in a real app, this would likely come from an API
+const data = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return underwriters.slice(start, end)
+})
 
-  const onEditItem = (item) => {
-    console.log('Editing product:', item);
-    // In a real app, you might show a form or modal with item data here
-  };
+// Event handlers
+const onPageChanged = (page) => {
+  currentPage.value = page
+  console.log(`Page changed to: ${page}`)
+  // In a real app, you might fetch data for the new page here
+}
 
-  const onDeleteItem = (item) => {
-    console.log('Delete request for product:', item);
+const onAction = ({ action, item }) => {
+  console.log(`Action ${action} performed on:`, item)
+}
 
-    // Simple confirmation
-    if (confirm(`Are you sure you want to delete product ${item.itemCode}?`)) {
-      // Remove from our local data
-      allProducts.value = allProducts.value.filter(p => p.id !== item.id);
-      console.log(`Product ${item.itemCode} deleted`);
+const onAddItem = () => {
+  isOpen.value = true
+  // In a real app, you might show a form or modal here
+}
 
-      // In a real app, you would make an API call here
-    }
-  };
+const onEditItem = (item) => {
+  console.log('Editing product:', item)
+  // In a real app, you might show a form or modal with item data here
+}
 
-  const formState = reactive({
-    username: '',
-    password: '',
-  });
+const onDeleteItem = (item) => {
+  console.log('Delete request for product:', item)
 
-  const onFinish = values => {
-    console.log('Success:', values);
-  };
-  const onFinishFailed = errorInfo => {
-    console.log('Failed:', errorInfo);
-  };
-  </script>
+  // Simple confirmation
+  if (confirm(`Are you sure you want to delete product ${item.itemCode}?`)) {
+    // Remove from our local data
+    underwriters.value = underwriters.value.filter(p => p.id !== item.id)
+    console.log(`Product ${item.itemCode} deleted`)
+
+    // In a real app, you would make an API call here
+  }
+}
+
+const formState = reactive({
+  title: '',
+  sector: '',
+  town_city: '',
+  province: '',
+})
+
+const onFinish = values => {
+  console.log('Success:', values)
+}
+const onFinishFailed = errorInfo => {
+  console.log('Failed:', errorInfo)
+}
+</script>
 
