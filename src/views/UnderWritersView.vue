@@ -168,9 +168,16 @@ const formState = reactive({
 const onFinish = async values => {
   try {
     console.log(values)
-    messageApi.success('Form submitted successfully!');
-    // await underwritersStore.createUnderwriter(values);
+    await underwritersStore.createUnderwriter( {
+      "name": "Safrican 1",
+      "sector": "Funeral",
+      "website": "",
+      "description": "",
+      "id": ""
+    });
     // Handle success
+
+    // messageApi.success('Form submitted successfully!');
   } catch (error) {
     console.log(error)
     // Handle error

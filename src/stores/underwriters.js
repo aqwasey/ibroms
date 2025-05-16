@@ -26,7 +26,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
 
     try {
-      const res = await api.post('/underwriters', underwriterData)
+      const res = await api.post('/underwriters/', underwriterData)
       underwriters.value.push(res.data)
       return res.data
     } catch (err) {
