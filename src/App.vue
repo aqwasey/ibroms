@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import Sidenav from '@/components/Sidenav.vue';
 import TopNav from './components/TopNav.vue';
 

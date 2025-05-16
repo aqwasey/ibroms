@@ -13,17 +13,9 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
 
     try {
       const res = await api.get('/underwriters');
-      console.log('API Response:', res.data);
-      
-      if (Array.isArray(res.data)) {
-        underwriters.value = res.data;
-      } else {
-        console.error('Expected array but got:', typeof res.data);
-        error.value = 'Invalid data format received from server';
-      }
+      underwriters.value = res.data;
     } catch (err) {
-      error.value = 'Failed to load underwriters: ' + (err.message || 'Unknown error');
-      console.error('Error fetching underwriters:', err);
+      error.value = 'Failed to load underwriters';
     } finally {
       loading.value = false;
     }

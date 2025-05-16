@@ -54,11 +54,10 @@
       </a-form>
 
     </Modal>
-    {{JSON.stringify(loading)}}
-    <div v-if="loading" class="text-black text-2xl">Loading underwriters...</div>
+    <div v-if="underwritersStore.loading" class="text-black text-2xl">Loading underwriters...</div>
     <div v-else-if="error" class="text-red-600">{{ error }}</div>
     <div v-else>
-      <div v-if="!data.length" class="text-gray-500 text-center py-4">No underwriters found</div>
+      <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">No underwriters found</div>
       <TableComponent
         v-else
         :columns="columns"
@@ -86,14 +85,10 @@ import Modal from '@/components/Modal.vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
 
 const underwritersStore = useUnderwritersStore();
-const { underwriters, loading, error, fetchUnderwriters } = underwritersStore;
+const {  error, fetchUnderwriters } = underwritersStore;
 
-// Debug watchers
-watch(underwriters, (newVal) => {
-  console.log('Underwriters updated:', newVal);
-}, { deep: true });
 
-watch(loading, (newVal) => {
+watch(underwritersStore.loading, (newVal) => {
   console.log('Loading state:', newVal);
 });
 
@@ -119,13 +114,13 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 
 // Calculate total items for pagination
-const totalItems = computed(() => underwriters.length)
+const totalItems = computed(() => underwritersStore.underwriters.length)
 
 // Get current page data - in a real app, this would likely come from an API
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return underwriters.slice(start, end)
+  return underwritersStore.underwriters.slice(start, end)
 })
 
 // Event handlers
@@ -155,7 +150,7 @@ const onDeleteItem = (item) => {
   // Simple confirmation
   if (confirm(`Are you sure you want to delete product ${item.itemCode}?`)) {
     // Remove from our local data
-    underwriters.value = underwriters.value.filter(p => p.id !== item.id)
+    underwritersStore.underwriters = underwritersStore.underwriters.filter(p => p.id !== item.id)
     console.log(`Product ${item.itemCode} deleted`)
 
     // In a real app, you would make an API call here
