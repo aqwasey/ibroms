@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-const props = defineProps({
+defineProps({
   show: {
     type: Boolean,
     required: true
@@ -34,12 +34,5 @@ const props = defineProps({
     type: String,
     default: ''
   }
-})
-
-console.log('Modal mounted with props:', {
-  show: props.show,
-  loading: props.loading,
-  hasClose: !!props.close,
-  title: props.title
 })
 </script>

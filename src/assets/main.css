@@ -6,6 +6,7 @@
   --color-i-gray-50: #E9EFF4;
   --color-i-gray-800: #334054;
   --color-i-black-soft: #222222;
+  --color-i-gray-500: #667085;
   --color-i-gray-900: #101828;
   --color-primary: var(--color-primary);
 }
@@ -72,5 +73,5 @@
 }
 
 .btn-primary {
-  @apply bg-primary hover:!bg-primary text-base !border !border-primary;
+  @apply bg-primary hover:!bg-primary text-base !border !border-primary h-10 px-4 rounded-lg transition-all !text-white;
 }

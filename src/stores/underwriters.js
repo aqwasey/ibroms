@@ -39,17 +39,36 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
   }
 
   const deleteUnderwriter = async (underwriterId) => {
-    loading.value = true
+    adding.value = true
     error.value = null
 
     try {
-      await api.delete(`/underwriters/${underwriterId}/`)
+      await api.delete(`/underwriters/${underwriterId}`)
       underwriters.value = underwriters.value.filter(u => u.id !== underwriterId)
     } catch (err) {
       error.value = 'Failed to delete underwriter'
       throw err
     } finally {
-      loading.value = false
+      adding.value = false
+    }
+  }
+
+  const updateUnderwriter = async (underwriterId, underwriterData) => {
+    adding.value = true
+    error.value = null
+
+    try {
+      const res = await api.patch(`/underwriters/${underwriterId}`, underwriterData)
+      const index = underwriters.value.findIndex(u => u.id === underwriterId)
+      if (index !== -1) {
+        underwriters.value[index] = res.data
+      }
+      return res.data
+    } catch (err) {
+      error.value = 'Failed to update underwriter'
+      throw err
+    } finally {
+      adding.value = false
     }
   }
 
@@ -60,6 +79,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error,
     fetchUnderwriters,
     createUnderwriter,
-    deleteUnderwriter
+    deleteUnderwriter,
+    updateUnderwriter
   }
 })

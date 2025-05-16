@@ -1,10 +1,17 @@
 <template>
   <div class="p-4">
+    <ConfirmDelete
+      :item-id="selectedItemId"
+      :loading="underwritersStore.adding"
+      :title="'Underwriter'"
+      :text="'Are you sure you want to delete? It will be deleted permanently'"
+      @delete-item="handleDelete"
+      v-model:show="showConfirm" />
 
     <Modal
       :show="isOpen"
       :loading="underwritersStore.adding"
-      title="Add Underwriter"
+      :title="`${editing ? 'Edit' : 'Add'} Underwriter`"
       :close="() => {
         isOpen = false;
       }"
@@ -15,8 +22,7 @@
         :model="formState"
         name="basic"
         autocomplete="off"
-        @finish="onFinish"
-        @finishFailed="onFinishFailed">
+        @finish="onFinish">
         <a-form-item
           label="Title"
           name="name"
@@ -60,6 +66,7 @@
       </a-form>
 
     </Modal>
+
     <div v-if="underwritersStore.loading" class="text-black text-2xl">
       Loading underwriters...
     </div>
@@ -108,18 +115,33 @@ import { useUnderwritersStore } from '@/stores/underwriters.js'
 import Icon from '@/components/icon.vue'
 import Button from '@/components/Button.vue'
 import InputField from '@/components/InputField.vue'
+import ConfirmDelete from '@/components/ConfirmDelete.vue'
+import { Form } from 'ant-design-vue'
+
+const useForm = Form.useForm
+
+
+const isOpen = ref(false)
+const showConfirm = ref(false)
+const editing = ref(false)
+const selectedItemId = ref(null)
+const selectedItem = ref(null)
+
+let formState = reactive({
+  name: '',
+  sector: '',
+  town_city: '',
+  province: ''
+})
 
 const messageApi = inject('messageApi')
 
 const underwritersStore = useUnderwritersStore()
-const { error, fetchUnderwriters } = underwritersStore
 
 onMounted(() => {
-  fetchUnderwriters()
+  underwritersStore.fetchUnderwriters()
 })
 
-const isOpen = ref(false)
-// Define columns configuration
 const columns = [
   { key: 'name', label: 'TITLE' },
   { key: 'sector', label: 'SECTOR' },
@@ -146,8 +168,6 @@ const data = computed(() => {
 // Event handlers
 const onPageChanged = (page) => {
   currentPage.value = page
-  console.log(`Page changed to: ${page}`)
-  // In a real app, you might fetch data for the new page here
 }
 
 const onAction = ({ action, item }) => {
@@ -163,47 +183,55 @@ const closeModal = () => {
 }
 
 const onEditItem = (item) => {
-  console.log('Editing product:', item)
-  // In a real app, you might show a form or modal with item data here
+  formState = { ...formState, ...item }
+  selectedItem.value = item
+  editing.value = true
+  openModal()
 }
 
 const onDeleteItem = (item) => {
-  console.log('Delete request for product:', item)
-
-  // Simple confirmation
-  if (confirm(`Are you sure you want to delete product ${item.itemCode}?`)) {
-    // Remove from our local data
-    underwritersStore.underwriters = underwritersStore.underwriters.filter(p => p.id !== item.id)
-    console.log(`Product ${item.itemCode} deleted`)
-
-    // In a real app, you would make an API call here
-  }
+  selectedItemId.value = item.id
+  showConfirm.value = true
 }
 
-const formState = reactive({
-  name: '',
-  sector: '',
-  town_city: '',
-  province: ''
-})
-
-const onFinish = async values => {
+const handleDelete = async (itemId) => {
   try {
-    await underwritersStore.createUnderwriter({
-      ...values,
-      id: '',
-      description: '',
-      website: ''
-    })
-
-    messageApi.success('Form submitted successfully!')
-    closeModal()
+    await underwritersStore.deleteUnderwriter(itemId)
+    selectedItemId.value = null
+    showConfirm.value = false
+    messageApi.success('Deleted successfully!')
   } catch (error) {
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }
-const onFinishFailed = errorInfo => {
-  console.log('Failed:', errorInfo)
+
+const { resetFields } = useForm(formState)
+
+const onFinish = async values => {
+  try {
+    if (editing) {
+      await underwritersStore.updateUnderwriter(selectedItem.value.id, {
+        ...selectedItem.value,
+        ...values
+      })
+
+      selectedItemId.value = null
+    } else {
+      await underwritersStore.createUnderwriter({
+        ...values,
+        id: '',
+        description: '',
+        website: ''
+      })
+    }
+
+    resetFields()
+    messageApi.success(`Underwriter ${editing ? 'updated' : 'created'} successfully!`)
+
+    closeModal()
+  } catch (error) {
+    messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
+  }
 }
 </script>
 

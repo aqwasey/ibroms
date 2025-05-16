@@ -32,7 +32,7 @@
               <div class="relative inline-block">
                 <button
                   @click.stop="toggleActionMenu(item.id || item.key)"
-                  class="p-1 rounded hover:bg-gray-100 text-gray-500"
+                  class="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer"
                 >
                   <EllipsisVertical size="18" />
                 </button>
@@ -41,13 +41,13 @@
                   class="absolute right-0 top-full bg-white border border-gray-200 rounded shadow-lg z-10 min-w-32"
                 >
                   <button
-                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100"
+                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
                     @click="handleAction('edit', item)"
                   >
                     Edit
                   </button>
                   <button
-                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100"
+                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
                     @click="handleAction('delete', item)"
                   >
                     Delete
