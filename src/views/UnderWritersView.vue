@@ -58,31 +58,40 @@
     <div v-else-if="error" class="text-red-600">{{ error }}</div>
     <div v-else>
       <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">No underwriters found</div>
-      <TableComponent
-        v-else
-        :columns="columns"
-        :data="data"
-        :items-per-page="itemsPerPage"
-        :total-items="totalItems"
-        :current-page="currentPage"
-        @page-changed="onPageChanged"
-        @action="onAction"
-        @add-item="onAddItem"
-        @edit-item="onEditItem"
-        @delete-item="onDeleteItem"
-        title="Underwriters"
-        search-placeholder="Search underwriter"
-        button-label="New Underwriter"
-      />
+      <div v-else>
+        <div>
+          <div class="flex items-center gap-x-5">
+            <Icon name="share" size="24" color="#2A2A2A" />
+            <Icon name="export" size="24" color="#2A2A2A" />
+          </div>
+        </div>
+        <TableComponent
+          :columns="columns"
+          :data="data"
+          :items-per-page="itemsPerPage"
+          :total-items="totalItems"
+          :current-page="currentPage"
+          @page-changed="onPageChanged"
+          @action="onAction"
+          @add-item="onAddItem"
+          @edit-item="onEditItem"
+          @delete-item="onDeleteItem"
+          title="Underwriters"
+          search-placeholder="Search underwriter"
+          button-label="New Underwriter"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, inject, onMounted, reactive, ref } from 'vue'
 import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
+import Icon from '@/components/icon.vue'
+const messageApi = inject('messageApi');
 
 const underwritersStore = useUnderwritersStore();
 const {  error, fetchUnderwriters } = underwritersStore;
@@ -94,7 +103,6 @@ onMounted(() => {
 const isOpen = ref(false)
 // Define columns configuration
 const columns = [
-  { key: 'id', label: 'ID' },
   { key: 'title', label: 'TITLE' },
   { key: 'sector', label: 'SECTOR' },
   { key: 'province', label: 'PROVINCE' },
@@ -159,10 +167,11 @@ const formState = reactive({
 
 const onFinish = async values => {
   try {
-    await underwritersStore.createUnderwriter(values);
+    console.log(values)
+    messageApi.success('Form submitted successfully!');
+    // await underwritersStore.createUnderwriter(values);
     // Handle success
   } catch (error) {
-
     console.log(error)
     // Handle error
   }
