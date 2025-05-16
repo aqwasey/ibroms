@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
@@ -87,13 +87,7 @@ import { useUnderwritersStore } from '@/stores/underwriters.js'
 const underwritersStore = useUnderwritersStore();
 const {  error, fetchUnderwriters } = underwritersStore;
 
-
-watch(underwritersStore.loading, (newVal) => {
-  console.log('Loading state:', newVal);
-});
-
 onMounted(() => {
-  console.log('Component mounted, fetching underwriters...');
   fetchUnderwriters();
 });
 
@@ -105,8 +99,8 @@ const columns = [
   { key: 'sector', label: 'SECTOR' },
   { key: 'province', label: 'PROVINCE' },
   { key: 'town_city', label: 'TOWN/CITY' },
-  { key: 'created_at', label: 'CREATED ON' },
-  { key: 'updated_at', label: 'UPDATED ON' }
+  { key: 'created_on', label: 'CREATED ON' },
+  { key: 'updated_on', label: 'UPDATED ON' }
 ]
 
 // Pagination settings
