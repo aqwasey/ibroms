@@ -1,7 +1,14 @@
 <template>
   <div class="p-4">
 
-    <Modal title="Add Underwriter" :show="isOpen" :close="() => isOpen = false">
+    <Modal
+      :show="isOpen"
+      :loading="underwritersStore.adding"
+      title="Add Underwriter"
+      :close="() => {
+        isOpen = false;
+      }"
+    >
       <a-form
         size="large"
         layout="vertical"
@@ -12,19 +19,19 @@
         @finishFailed="onFinishFailed">
         <a-form-item
           label="Title"
-          name="title"
+          name="name"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.title" />
+          <a-input v-model:value="formState.name" />
         </a-form-item>
 
         <a-form-item
           label="Sector"
           name="sector"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Sector" show-search allow-clear v-model:value="formState.sector" >
-            <a-select-option value="1">Option 1</a-select-option>
-            <a-select-option value="2">Option 2</a-select-option>
-            <a-select-option value="3">Option 3</a-select-option>
+          <a-select placeholder="Select Sector" show-search allow-clear
+                    v-model:value="formState.sector">
+            <a-select-option value="Funeral">Funeral</a-select-option>
+            <a-select-option value="Sector 1">Sector 1</a-select-option>
           </a-select>
         </a-form-item>
 
@@ -32,10 +39,9 @@
           label="Province"
           name="province"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Province" allow-clear v-model:value="formState.province" >
-            <a-select-option value="1">Option 1</a-select-option>
-            <a-select-option value="2">Option 2</a-select-option>
-            <a-select-option value="3">Option 3</a-select-option>
+          <a-select placeholder="Select Province" allow-clear v-model:value="formState.province">
+            <a-select-option value="Province 1">Province 1</a-select-option>
+            <a-select-option value="Province 2">Province 2</a-select-option>
           </a-select>
         </a-form-item>
 
@@ -49,16 +55,29 @@
           <button @click="isOpen = false" class="btn-light">
             Cancel
           </button>
-          <a-button type="primary" class="btn-primary" html-type="submit">Submit</a-button>
+          <a-button type="primary" class="btn-primary" html-type="submit">Save</a-button>
         </div>
       </a-form>
 
     </Modal>
-    <div v-if="underwritersStore.loading" class="text-black text-2xl">Loading underwriters...</div>
-    <div v-else-if="error" class="text-red-600">{{ error }}</div>
+    <div v-if="underwritersStore.loading" class="text-black text-2xl">
+      Loading underwriters...
+    </div>
     <div v-else>
-      <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">No underwriters found</div>
+      <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">
+        No underwriters found
+      </div>
       <div v-else>
+        <div class="flex justify-between items-center py-4">
+          <h2 class="text-[30px] font-medium text-i-gray-900">Underwriters</h2>
+          <div class="flex gap-4 items-center">
+            <InputField
+              type="text"
+              class="text-center rounded bg-gray-50 text-sm"
+            />
+            <Button @click="openModal">New Underwriter</Button>
+          </div>
+        </div>
         <div>
           <div class="flex items-center gap-x-5">
             <Icon name="share" size="24" color="#2A2A2A" />
@@ -73,12 +92,8 @@
           :current-page="currentPage"
           @page-changed="onPageChanged"
           @action="onAction"
-          @add-item="onAddItem"
           @edit-item="onEditItem"
           @delete-item="onDeleteItem"
-          title="Underwriters"
-          search-placeholder="Search underwriter"
-          button-label="New Underwriter"
         />
       </div>
     </div>
@@ -91,19 +106,22 @@ import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
 import Icon from '@/components/icon.vue'
-const messageApi = inject('messageApi');
+import Button from '@/components/Button.vue'
+import InputField from '@/components/InputField.vue'
 
-const underwritersStore = useUnderwritersStore();
-const {  error, fetchUnderwriters } = underwritersStore;
+const messageApi = inject('messageApi')
+
+const underwritersStore = useUnderwritersStore()
+const { error, fetchUnderwriters } = underwritersStore
 
 onMounted(() => {
-  fetchUnderwriters();
-});
+  fetchUnderwriters()
+})
 
 const isOpen = ref(false)
 // Define columns configuration
 const columns = [
-  { key: 'title', label: 'TITLE' },
+  { key: 'name', label: 'TITLE' },
   { key: 'sector', label: 'SECTOR' },
   { key: 'province', label: 'PROVINCE' },
   { key: 'town_city', label: 'TOWN/CITY' },
@@ -136,8 +154,12 @@ const onAction = ({ action, item }) => {
   console.log(`Action ${action} performed on:`, item)
 }
 
-const onAddItem = () => {
+const openModal = () => {
   isOpen.value = true
+}
+
+const closeModal = () => {
+  isOpen.value = false
 }
 
 const onEditItem = (item) => {
@@ -159,28 +181,25 @@ const onDeleteItem = (item) => {
 }
 
 const formState = reactive({
-  title: '',
+  name: '',
   sector: '',
   town_city: '',
-  province: '',
+  province: ''
 })
 
 const onFinish = async values => {
   try {
-    console.log(values)
-    await underwritersStore.createUnderwriter( {
-      "name": "Safrican 1",
-      "sector": "Funeral",
-      "website": "",
-      "description": "",
-      "id": ""
-    });
-    // Handle success
+    await underwritersStore.createUnderwriter({
+      ...values,
+      id: '',
+      description: '',
+      website: ''
+    })
 
-    // messageApi.success('Form submitted successfully!');
+    messageApi.success('Form submitted successfully!')
+    closeModal()
   } catch (error) {
-    console.log(error)
-    // Handle error
+    messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }
 const onFinishFailed = errorInfo => {

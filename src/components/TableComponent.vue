@@ -1,18 +1,5 @@
 <template>
   <div class="w-full overflow-hidden" @click="closeDropdowns">
-    <div class="flex justify-between items-center py-4">
-      <h2 class="text-[30px] font-medium text-i-gray-900">{{ title }}</h2>
-      <div class="flex gap-4 items-center">
-          <InputField
-            v-model="searchQuery"
-            :placeholder="searchPlaceholder"
-            type="text"
-            class="text-center rounded bg-gray-50 text-sm"
-          />
-        <Button @click="$emit('add-item')">{{ buttonLabel }}</Button>
-      </div>
-    </div>
-
     <div class="overflow-x-auto">
       <div class="border rounded-lg">
         <table class="w-full border-collapse">
@@ -135,7 +122,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['add-item', 'edit-item', 'delete-item', 'action'])
+const emit = defineEmits(['edit-item', 'delete-item', 'action'])
 
 const searchQuery = ref('')
 const filteredData = computed(() => {
