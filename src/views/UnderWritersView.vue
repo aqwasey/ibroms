@@ -130,7 +130,6 @@ const onAction = ({ action, item }) => {
 
 const onAddItem = () => {
   isOpen.value = true
-  // In a real app, you might show a form or modal here
 }
 
 const onEditItem = (item) => {
@@ -158,8 +157,15 @@ const formState = reactive({
   province: '',
 })
 
-const onFinish = values => {
-  console.log('Success:', values)
+const onFinish = async values => {
+  try {
+    await underwritersStore.createUnderwriter(values);
+    // Handle success
+  } catch (error) {
+
+    console.log(error)
+    // Handle error
+  }
 }
 const onFinishFailed = errorInfo => {
   console.log('Failed:', errorInfo)
