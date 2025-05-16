@@ -3,6 +3,7 @@
 
       <Modal title="Add Underwriter" :show="isOpen" :close="() => isOpen = false">
         <a-form
+          size="large"
           layout="vertical"
           :model="formState"
           name="basic"
@@ -26,13 +27,14 @@
             <a-input-password v-model:value="formState.password" />
           </a-form-item>
 
-          <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-            <a-button type="primary" html-type="submit">Submit</a-button>
-          </a-form-item>
+          <div class="flex justify-end gap-3">
+            <button @click="isOpen = false" class="btn-light">
+              Cancel
+            </button>
+            <a-button type="primary" class="btn-primary" html-type="submit">Submit</a-button>
+          </div>
         </a-form>
-        <button @click="isOpen = false" class="mt-4 px-4 py-2 bg-white border border-gray-300 cursor-pointer text-i-black-soft rounded-lg transition-all">
-          Cancel
-        </button>
+
       </Modal>
       <TableComponent
         :columns="columns"
