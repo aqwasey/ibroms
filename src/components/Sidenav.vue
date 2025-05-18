@@ -75,7 +75,6 @@
       label: 'Product',
       icon: Layers,
       children: [
-        { label: 'Product', to: '/product' },
         { label: 'Category', to: '/category' },
       ],
       open: ref(true),
@@ -87,7 +86,7 @@
       children: [
         { label: 'Underwriters', to: '/underwriters' },
         { label: 'Packages', to: '/packages' },
-        { label: 'Age Groups', to: '/age-groups' },
+        { label: 'Product', to: '/products' }
       ],
       open: ref(false),
       hovered: ref(false),

@@ -88,7 +88,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { EllipsisVertical } from 'lucide-vue-next'
-import Button from '@/components/Button.vue'
 
 const props = defineProps({
   columns: {

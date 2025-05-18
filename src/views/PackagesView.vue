@@ -266,7 +266,6 @@ const onFinish = async values => {
 
     closeModal()
   } catch (error) {
-    console.log(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }
