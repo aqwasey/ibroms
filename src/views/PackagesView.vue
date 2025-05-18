@@ -2,16 +2,16 @@
   <div class="p-4">
     <ConfirmDelete
       :item-id="selectedItemId"
-      :loading="underwritersStore.adding"
-      :title="'Underwriter'"
+      :loading="packagesStore.adding"
+      :title="'Package'"
       :text="'Are you sure you want to delete? It will be deleted permanently'"
       @delete-item="handleDelete"
       v-model:show="showConfirm" />
 
     <Modal
       :show="isOpen"
-      :loading="underwritersStore.adding"
-      :title="`${editing ? 'Edit' : 'Add'} Underwriter`"
+      :loading="packagesStore.adding"
+      :title="`${editing ? 'Edit' : 'Add'} Package`"
       :close="() => {
         isOpen = false;
       }"
@@ -25,37 +25,65 @@
         @finish="onFinish">
         <a-form-item
           label="Title"
-          name="name"
+          name="title"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.name" />
+          <a-input v-model:value="formState.title" />
         </a-form-item>
 
         <a-form-item
-          label="Sector"
-          name="sector"
+          label="Target"
+          name="target"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Sector" show-search allow-clear
-                    v-model:value="formState.sector">
-            <a-select-option value="Funeral">Funeral</a-select-option>
-            <a-select-option value="Sector 1">Sector 1</a-select-option>
+          <a-input v-model:value="formState.target" />
+        </a-form-item>
+        <div class="grid grid-cols-3 gap-2">
+          <a-form-item
+            label="Price"
+            name="price"
+            :rules="[{ required: true, message: 'Required' }]">
+            <a-input-number class="!w-full" v-model:value="formState.price" />
+          </a-form-item>
+
+          <a-form-item
+            label="Waiting Period"
+            name="waiting_period"
+            :rules="[{ required: true, message: 'Required' }]">
+            <a-input-number class="!w-full" v-model:value="formState.waiting_period" />
+          </a-form-item>
+
+          <a-form-item
+            label="Cover Amount"
+            name="cover_amount"
+            :rules="[{ required: true, message: 'Required' }]">
+            <a-input-number class="!w-full" v-model:value="formState.cover_amount" />
+          </a-form-item>
+        </div>
+
+        <a-form-item
+          label="Underwriter"
+          name="underwriter_id"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-select
+            @focus="underwritersStore.fetchUnderwriters"
+            placeholder="Select Underwriter"
+            allow-clear
+            v-model:value="formState.underwriter_id"
+          >
+            <a-select-option
+              v-for="u in underwritersStore.underwriters"
+              :key="u.id"
+              :value="u.id"
+            >
+              {{ u.name }}
+            </a-select-option>
           </a-select>
         </a-form-item>
 
         <a-form-item
-          label="Province"
-          name="province"
+          label="Description"
+          name="description"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Province" allow-clear v-model:value="formState.province">
-            <a-select-option value="Province 1">Province 1</a-select-option>
-            <a-select-option value="Province 2">Province 2</a-select-option>
-          </a-select>
-        </a-form-item>
-
-        <a-form-item
-          label="Town/City"
-          name="town_city"
-          :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.town_city" />
+          <a-textarea v-model:value="formState.description" />
         </a-form-item>
         <div class="flex justify-end gap-3">
           <button @click="isOpen = false" class="btn-light">
@@ -67,22 +95,22 @@
 
     </Modal>
 
-    <div v-if="underwritersStore.loading" class="text-black text-2xl">
-      Loading underwriters...
+    <div v-if="packagesStore.loading" class="text-black text-2xl">
+      Loading packages...
     </div>
     <div v-else>
-      <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">
-        No underwriters found
+      <div v-if="!packagesStore.packages.length" class="text-gray-500 text-center py-4">
+        No packages found
       </div>
       <div v-else>
         <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">Underwriters</h2>
+          <h2 class="text-[30px] font-medium text-i-gray-900">Packages</h2>
           <div class="flex gap-4 items-center">
             <InputField
               type="text"
               class="text-center rounded bg-gray-50 text-sm"
             />
-            <Button @click="openModal">New Underwriter</Button>
+            <Button @click="openModal">New Package</Button>
           </div>
         </div>
         <div>
@@ -111,12 +139,13 @@
 import { computed, inject, onMounted, reactive, ref } from 'vue'
 import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
-import { useUnderwritersStore } from '@/stores/underwriters.js'
+import { usePackagesStore } from '@/stores/packages.js'
 import Icon from '@/components/icon.vue'
 import Button from '@/components/Button.vue'
 import InputField from '@/components/InputField.vue'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
+import { useUnderwritersStore } from '@/stores/underwriters.js'
 
 const useForm = Form.useForm
 
@@ -128,27 +157,32 @@ const selectedItemId = ref(null)
 const selectedItem = ref(null)
 
 let formState = reactive({
-  name: '',
-  sector: '',
-  town_city: '',
-  province: ''
+  title: '',
+  target: '',
+  description: '',
+  price: 0,
+  waiting_period: 0,
+  cover_amount: 0,
+  underwriter_id: null
 })
 
 const messageApi = inject('messageApi')
 
+const packagesStore = usePackagesStore()
+
 const underwritersStore = useUnderwritersStore()
 
 onMounted(() => {
-  underwritersStore.fetchUnderwriters()
+  packagesStore.fetchPackages()
 })
 
 const columns = [
-  { key: 'name', label: 'TITLE' },
-  { key: 'sector', label: 'SECTOR' },
-  { key: 'province', label: 'PROVINCE' },
-  { key: 'town_city', label: 'TOWN/CITY' },
-  { key: 'created_on', label: 'CREATED ON' },
-  { key: 'updated_on', label: 'UPDATED ON' }
+  { key: 'title', label: 'title' },
+  { key: 'target', label: 'target' },
+  { key: 'waiting_period', label: 'waiting period' },
+  { key: 'price', label: 'price' },
+  { key: 'cover_amount', label: 'cover amount' },
+  { key: 'description', label: 'description' }
 ]
 
 // Pagination settings
@@ -156,13 +190,13 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 
 // Calculate total items for pagination
-const totalItems = computed(() => underwritersStore.underwriters.length)
+const totalItems = computed(() => packagesStore.packages.length)
 
 // Get current page data - in a real app, this would likely come from an API
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return underwritersStore.underwriters.slice(start, end)
+  return packagesStore.packages.slice(start, end)
 })
 
 // Event handlers
@@ -196,7 +230,7 @@ const onDeleteItem = (item) => {
 
 const handleDelete = async (itemId) => {
   try {
-    await underwritersStore.deleteUnderwriter(itemId)
+    await packagesStore.deletePackage(itemId)
     selectedItemId.value = null
     showConfirm.value = false
     messageApi.success('Deleted successfully!')
@@ -210,26 +244,29 @@ const { resetFields } = useForm(formState)
 const onFinish = async values => {
   try {
     if (editing.value === true) {
-      await underwritersStore.updateUnderwriter(selectedItem.value.id, {
+      await packagesStore.updatePackage(selectedItem.value.id, {
         ...selectedItem.value,
         ...values
       })
 
       selectedItemId.value = null
     } else {
-      await underwritersStore.createUnderwriter({
+      await packagesStore.createPackage({
+        "id": "",
         ...values,
-        id: '',
-        description: '',
-        website: ''
+        active: false,
+        created_on: new Date().toISOString(),
+        updated_on: new Date().toISOString(),
+
       })
     }
 
     resetFields()
-    messageApi.success(`Underwriter ${editing ? 'updated' : 'created'} successfully!`)
+    messageApi.success(`Package ${editing ? 'updated' : 'created'} successfully!`)
 
     closeModal()
   } catch (error) {
+    console.log(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }

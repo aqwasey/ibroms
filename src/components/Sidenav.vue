@@ -82,11 +82,11 @@
       hovered: ref(false),
     },
     {
-      label: 'Underwriters',
+      label: 'Admin',
       icon: Layers,
       children: [
         { label: 'Underwriters', to: '/underwriters' },
-        { label: 'Pricing', to: '/pricing' },
+        { label: 'Packages', to: '/packages' },
         { label: 'Age Groups', to: '/age-groups' },
       ],
       open: ref(false),

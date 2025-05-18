@@ -8,7 +8,7 @@
             <th
               v-for="column in columns"
               :key="column.key"
-              class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs"
+              class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs uppercase"
             >
               {{ column.label }}
             </th>
@@ -89,7 +89,6 @@
 import { ref, computed } from 'vue'
 import { EllipsisVertical } from 'lucide-vue-next'
 import Button from '@/components/Button.vue'
-import InputField from '@/components/InputField.vue'
 
 const props = defineProps({
   columns: {
@@ -193,6 +192,8 @@ const closeDropdowns = (event) => {
 
 const truncateText = (text, length = 50) => {
   if (!text) return ''
+  if (typeof text !== 'string') return text;
+
   if (text.length <= length) return text
   return text.substring(0, length) + '...'
 }

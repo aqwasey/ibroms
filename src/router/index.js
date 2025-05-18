@@ -25,9 +25,9 @@ const router = createRouter({
       component: () => import('../views/UnderWritersView.vue'),
     },
     {
-      path: '/pricing',
-      name: 'pricing',
-      component: () => import('../views/PricingView.vue'),
+      path: '/packages',
+      name: 'packages',
+      component: () => import('../views/PackagesView.vue'),
     },
     {
       path: '/age-groups',
