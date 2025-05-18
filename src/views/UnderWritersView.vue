@@ -67,31 +67,32 @@
 
     </Modal>
 
-    <div v-if="underwritersStore.loading" class="text-black text-2xl">
-      Loading underwriters...
-    </div>
-    <div v-else>
-      <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">
-        No underwriters found
+    <div>
+      <div class="flex justify-between items-center py-4">
+        <h2 class="text-[30px] font-medium text-i-gray-900">Underwriters</h2>
+        <div class="flex gap-4 items-center">
+          <InputField
+            type="text"
+            class="text-center rounded bg-gray-50 text-sm"
+          />
+          <Button @click="openModal">New Underwriters</Button>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-x-5">
+          <Icon name="share" size="24" color="#2A2A2A" />
+          <Icon name="export" size="24" color="#2A2A2A" />
+        </div>
+      </div>
+      <div v-if="underwritersStore.loading" class="text-gray-500 text-center py-4">
+        Loading underwriters...
       </div>
       <div v-else>
-        <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">Underwriters</h2>
-          <div class="flex gap-4 items-center">
-            <InputField
-              type="text"
-              class="text-center rounded bg-gray-50 text-sm"
-            />
-            <Button @click="openModal">New Underwriter</Button>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-x-5">
-            <Icon name="share" size="24" color="#2A2A2A" />
-            <Icon name="export" size="24" color="#2A2A2A" />
-          </div>
+        <div v-if="!underwritersStore.underwriters.length" class="text-gray-500 text-center py-4">
+          No underwriter found
         </div>
         <TableComponent
+          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"

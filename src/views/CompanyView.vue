@@ -3,7 +3,7 @@
     <ConfirmDelete
       :item-id="selectedItemId"
       :loading="companyStore.adding"
-      :title="'Product'"
+      :title="'Company'"
       :text="'Are you sure you want to delete? It will be deleted permanently'"
       @delete-item="handleDelete"
       v-model:show="showConfirm" />
@@ -11,7 +11,7 @@
     <Modal
       :show="isOpen"
       :loading="companyStore.adding"
-      :title="`${editing ? 'Edit' : 'Add'} Product`"
+      :title="`${editing ? 'Edit' : 'Add'} Company`"
       :close="() => {
         isOpen = false;
       }"
@@ -95,31 +95,33 @@
 
     </Modal>
 
-    <div v-if="companyStore.loading" class="text-black text-2xl">
-      Loading company...
-    </div>
-    <div v-else>
-      <div v-if="!companyStore.company.length" class="text-gray-500 text-center py-4">
-        No company found
+
+    <div>
+      <div class="flex justify-between items-center py-4">
+        <h2 class="text-[30px] font-medium text-i-gray-900">Company</h2>
+        <div class="flex gap-4 items-center">
+          <InputField
+            type="text"
+            class="text-center rounded bg-gray-50 text-sm"
+          />
+          <Button @click="openModal">New Company</Button>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-x-5">
+          <Icon name="share" size="24" color="#2A2A2A" />
+          <Icon name="export" size="24" color="#2A2A2A" />
+        </div>
+      </div>
+      <div v-if="companyStore.loading" class="text-gray-500 text-center py-4">
+        Loading company...
       </div>
       <div v-else>
-        <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">Company</h2>
-          <div class="flex gap-4 items-center">
-            <InputField
-              type="text"
-              class="text-center rounded bg-gray-50 text-sm"
-            />
-            <Button @click="openModal">New Product</Button>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-x-5">
-            <Icon name="share" size="24" color="#2A2A2A" />
-            <Icon name="export" size="24" color="#2A2A2A" />
-          </div>
+        <div v-if="!companyStore.company.length" class="text-gray-500 text-center py-4">
+          No company found
         </div>
         <TableComponent
+          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -230,7 +232,7 @@ const onDeleteItem = (item) => {
 
 const handleDelete = async (itemId) => {
   try {
-    await companyStore.deleteProduct(itemId)
+    await companyStore.deleteCompany(itemId)
     selectedItemId.value = null
     showConfirm.value = false
     messageApi.success('Deleted successfully!')
@@ -244,25 +246,25 @@ const { resetFields } = useForm(formState)
 const onFinish = async values => {
   try {
     if (editing.value === true) {
-      await companyStore.updateProduct(selectedItem.value.id, {
+      await companyStore.updateCompany(selectedItem.value.id, {
         ...selectedItem.value,
         ...values
       })
 
       selectedItemId.value = null
     } else {
-      await companyStore.createProduct({
-        "id": "",
+      await companyStore.createCompany({
+        'id': '',
         ...values,
         active: false,
         created_on: new Date().toISOString(),
-        updated_on: new Date().toISOString(),
+        updated_on: new Date().toISOString()
 
       })
     }
 
     resetFields()
-    messageApi.success(`Product ${editing ? 'updated' : 'created'} successfully!`)
+    messageApi.success(`Company ${editing ? 'updated' : 'created'} successfully!`)
 
     closeModal()
   } catch (error) {

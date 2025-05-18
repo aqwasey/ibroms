@@ -17,6 +17,7 @@
       }"
     >
       <a-form
+        :form="form"
         size="large"
         layout="vertical"
         :model="formState"
@@ -86,7 +87,7 @@
           <a-textarea v-model:value="formState.description" />
         </a-form-item>
         <div class="flex justify-end gap-3">
-          <button @click="isOpen = false" class="btn-light">
+          <button @click="closeModal" class="btn-light">
             Cancel
           </button>
           <a-button type="primary" class="btn-primary" html-type="submit">Save</a-button>
@@ -95,31 +96,32 @@
 
     </Modal>
 
-    <div v-if="packagesStore.loading" class="text-black text-2xl">
-      Loading packages...
-    </div>
-    <div v-else>
-      <div v-if="!packagesStore.packages.length" class="text-gray-500 text-center py-4">
-        No packages found
+    <div>
+      <div class="flex justify-between items-center py-4">
+        <h2 class="text-[30px] font-medium text-i-gray-900">Packages</h2>
+        <div class="flex gap-4 items-center">
+          <InputField
+            type="text"
+            class="text-center rounded bg-gray-50 text-sm"
+          />
+          <Button @click="onAddItem">New Packages</Button>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-x-5">
+          <Icon name="share" size="24" color="#2A2A2A" />
+          <Icon name="export" size="24" color="#2A2A2A" />
+        </div>
+      </div>
+      <div v-if="packagesStore.loading" class="text-gray-500 text-center py-4">
+        Loading packages...
       </div>
       <div v-else>
-        <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">Packages</h2>
-          <div class="flex gap-4 items-center">
-            <InputField
-              type="text"
-              class="text-center rounded bg-gray-50 text-sm"
-            />
-            <Button @click="openModal">New Package</Button>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-x-5">
-            <Icon name="share" size="24" color="#2A2A2A" />
-            <Icon name="export" size="24" color="#2A2A2A" />
-          </div>
+        <div v-if="!packagesStore.packages.length" class="text-gray-500 text-center py-4">
+          No packages found
         </div>
         <TableComponent
+          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -136,7 +138,7 @@
 </template>
 
 <script setup>
-import { computed, inject, onMounted, reactive, ref } from 'vue'
+import { computed, inject, onMounted, ref } from 'vue'
 import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { usePackagesStore } from '@/stores/packages.js'
@@ -149,14 +151,7 @@ import { useUnderwritersStore } from '@/stores/underwriters.js'
 
 const useForm = Form.useForm
 
-
-const isOpen = ref(false)
-const showConfirm = ref(false)
-const editing = ref(false)
-const selectedItemId = ref(null)
-const selectedItem = ref(null)
-
-let formState = reactive({
+const formState = ref({
   title: '',
   target: '',
   description: '',
@@ -166,10 +161,17 @@ let formState = reactive({
   underwriter_id: null
 })
 
+const form = useForm(formState)
+
+const isOpen = ref(false)
+const showConfirm = ref(false)
+const editing = ref(false)
+const selectedItemId = ref(null)
+const selectedItem = ref(null)
+
 const messageApi = inject('messageApi')
 
 const packagesStore = usePackagesStore()
-
 const underwritersStore = useUnderwritersStore()
 
 onMounted(() => {
@@ -185,21 +187,17 @@ const columns = [
   { key: 'description', label: 'description' }
 ]
 
-// Pagination settings
 const itemsPerPage = ref(10)
 const currentPage = ref(1)
 
-// Calculate total items for pagination
 const totalItems = computed(() => packagesStore.packages.length)
 
-// Get current page data - in a real app, this would likely come from an API
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
   return packagesStore.packages.slice(start, end)
 })
 
-// Event handlers
 const onPageChanged = (page) => {
   currentPage.value = page
 }
@@ -213,11 +211,22 @@ const openModal = () => {
 }
 
 const closeModal = () => {
+  form.resetFields()
   isOpen.value = false
 }
 
+const onAddItem = () => {
+  form.resetFields()
+  selectedItem.value = null
+  editing.value = false
+  openModal()
+}
+
 const onEditItem = (item) => {
-  formState = { ...formState, ...item }
+  formState.value = {
+    ...formState.value,
+    ...item
+  }
   selectedItem.value = item
   editing.value = true
   openModal()
@@ -239,8 +248,6 @@ const handleDelete = async (itemId) => {
   }
 }
 
-const { resetFields } = useForm(formState)
-
 const onFinish = async values => {
   try {
     if (editing.value === true) {
@@ -248,26 +255,24 @@ const onFinish = async values => {
         ...selectedItem.value,
         ...values
       })
-
       selectedItemId.value = null
     } else {
       await packagesStore.createPackage({
-        "id": "",
+        id: '',
         ...values,
         active: false,
         created_on: new Date().toISOString(),
-        updated_on: new Date().toISOString(),
-
+        updated_on: new Date().toISOString()
       })
     }
 
-    resetFields()
-    messageApi.success(`Package ${editing ? 'updated' : 'created'} successfully!`)
-
+    form.value.resetFields()
+    messageApi.success(`Package ${editing.value ? 'updated' : 'created'} successfully!`)
     closeModal()
   } catch (error) {
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }
 </script>
+
 
