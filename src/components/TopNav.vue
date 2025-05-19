@@ -4,13 +4,13 @@
   >
     <div class="relative" @click="toggleDropdown">
       <div class="flex gap-4 items-center space-x-3 cursor-pointer">
-        <span class="text-sm font-medium text-gray-700">Kwesi Amoah</span>
-        <img
-          src="#"
-          alt="avatar"
-          class="w-8 h-8 rounded-full border border-gray-300 object-cover"
-        />
-        <ChevronDown />
+        <div class="bg-[#FFB31F] h-10 w-10 rounded-full">
+        </div>
+        <div>
+          <p class="!text-sm !font-medium !text-black">Kwesi Amoah</p>
+          <p class="text-xs text-[#AFAFAF]">kwesi@gmail.com</p>
+        </div>
+        <ChevronDown class="!text-[#929292]" size="24" />
       </div>
 
       <transition name="fade">

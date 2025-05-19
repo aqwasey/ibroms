@@ -69,17 +69,33 @@
 
     <div>
       <div class="flex justify-between items-center py-4">
-        <h2 class="text-[30px] font-medium text-i-gray-900">Underwriters</h2>
+        <h2 class="!text-[32px] !font-semibold text-[#222222]">Underwriters</h2>
         <div class="flex gap-4 items-center">
-          <InputField
-            type="text"
-            class="text-center rounded bg-gray-50 text-sm"
-          />
-          <Button @click="openModal">New Underwriters</Button>
+          <a-input size="large" class="!h-11 !w-[292px]" placeholder="Search Underwriters">
+            <template #prefix>
+              <component class="text-gray-500" :is="Search" />
+            </template>
+          </a-input>
+          <a-button class="btn-primary" @click="openModal">
+            <component class="w-[16px]" :is="Plus" />
+            New Underwriters
+          </a-button>
         </div>
       </div>
       <div>
-        <div class="flex items-center gap-x-5">
+        <div class="flex items-center gap-x-5 !mb-5">
+          <a-select class="filter-select" placeholder="PROVINCE" show-search>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+          </a-select>
+          <a-select class="filter-select" placeholder="SECTOR" show-search>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+          </a-select>
+          <a-select class="filter-select" placeholder="TOWN/CITY" show-search>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+            <a-select-option value="Province 1">Province 1</a-select-option>
+          </a-select>
           <Icon name="share" size="24" color="#2A2A2A" />
           <Icon name="export" size="24" color="#2A2A2A" />
         </div>
@@ -114,10 +130,9 @@ import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
 import Icon from '@/components/icon.vue'
-import Button from '@/components/Button.vue'
-import InputField from '@/components/InputField.vue'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
+import { Search, Plus } from 'lucide-vue-next'
 
 const useForm = Form.useForm
 

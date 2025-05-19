@@ -150,12 +150,11 @@ onMounted(() => {
 })
 
 const columns = [
-  { key: 'name', label: 'TITLE' },
-  { key: 'sector', label: 'SECTOR' },
-  { key: 'province', label: 'PROVINCE' },
-  { key: 'town_city', label: 'TOWN/CITY' },
-  { key: 'created_on', label: 'CREATED ON' },
-  { key: 'updated_on', label: 'UPDATED ON' }
+  { key: 'bank_name', label: 'bank name' },
+  { key: 'account_no', label: 'account no' },
+  { key: 'account_type', label: 'account type' },
+  { key: 'email', label: 'email' },
+  { key: 'purpose', label: 'purpose' }
 ]
 
 // Pagination settings

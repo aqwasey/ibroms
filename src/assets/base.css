@@ -27,13 +27,12 @@
   --color-secondary: #202124; /* Dark Gray/Black */
   --color-accent: #e8f0fe; /* Light Blue */
   --color-background: #F9FAFB; /* White */
-  --color-background-secondary: #CF7F081A; /* White */
+  --color-background-secondary: #CF7F081A;
   --color-text: #0b0f13; /* Gray */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
     --color-background-soft: var(--vt-c-black-soft);
     --color-background-mute: var(--vt-c-black-mute);
 
@@ -41,7 +40,6 @@
     --color-border-hover: var(--vt-c-divider-dark-1);
 
     --color-heading: var(--vt-c-text-dark-1);
-    --color-text: var(--vt-c-text-dark-2);
 
     /* Custom colors for dark mode */
     --color-primary: #CF7F08; /* Yellow/Orange */
@@ -62,27 +60,12 @@
 }
 
 body {
-  min-height: 100vh;
+  background: #fafafa;
   color: var(--color-text);
-  background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
+  transition: color 0.5s,
+  background-color 0.5s;
   line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 15px;
+  font-family: Inter, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
