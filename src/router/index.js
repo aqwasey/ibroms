@@ -20,11 +20,6 @@ const router = createRouter({
       component: () => import('../views/BankAccountsView.vue'),
     },
     {
-      path: '/companies',
-      name: 'companies',
-      component: () => import('../views/CompanyView.vue'),
-    },
-    {
       path: '/category',
       name: 'category',
       component: () => import('../views/CategoryView.vue'),

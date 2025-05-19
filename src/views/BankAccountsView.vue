@@ -11,7 +11,7 @@
     <Modal
       :show="isOpen"
       :loading="bankAccountsStore.adding"
-      :title="`${editing ? 'Edit' : 'Add'} BankAccount`"
+      :title="`${editing ? 'Edit' : 'Add'} Bank Account`"
       :close="() => {
         isOpen = false;
       }"
@@ -24,38 +24,43 @@
         autocomplete="off"
         @finish="onFinish">
         <a-form-item
-          label="Title"
-          name="name"
+          label="bank name"
+          name="bank_name"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.name" />
+          <a-input v-model:value="formState.bank_name" />
+        </a-form-item>
+        <a-form-item
+          label="account no"
+          name="account_no"
+          :rules="[{ required: true, message: 'Required' }]">
+          <a-input v-model:value="formState.account_no" />
         </a-form-item>
 
         <a-form-item
-          label="Sector"
-          name="sector"
+          label="account type"
+          name="account_type"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Sector" show-search allow-clear
-                    v-model:value="formState.sector">
-            <a-select-option value="Funeral">Funeral</a-select-option>
-            <a-select-option value="Sector 1">Sector 1</a-select-option>
+          <a-select placeholder="Select account type" show-search allow-clear
+                    v-model:value="formState.account_type">
+            <a-select-option value="Type 1">Type 1</a-select-option>
+            <a-select-option value="Type 2">Type 2</a-select-option>
           </a-select>
         </a-form-item>
 
         <a-form-item
-          label="Province"
-          name="province"
-          :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select Province" allow-clear v-model:value="formState.province">
-            <a-select-option value="Province 1">Province 1</a-select-option>
-            <a-select-option value="Province 2">Province 2</a-select-option>
-          </a-select>
+          label="email"
+          name="email"
+          :rules="[{ required: true, message: 'Required' }, { type: 'email', message: 'Not a valid mail'}]">
+          <a-input v-model:value="formState.email" />
         </a-form-item>
-
         <a-form-item
-          label="Town/City"
-          name="town_city"
+          label="purpose"
+          name="purpose"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.town_city" />
+          <a-select placeholder="Select purpose" allow-clear v-model:value="formState.purpose">
+            <a-select-option value="Purpose 1">Purpose 1</a-select-option>
+            <a-select-option value="Purpose 2">Purpose 2</a-select-option>
+          </a-select>
         </a-form-item>
         <div class="flex justify-end gap-3">
           <button @click="isOpen = false" class="btn-light">
@@ -67,31 +72,32 @@
 
     </Modal>
 
-    <div v-if="bankAccountsStore.loading" class="text-black text-2xl">
-      Loading bankAccounts...
-    </div>
-    <div v-else>
-      <div v-if="!bankAccountsStore.bankAccounts.length" class="text-gray-500 text-center py-4">
-        No bankAccounts found
+    <div>
+      <div class="flex justify-between items-center py-4">
+        <h2 class="text-[30px] font-medium text-i-gray-900">Bank Accounts</h2>
+        <div class="flex gap-4 items-center">
+          <InputField
+            type="text"
+            class="text-center rounded bg-gray-50 text-sm"
+          />
+          <Button @click="openModal">New Bank Account</Button>
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-x-5">
+          <Icon name="share" size="24" color="#2A2A2A" />
+          <Icon name="export" size="24" color="#2A2A2A" />
+        </div>
+      </div>
+      <div v-if="bankAccountsStore.loading" class="text-gray-500 text-center py-4">
+        Loading bankAccounts...
       </div>
       <div v-else>
-        <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">BankAccounts</h2>
-          <div class="flex gap-4 items-center">
-            <InputField
-              type="text"
-              class="text-center rounded bg-gray-50 text-sm"
-            />
-            <Button @click="openModal">New BankAccount</Button>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center gap-x-5">
-            <Icon name="share" size="24" color="#2A2A2A" />
-            <Icon name="export" size="24" color="#2A2A2A" />
-          </div>
+        <div v-if="!bankAccountsStore.bankAccounts.length" class="text-gray-500 text-center py-4">
+          No bankAccount found
         </div>
         <TableComponent
+          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -119,8 +125,6 @@ import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
 
 const useForm = Form.useForm
-
-
 const isOpen = ref(false)
 const showConfirm = ref(false)
 const editing = ref(false)
@@ -128,10 +132,13 @@ const selectedItemId = ref(null)
 const selectedItem = ref(null)
 
 let formState = reactive({
-  name: '',
-  sector: '',
-  town_city: '',
-  province: ''
+  bank_name: '',
+  account_no: '',
+  account_type: '',
+  email: '',
+  purpose: '',
+  reference: '',
+  assigned: ''
 })
 
 const messageApi = inject('messageApi')
@@ -219,9 +226,8 @@ const onFinish = async values => {
     } else {
       await bankAccountsStore.createBankAccount({
         ...values,
-        id: '',
-        description: '',
-        website: ''
+        "reference": "string",
+        company_id: 'b45cffe0-84dd-3d20-d928-bee85e7b0f21',
       })
     }
 
@@ -234,4 +240,3 @@ const onFinish = async values => {
   }
 }
 </script>
-
