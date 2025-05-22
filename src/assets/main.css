@@ -3,6 +3,7 @@
 
 
 @theme {
+  --color-i-gray-20: #F2F2F2;
   --color-i-gray-50: #E9EFF4;
   --color-i-gray-800: #334054;
   --color-i-black-soft: #222222;
@@ -83,6 +84,14 @@ label {
   border-color: var(--color-accent);
 }
 
+.btn {
+  @apply !h-[48px];
+}
+
+.btn-gray {
+  @apply !bg-i-gray-20 !border-i-gray-20 !text-black !rounded-lg !text-base !font-medium;
+}
+
 .btn-light {
   @apply h-10 px-4 bg-white border border-gray-300 cursor-pointer text-base text-i-black-soft rounded-lg transition-all;
 }
@@ -98,5 +107,25 @@ label {
 .filter-select {
   .ant-select-selector {
     @apply !bg-[#FAFAFA] !text-black;
+  }
+}
+
+
+input:-webkit-autofill{
+  -webkit-background-clip: text !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  box-shadow: inset 0 0 20px 20px transparent !important;
+}
+
+input:-ms-input-placeholder {
+  background-color: transparent !important;
+}
+
+.account-form {
+  label {
+    @apply !font-medium !-mb-5 !text-base;
+  }
+  .ant-select-selector, input {
+    @apply !h-[55px] !rounded-lg;
   }
 }

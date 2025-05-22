@@ -1,10 +1,10 @@
 <template>
   <div class="flex h-screen max-w-screen-2xl !mx-auto">
     <Sidenav class="w-[312px] bg-gray-800 text-white" />
-    <div class="flex-1 flex flex-col border">
+    <div class="flex-1 flex flex-col border bg-white">
       <TopNav class="h-16 bg-white shadow px-4" />
 
-      <div class="flex-1 overflow-y-auto p-4 bg-[#FCFCFD]">
+      <div class="flex-1 overflow-y-auto p-4">
         <MessageProvider>
           <RouterView />
         </MessageProvider>

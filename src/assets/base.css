@@ -49,14 +49,15 @@
     --color-text: #e8eaed; /* Light Gray Text */
   }
 }
+.clip-top-half {
+  clip-path: inset(70% 0 0 0);
+}
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
-  /* outline: 1px solid; */
 }
 
 body {
