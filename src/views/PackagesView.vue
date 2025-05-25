@@ -159,8 +159,6 @@ import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
 import { usePackagesStore } from '@/stores/packages.js'
 import Icon from '@/components/icon.vue'
-import Button from '@/components/Button.vue'
-import InputField from '@/components/InputField.vue'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
@@ -275,18 +273,13 @@ const onFinish = async values => {
       selectedItemId.value = null
     } else {
       await packagesStore.createPackage({
-        id: '',
         ...values,
-        active: false,
-        created_on: new Date().toISOString(),
-        updated_on: new Date().toISOString()
       })
     }
-
-    form.value.resetFields()
     messageApi.success(`Package ${editing.value ? 'updated' : 'created'} successfully!`)
     closeModal()
   } catch (error) {
+    console.log(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }

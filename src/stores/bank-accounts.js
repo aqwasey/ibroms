@@ -13,8 +13,8 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     error.value = null
     // b45cffe0-84dd-3d20-d928-bee85e7b0f21
     try {
-      const res = await api.get('/bank-accounts/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
-      bankAccounts.value = res.info
+      const res = await api.get('/bank-accounts/company/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
+      bankAccounts.value = res.data
     } catch (err) {
       error.value = 'Failed to load bankAccounts'
     } finally {

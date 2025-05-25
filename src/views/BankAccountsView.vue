@@ -93,7 +93,7 @@
         Loading bankAccounts...
       </div>
       <div v-else>
-        <div v-if="!bankAccountsStore.bankAccounts.length" class="text-gray-500 text-center py-4">
+        <div v-if="!bankAccountsStore?.bankAccounts?.length" class="text-gray-500 text-center py-4">
           No bankAccount found
         </div>
         <TableComponent
@@ -235,6 +235,7 @@ const onFinish = async values => {
 
     closeModal()
   } catch (error) {
+    console.log(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
 }
