@@ -56,7 +56,7 @@
     <div class="flex justify-between items-center py-4">
       <h2 class="text-2xl font-semibold text-[#222222]">Packages</h2>
       <div class="flex items-center gap-4">
-        <a-input size="large" class="h-11 w-[292px]" placeholder="Search Packages">
+        <a-input size="large" class="h-11 w-[300px]" placeholder="Search Packages">
           <template #prefix>
             <component class="text-gray-500" :is="Search" />
           </template>
@@ -72,35 +72,34 @@
     <!-- Filters -->
     <div class="flex items-center gap-4 mb-5">
       <!-- Filters -->
-      <a-select class="w-48 px-3 py-2" placeholder="PROVINCE" show-search>
+      <a-select class="w-48 h-10" dropdown-class-name="custom-select-dropdown" placeholder="PROVINCE" show-search>
         <a-select-option value="Province 1">Province 1</a-select-option>
         <a-select-option value="Province 2">Province 2</a-select-option>
       </a-select>
 
-      <a-select class="w-48 px-3 py-2" placeholder="SECTOR" show-search>
+      <a-select class="w-48 h-10" dropdown-class-name="custom-select-dropdown" placeholder="SECTOR" show-search>
         <a-select-option value="Sector 1">Sector 1</a-select-option>
         <a-select-option value="Sector 2">Sector 2</a-select-option>
       </a-select>
 
-      <a-select class="w-48 px-3 py-2" placeholder="TOWN/CITY" show-search>
+      <a-select class="w-48 h-10" dropdown-class-name="custom-select-dropdown" placeholder="TOWN/CITY" show-search>
         <a-select-option value="City 1">City 1</a-select-option>
         <a-select-option value="City 2">City 2</a-select-option>
       </a-select>
 
-      <!-- Share Icon Button -->
+
+      <!-- Share Button -->
       <button @click="onShare"
-        class="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:scale-95 transition duration-150 shadow-sm">
+        class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 hover:bg-gray-100 active:scale-95 transition duration-150 rounded-lg shadow-sm">
         <Icon name="share" class="w-6 h-6 text-[#2A2A2A]" />
       </button>
 
-      <!-- Export Icon Button -->
+      <!-- Export Button -->
       <button @click="onExport"
-        class="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100 hover:bg-gray-200 active:scale-95 transition duration-150 shadow-sm">
+        class="w-10 h-10 flex items-center justify-center bg-white border border-gray-200 hover:bg-gray-100 active:scale-95 transition duration-150 rounded-lg shadow-sm">
         <Icon name="export" class="w-6 h-6 text-[#2A2A2A]" />
       </button>
     </div>
-
-
 
     <!-- Table Section -->
     <div v-if="packagesStore.loading" class="flex flex-col items-center justify-center py-16 text-gray-500">
