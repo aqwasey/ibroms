@@ -1,89 +1,45 @@
 <template>
   <div class="p-4">
-    <ConfirmDelete
-      :item-id="selectedItemId"
-      :loading="packagesStore.adding"
-      :title="'Package'"
-      :text="'Are you sure you want to delete? It will be deleted permanently'"
-      @delete-item="handleDelete"
+    <ConfirmDelete :item-id="selectedItemId" :loading="packagesStore.adding" :title="'Package'"
+      :text="'Are you sure you want to delete? It will be deleted permanently'" @delete-item="handleDelete"
       v-model:show="showConfirm" />
 
-    <Modal
-      :show="isOpen"
-      :loading="packagesStore.adding"
-      :title="`${editing ? 'Edit' : 'Add'} Package`"
-      :close="() => {
-        isOpen = false;
-      }"
-    >
-      <a-form
-        :form="form"
-        size="large"
-        layout="vertical"
-        :model="formState"
-        name="basic"
-        autocomplete="off"
+    <Modal :show="isOpen" :loading="packagesStore.adding" :title="`${editing ? 'Edit' : 'Add'} Package`" :close="() => {
+      isOpen = false;
+    }">
+      <a-form :form="form" size="large" layout="vertical" :model="formState" name="basic" autocomplete="off"
         @finish="onFinish">
-        <a-form-item
-          label="Title"
-          name="title"
-          :rules="[{ required: true, message: 'Required' }]">
+        <a-form-item label="Title" name="title" :rules="[{ required: true, message: 'Required' }]">
           <a-input v-model:value="formState.title" />
         </a-form-item>
 
-        <a-form-item
-          label="Target"
-          name="target"
-          :rules="[{ required: true, message: 'Required' }]">
+        <a-form-item label="Target" name="target" :rules="[{ required: true, message: 'Required' }]">
           <a-input v-model:value="formState.target" />
         </a-form-item>
         <div class="grid grid-cols-3 gap-2">
-          <a-form-item
-            label="Price"
-            name="price"
-            :rules="[{ required: true, message: 'Required' }]">
+          <a-form-item label="Price" name="price" :rules="[{ required: true, message: 'Required' }]">
             <a-input-number class="!w-full" v-model:value="formState.price" />
           </a-form-item>
 
-          <a-form-item
-            label="Waiting Period"
-            name="waiting_period"
-            :rules="[{ required: true, message: 'Required' }]">
+          <a-form-item label="Waiting Period" name="waiting_period" :rules="[{ required: true, message: 'Required' }]">
             <a-input-number class="!w-full" v-model:value="formState.waiting_period" />
           </a-form-item>
 
-          <a-form-item
-            label="Cover Amount"
-            name="cover_amount"
-            :rules="[{ required: true, message: 'Required' }]">
+          <a-form-item label="Cover Amount" name="cover_amount" :rules="[{ required: true, message: 'Required' }]">
             <a-input-number class="!w-full" v-model:value="formState.cover_amount" />
           </a-form-item>
         </div>
 
-        <a-form-item
-          label="Underwriter"
-          name="underwriter_id"
-          :rules="[{ required: true, message: 'Required' }]">
-          <a-select
-            @focus="underwritersStore.fetchUnderwriters"
-            placeholder="Select Underwriter"
-            allow-clear
-            v-model:value="formState.underwriter_id"
-          >
-            <a-select-option
-              v-for="u in underwritersStore.underwriters"
-              :key="u.id"
-              :value="u.id"
-            >
+        <a-form-item label="Underwriter" name="underwriter_id" :rules="[{ required: true, message: 'Required' }]">
+          <a-select @focus="underwritersStore.fetchUnderwriters" placeholder="Select Underwriter" allow-clear
+            v-model:value="formState.underwriter_id">
+            <a-select-option v-for="u in underwritersStore.underwriters" :key="u.id" :value="u.id">
               {{ u.name }}
             </a-select-option>
           </a-select>
         </a-form-item>
 
-        <a-form-item
-          label="Description"
-          name="description"
-          :rules="[{ required: true, message: 'Required' }]">
+        <a-form-item label="Description" name="description" :rules="[{ required: true, message: 'Required' }]">
           <a-textarea v-model:value="formState.description" />
         </a-form-item>
         <div class="flex justify-end gap-3">
@@ -125,29 +81,20 @@
             <a-select-option value="Province 1">Province 1</a-select-option>
             <a-select-option value="Province 1">Province 1</a-select-option>
           </a-select>
-          <Icon name="share" size="24" color="#2A2A2A" />
-          <Icon name="export" size="24" color="#2A2A2A" />
+          <Icon name="share" size="8" color="#2A2A2A" />
+          <Icon name="export" size="8" color="#2A2A2A" />
         </div>
       </div>
       <div v-if="packagesStore.loading" class="text-gray-500 text-center py-4">
         Loading packages...
       </div>
       <div v-else>
-        <div v-if="!packagesStore.packages.length" class="text-gray-500 text-center py-4">
+        <div v-if="!packagesStore.items.length" class="text-gray-500 text-center py-4">
           No packages found
         </div>
-        <TableComponent
-          v-else
-          :columns="columns"
-          :data="data"
-          :items-per-page="itemsPerPage"
-          :total-items="totalItems"
-          :current-page="currentPage"
-          @page-changed="onPageChanged"
-          @action="onAction"
-          @edit-item="onEditItem"
-          @delete-item="onDeleteItem"
-        />
+        <TableComponent v-else :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems"
+          :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem"
+          @delete-item="onDeleteItem" />
       </div>
     </div>
   </div>
@@ -177,20 +124,17 @@ const formState = ref({
 })
 
 const form = useForm(formState)
-
 const isOpen = ref(false)
 const showConfirm = ref(false)
 const editing = ref(false)
 const selectedItemId = ref(null)
 const selectedItem = ref(null)
-
 const messageApi = inject('messageApi')
-
 const packagesStore = usePackagesStore()
 const underwritersStore = useUnderwritersStore()
 
-onMounted(() => {
-  packagesStore.fetchPackages()
+onMounted(async () => {
+  await packagesStore.fetchPackages()
 })
 
 const columns = [
@@ -204,7 +148,6 @@ const columns = [
 
 const itemsPerPage = ref(10)
 const currentPage = ref(1)
-
 const totalItems = computed(() => packagesStore.packages.length)
 
 const data = computed(() => {
@@ -284,5 +227,3 @@ const onFinish = async values => {
   }
 }
 </script>
-
-

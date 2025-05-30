@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import api from '@/utils/api.js'
 
 export const usePackagesStore = defineStore('packages', () => {
-  const packages = ref([])
+  const items = ref([])
   const loading = ref(false)
   const adding = ref(false)
   const error = ref(null)
@@ -14,7 +14,7 @@ export const usePackagesStore = defineStore('packages', () => {
 
     try {
       const res = await api.get('/packages/')
-      packages.value = res.info
+      items.value = res.info
     } catch (err) {
       error.value = 'Failed to load packages'
     } finally {
@@ -28,7 +28,7 @@ export const usePackagesStore = defineStore('packages', () => {
 
     try {
       const res = await api.post('/packages/', packageData)
-      packages.value.push(res.data)
+      items.value.push(res.data)
       return res.data
     } catch (err) {
       error.value = 'Failed to create package'
@@ -44,7 +44,7 @@ export const usePackagesStore = defineStore('packages', () => {
 
     try {
       await api.delete(`/packages/${packageId}`)
-      packages.value = packages.value.filter(u => u.id !== packageId)
+      items.value = items.value.filter(u => u.id !== packageId)
     } catch (err) {
       error.value = 'Failed to delete package'
       throw err
@@ -59,9 +59,9 @@ export const usePackagesStore = defineStore('packages', () => {
 
     try {
       const res = await api.patch(`/packages/${packageId}`, packageData)
-      const index = packages.value.findIndex(u => u.id === packageId)
+      const index = items.value.findIndex(u => u.id === packageId)
       if (index !== -1) {
-        packages.value[index] = res.data
+        items.value[index] = res.data
       }
       return res.data
     } catch (err) {
@@ -73,7 +73,7 @@ export const usePackagesStore = defineStore('packages', () => {
   }
 
   return {
-    packages,
+    items,
     loading,
     adding,
     error,

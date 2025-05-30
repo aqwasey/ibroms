@@ -1,7 +1,7 @@
 <template>
   <aside class="h-screen !bg-[#FCFCFD] border-r border-gray-200 flex flex-col">
     <div class="flex items-center justify-between pl-8 pr-10 pt-5 pb-8">
-      <span class="text-[22px] !font-bold text-gray-800">AGENT APP</span>
+      <span class="text-[22px] !font-bold text-gray-800">Pito iBROMS</span>
       <div class="border rounded-lg px-2 py-1 border-[#F0F0F0]">
         <Icon name="chevron-left" color="#2A2A2A" />
       </div>
