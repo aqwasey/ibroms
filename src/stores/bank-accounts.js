@@ -13,7 +13,7 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     error.value = null
     // b45cffe0-84dd-3d20-d928-bee85e7b0f21
     try {
-      const res = await api.get('/bank-accounts/company/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
+      const res = await api().get('/bank-accounts/company/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
       bankAccounts.value = res.data
     } catch (err) {
       error.value = 'Failed to load bankAccounts'
@@ -27,7 +27,7 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     error.value = null
 
     try {
-      const res = await api.post('/bank-accounts/', bankAccountData)
+      const res = await api().post('/bank-accounts/', bankAccountData)
       bankAccounts.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     error.value = null
 
     try {
-      await api.delete(`/bank-accounts/${bankAccountId}`)
+      await api().delete(`/bank-accounts/${bankAccountId}`)
       bankAccounts.value = bankAccounts.value.filter(u => u.id !== bankAccountId)
     } catch (err) {
       error.value = 'Failed to delete bankAccount'
@@ -58,7 +58,7 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     error.value = null
 
     try {
-      const res = await api.patch(`/bank-accounts/${bankAccountId}`, bankAccountData)
+      const res = await api().patch(`/bank-accounts/${bankAccountId}`, bankAccountData)
       const index = bankAccounts.value.findIndex(u => u.id === bankAccountId)
       if (index !== -1) {
         bankAccounts.value[index] = res.data

@@ -129,3 +129,7 @@ input:-ms-input-placeholder {
     @apply !h-[55px] !rounded-lg;
   }
 }
+
+.ant-form-item-row {
+  @apply -mb-5;
+}

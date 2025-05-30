@@ -13,7 +13,7 @@ export const usePackagesStore = defineStore('packages', () => {
     error.value = null
 
     try {
-      const res = await api.get('/packages/')
+      const res = await api().get('/packages/')
       items.value = res.info
     } catch (err) {
       error.value = 'Failed to load packages'
@@ -27,7 +27,7 @@ export const usePackagesStore = defineStore('packages', () => {
     error.value = null
 
     try {
-      const res = await api.post('/packages/', packageData)
+      const res = await api().post('/packages/', packageData)
       items.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const usePackagesStore = defineStore('packages', () => {
     error.value = null
 
     try {
-      await api.delete(`/packages/${packageId}`)
+      await api().delete(`/packages/${packageId}`)
       items.value = items.value.filter(u => u.id !== packageId)
     } catch (err) {
       error.value = 'Failed to delete package'
@@ -58,7 +58,7 @@ export const usePackagesStore = defineStore('packages', () => {
     error.value = null
 
     try {
-      const res = await api.patch(`/packages/${packageId}`, packageData)
+      const res = await api().patch(`/packages/${packageId}`, packageData)
       const index = items.value.findIndex(u => u.id === packageId)
       if (index !== -1) {
         items.value[index] = res.data

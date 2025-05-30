@@ -13,7 +13,7 @@ export const useProductsStore = defineStore('products', () => {
     error.value = null
 
     try {
-      const res = await api.get('/products/')
+      const res = await api().get('/products/')
       products.value = res.info
     } catch (err) {
       error.value = 'Failed to load products'
@@ -27,7 +27,7 @@ export const useProductsStore = defineStore('products', () => {
     error.value = null
 
     try {
-      const res = await api.post('/products/', productData)
+      const res = await api().post('/products/', productData)
       products.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const useProductsStore = defineStore('products', () => {
     error.value = null
 
     try {
-      await api.delete(`/products/${productId}`)
+      await api().delete(`/products/${productId}`)
       products.value = products.value.filter(u => u.id !== productId)
     } catch (err) {
       error.value = 'Failed to delete product'
@@ -58,7 +58,7 @@ export const useProductsStore = defineStore('products', () => {
     error.value = null
 
     try {
-      const res = await api.patch(`/products/${productId}`, productData)
+      const res = await api().patch(`/products/${productId}`, productData)
       const index = products.value.findIndex(u => u.id === productId)
       if (index !== -1) {
         products.value[index] = res.data

@@ -13,7 +13,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
 
     try {
-      const res = await api.get('/underwriters/')
+      const res = await api().get('/underwriters/')
       underwriters.value = res.data
     } catch (err) {
       error.value = 'Failed to load underwriters'
@@ -27,7 +27,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
 
     try {
-      const res = await api.post('/underwriters/', underwriterData)
+      const res = await api().post('/underwriters/', underwriterData)
       underwriters.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
 
     try {
-      await api.delete(`/underwriters/${underwriterId}`)
+      await api().delete(`/underwriters/${underwriterId}`)
       underwriters.value = underwriters.value.filter(u => u.id !== underwriterId)
     } catch (err) {
       error.value = 'Failed to delete underwriter'
@@ -58,7 +58,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
 
     try {
-      const res = await api.patch(`/underwriters/${underwriterId}`, underwriterData)
+      const res = await api().patch(`/underwriters/${underwriterId}`, underwriterData)
       const index = underwriters.value.findIndex(u => u.id === underwriterId)
       if (index !== -1) {
         underwriters.value[index] = res.data

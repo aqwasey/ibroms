@@ -1,21 +1,13 @@
-// • Singleton pattern → one configured Axios instance everywhere
-// • Automatic baseURL & timeout (override via env variable)
-// • Request interceptor injects JWT from localStorage (customize as needed)
-// • Response interceptor hooks for global error handling / refresh-token logic
-// • Helper methods return the response data directly (less boilerplate)
-// ------------------------------------------------------------
-
+// api.js
 import axios from 'axios';
 
 class Api {
-  static _instance;
+  static _instances = {};
 
-  constructor() {
-    if (Api._instance) {
-      return Api._instance;
+  constructor(baseURL) {
+    if (Api._instances[baseURL]) {
+      return Api._instances[baseURL];
     }
-
-    const baseURL = import.meta.env.VITE_BUSINESS_BASE_API;
 
     this.http = axios.create({
       baseURL,
@@ -28,12 +20,10 @@ class Api {
       this.handleError
     );
 
-    Api._instance = this;
+    Api._instances[baseURL] = this;
   }
 
-  // ---------------------------------------------
-  // Public request helpers → always return data
-  // ---------------------------------------------
+  // Request methods that return only response.data
   get(url, config) {
     return this.http.get(url, config).then(this.unwrap);
   }
@@ -54,9 +44,7 @@ class Api {
     return this.http.delete(url, config).then(this.unwrap);
   }
 
-  // ---------------------------------------------
   // Private helpers
-  // ---------------------------------------------
   unwrap(response) {
     return response.data;
   }
@@ -80,4 +68,20 @@ class Api {
   }
 }
 
-export default new Api();
+// Factory method to get instance based on name
+const api = (service = 'business') => {
+  const baseUrls = {
+    business: import.meta.env.VITE_BUSINESS_BASE_API,
+    people: import.meta.env.VITE_PEOPLE_BASE_API,
+    // Add more services here
+  };
+
+  const baseURL = baseUrls[service];
+  if (!baseURL) {
+    throw new Error(`[Api] Unknown service: ${service}`);
+  }
+
+  return new Api(baseURL);
+};
+
+export default api;
