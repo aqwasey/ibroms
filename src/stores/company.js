@@ -13,7 +13,7 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      const res = await api.get('/company/')
+      const res = await api().get('/company/')
       company.value = res.info
     } catch (err) {
       error.value = 'Failed to load company'
@@ -27,7 +27,7 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      const res = await api.post('/company/', productData)
+      const res = await api().post('/company/', productData)
       company.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      await api.delete(`/company/${productId}`)
+      await api().delete(`/company/${productId}`)
       company.value = company.value.filter(u => u.id !== productId)
     } catch (err) {
       error.value = 'Failed to delete product'
@@ -58,7 +58,7 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      const res = await api.patch(`/company/${productId}`, productData)
+      const res = await api().patch(`/company/${productId}`, productData)
       const index = company.value.findIndex(u => u.id === productId)
       if (index !== -1) {
         company.value[index] = res.data
