@@ -13,6 +13,8 @@
   "dependencies": {
     "@sentry/vue": "^9.15.0",
     "@tailwindcss/vite": "^4.1.4",
+    "@vueform/plugin-mask": "^1.0.7",
+    "@vueform/vueform": "^1.12.9",
     "ant-design-vue": "4.x",
     "axios": "^1.9.0",
     "dayjs": "^1.11.13",

@@ -4,10 +4,15 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import * as Sentry from "@sentry/vue";
 
+import Vueform from '@vueform/vueform/plugin'
+import vueformConfig from '../vueform.config'
+import '@vueform/vueform/dist/tailwind-material.css';
+
 import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
+
 
 app.use(createPinia())
 // app.use(Message);
@@ -21,4 +26,5 @@ Sentry.init({
   sendDefaultPii: true
 });
 
+app.use(Vueform, vueformConfig)
 app.mount('#app')

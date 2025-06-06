@@ -20,7 +20,7 @@
             Settings
           </RouterLink>
           <div class="border-t my-1"></div>
-          <RouterLink to="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+          <RouterLink to="/login" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
             Logout
           </RouterLink>
         </div>
