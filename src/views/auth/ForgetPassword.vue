@@ -2,50 +2,33 @@
   <Base>
     <section class="w-full flex flex-col items-center justify-center gap-y-6">
       <div class="text-center">
-        <h2 class="text-2xl text-i-gray-800 font-semibold">Log in</h2>
-        <p class="text-gray-500 mt-2">Please enter your details.</p>
+        <h2 class="text-2xl text-i-gray-800 font-semibold">Forgot Password</h2>
+        <p class="text-gray-500 mt-2">We will send you reset instructions.</p>
       </div>
 
       <Vueform
         :float-placeholders="false"
         class="flex flex-col gap-y-4 w-[360px]"
-        validate-on="change|step"
+        validate-on="step"
         :display-errors="false"
         :endpoint="false"
         @submit="onSubmit"
       >
+
         <TextElement
           name="email"
           label="Email"
           placeholder="Enter your email"
           :rules="['required', 'email']"
-          :debounce="1000"          
           :override-class="textInputClass"
           v-model="form.email"
         />
 
-        <TextElement
-          input-type="password"
-          name="password"
-          label="Password"
-          placeholder="Enter your password"
-          :rules="['required']"
-          :override-class="textInputClass"
-          v-model="form.password"
-        />
 
-        <div class="flex justify-between items-center text-sm w-[360px]">
-          <CheckboxElement name="rememberMe" v-model="form.rememberMe">
-            Remember me
-          </CheckboxElement>
-          <router-link to="/forget-password" class="text-i-gray-800 hover:underline">
-            Forgot password?
-          </router-link>
-        </div>
 
         <ButtonElement
           name="submit"
-          button-label="Sign in"
+          button-label="Send Reset Instructions"
           submits
           :override-class="{
             button: 'rounded-lg bg-primary text-white w-full transition-all cursor-pointer',
@@ -53,26 +36,19 @@
           }"
         />
       </Vueform>
-
-      <p class="text-center text-sm pt-6">
-        Don’t have an account?
-        <router-link to="/sign-up" class="text-i-gray-800 hover:underline">Sign up</router-link>
-      </p>
     </section>
     <template #description>
       <div class="flex-col justify-center text-left">
-        <p> Sign in to explore what</p> 
-        <p> we have to offer!</p> 
+        <p>Explore What We</p> 
+        <p>Have To Offer!</p> 
       </div>
     </template>
-
   </Base>
- </template>
+</template>
 
 <script setup>
 import { ref } from 'vue'
 import Base from './Base.vue'
-
 
 
 const textInputClass = {
@@ -81,14 +57,13 @@ const textInputClass = {
   inputContainer_focused: 'border-primary',
   inputContainer_md: 'h-11',
   input_md: 'h-11',
-  input: 'px-[10px]',
+  input: 'px-[10px]'
 }
 
 const form = ref({
   email: '',
-  password: '',
-  rememberMe: false,
 })
+
 const onSubmit =async (form$, FormData) => {
   const requestData = form$.requestData
   form$.submitting = true

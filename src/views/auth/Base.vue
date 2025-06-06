@@ -8,10 +8,10 @@
     </section>
 
     <!-- Right Side -->
-    <section class="w-1/2 bg-background-secondary text-secondary font-semibold flex items-center flex-col justify-center text-white">
-      <h2 class="text-5xl font-bold mb-6">
-        Sign in to explore what <br> we have to offer!
-      </h2>
+      <section class="w-1/2 bg-background-secondary text-secondary font-semibold flex items-center flex-col justify-center text-white">
+        <div class="text-[40px] font-bold mb-6 text-center">
+           <slot name="description" />
+        </div>
     </section>
   </main>
 </template>
