@@ -1,6 +1,6 @@
 <template>
   <Base>
-    <section class="w-full flex flex-col items-center justify-center gap-y-6">
+    <section class="flex flex-col items-center justify-center gap-y-6 w-full max-w-md bg-white p-8 rounded-lg shadow">
       <div class="text-center">
         <h2 class="text-2xl text-i-gray-800 font-semibold">Forgot Password</h2>
         <p class="text-gray-500 mt-2">We will send you reset instructions.</p>

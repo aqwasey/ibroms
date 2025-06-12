@@ -6,7 +6,7 @@ import * as Sentry from "@sentry/vue";
 
 import Vueform from '@vueform/vueform/plugin'
 import vueformConfig from '../vueform.config'
-import '@vueform/vueform/dist/tailwind-material.css';
+import '@vueform/vueform/themes/vueform/scss/index.scss';
 
 import App from './App.vue'
 import router from './router'
