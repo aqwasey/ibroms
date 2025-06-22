@@ -11,18 +11,28 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
+    "@primeuix/themes": "^1.1.1",
     "@sentry/vue": "^9.15.0",
-    "@tailwindcss/vite": "^4.1.4",
-    "ant-design-vue": "4.x",
+    "@tailwindcss/vite": "^4.1.9",
+    "@vueuse/core": "^13.3.0",
+    "ant-design-vue": "4.2.6",
     "axios": "^1.9.0",
+    "daisyui": "^5.0.43",
     "dayjs": "^1.11.13",
     "lucide-vue": "^0.507.0",
     "lucide-vue-next": "^0.507.0",
     "pinia": "^3.0.1",
-    "tailwindcss": "^4.1.4",
+    "primeflex": "^4.0.0",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.5",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss": "^4.1.9",
+    "vee-validate": "^4.15.1",
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "yup": "^1.6.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
@@ -35,7 +45,7 @@
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
     "prettier": "3.5.3",
-    "unplugin-vue-components": "^28.5.0",
+    "unplugin-vue-components": "^28.7.0",
     "vite": "^6.2.4",
     "vite-plugin-vue-devtools": "^7.7.2"
   }

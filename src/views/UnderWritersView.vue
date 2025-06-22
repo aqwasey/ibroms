@@ -135,8 +135,6 @@ import { Form } from 'ant-design-vue'
 import { Search, Plus } from 'lucide-vue-next'
 
 const useForm = Form.useForm
-
-
 const isOpen = ref(false)
 const showConfirm = ref(false)
 const editing = ref(false)
@@ -157,6 +155,18 @@ const underwritersStore = useUnderwritersStore()
 onMounted(() => {
   underwritersStore.fetchUnderwriters()
 })
+
+const provinces = [
+  'Eastern Cape',
+  'Free State',
+  'Gauteng',
+  'KwaZulu-Natal',
+  'Limpopo',
+  'Mpumalanga',
+  'Northern Cape',
+  'North West',
+  'Western Cape'
+]
 
 const columns = [
   { key: 'name', label: 'TITLE' },

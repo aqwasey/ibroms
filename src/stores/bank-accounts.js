@@ -8,10 +8,9 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
   const adding = ref(false)
   const error = ref(null)
 
-  const fetchBankAccounts = async () => {
+  const fetchAllBankAccounts = async () => {
     loading.value = true
     error.value = null
-    // b45cffe0-84dd-3d20-d928-bee85e7b0f21
     try {
       const res = await api().get('/bank-accounts/company/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
       bankAccounts.value = res.data
@@ -22,12 +21,25 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     }
   }
 
-  const createBankAccount = async (bankAccountData) => {
+  const fetchBankAccounts = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const res = await api().get('/bank-accounts/company/b45cffe0-84dd-3d20-d928-bee85e7b0f21')
+      bankAccounts.value = res.data
+    } catch (err) {
+      error.value = 'Failed to load bankAccounts'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const createBankAccount = async (bankData) => {
     adding.value = true
     error.value = null
 
     try {
-      const res = await api().post('/bank-accounts/', bankAccountData)
+      const res = await api().post('/bank-accounts/', bankData)
       bankAccounts.value.push(res.data)
       return res.data
     } catch (err) {
@@ -38,28 +50,28 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     }
   }
 
-  const deleteBankAccount = async (bankAccountId) => {
+  const deleteBankAccount = async (accountId) => {
     adding.value = true
     error.value = null
 
     try {
-      await api().delete(`/bank-accounts/${bankAccountId}`)
-      bankAccounts.value = bankAccounts.value.filter(u => u.id !== bankAccountId)
+      await api().delete(`/bank-accounts/${accountId}`)
+      bankAccounts.value = bankAccounts.value.filter(u => u.id !== accountId)
     } catch (err) {
-      error.value = 'Failed to delete bankAccount'
+      error.value = 'Failed to delete Bank Account'
       throw err
     } finally {
       adding.value = false
     }
   }
 
-  const updateBankAccount = async (bankAccountId, bankAccountData) => {
+  const updateBankAccount = async (accountId, bankAccountData) => {
     adding.value = true
     error.value = null
 
     try {
-      const res = await api().patch(`/bank-accounts/${bankAccountId}`, bankAccountData)
-      const index = bankAccounts.value.findIndex(u => u.id === bankAccountId)
+      const res = await api().patch(`/bank-accounts/${accountId}`, bankAccountData)
+      const index = bankAccounts.value.findIndex(u => u.id === accountId)
       if (index !== -1) {
         bankAccounts.value[index] = res.data
       }
@@ -77,6 +89,7 @@ export const useBankAccountsStore = defineStore('bankAccounts', () => {
     loading,
     adding,
     error,
+    fetchAllBankAccounts,
     fetchBankAccounts,
     createBankAccount,
     deleteBankAccount,

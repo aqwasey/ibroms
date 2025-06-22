@@ -1,3 +1,4 @@
+// stores/underwriters.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/utils/api.js'
@@ -5,81 +6,123 @@ import api from '@/utils/api.js'
 export const useUnderwritersStore = defineStore('underwriters', () => {
   const underwriters = ref([])
   const loading = ref(false)
-  const adding = ref(false)
+  const saving = ref(false)
   const error = ref(null)
+  const provinces = [
+    'Eastern Cape', 'Free State', 'Gauteng', 'KwaZulu-Natal', 'Limpopo',
+    'Mpumalanga', 'North West', 'Northern Cape', 'Western Cape'
+  ]
+  const sectors = [
+    'Funeral', 'Legal', 'Medical', 'Life', 'Property', 'Vehicle', 'Other'
+  ]
 
-  const fetchUnderwriters = async () => {
+  const fetchAllUnderwriters = async () => {
     loading.value = true
     error.value = null
-
     try {
-      const res = await api().get('/underwriters/')
-      underwriters.value = res.data
+      const response = await api().get('/underwriters/')
+      // Case: API returns 200 with an "info" message
+      if (response.data?.info) {
+        underwriters.value = []  // no actual data
+        error.value = response.data.info // show message as a user-facing notice
+        console.warn('Info:', response.data.info)
+      } else {
+        underwriters.value = response.data
+      }
     } catch (err) {
-      error.value = 'Failed to load underwriters'
+      // If the backend returns a JSON error response (e.g. 404 with { info: "Not found" })
+      if (err.response && err.response.data?.info) {
+        underwriters.value = []
+        error.value = err.response.data.info
+        console.warn('Info (error case):', err.response.data.info)
+      } else {
+        // Generic fallback for unexpected errors
+        error.value = err.message || 'Unexpected error occurred'
+        console.error('Fetch error:', err)
+      }
     } finally {
       loading.value = false
     }
   }
 
+
+  const fetchUnderwriters = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const companyId = localStorage.getItem('company_id')  // Or wherever you store it
+      const data = await api().get('/underwriters/', {
+        params: { company_id: companyId }
+      })
+      underwriters.value = data
+    } catch (err) {
+      error.value = err.response?.data || err.message
+      // console.error('Fetch error:', err.response?.data || err.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+
   const createUnderwriter = async (underwriterData) => {
-    adding.value = true
+    saving.value = true
     error.value = null
-
     try {
-      const res = await api().post('/underwriters/', underwriterData)
-      underwriters.value.push(res.data)
-      return res.data
+      const newUnderwriter = await api().post('/underwriters/', underwriterData)
+      underwriters.value.push(newUnderwriter)
+      return newUnderwriter
     } catch (err) {
-      error.value = 'Failed to create underwriter'
+      error.value = err
+      console.error('[createUnderwriter]', err.response?.data || err.message)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
     }
   }
 
-  const deleteUnderwriter = async (underwriterId) => {
-    adding.value = true
+  const updateUnderwriter = async (id, underwriterData) => {
+    saving.value = true
     error.value = null
-
     try {
-      await api().delete(`/underwriters/${underwriterId}`)
-      underwriters.value = underwriters.value.filter(u => u.id !== underwriterId)
+      const updated = await api().patch(`/underwriters/${id}`, underwriterData)
+      const index = underwriters.value.findIndex(u => u.id === id)
+      if (index !== -1) underwriters.value[index] = updated
+      return updated
     } catch (err) {
-      error.value = 'Failed to delete underwriter'
+      error.value = err
+      console.error('[updateUnderwriter]', err.response?.data || err.message)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
     }
   }
 
-  const updateUnderwriter = async (underwriterId, underwriterData) => {
-    adding.value = true
+  const deleteUnderwriter = async (id) => {
+    saving.value = true
     error.value = null
-
     try {
-      const res = await api().patch(`/underwriters/${underwriterId}`, underwriterData)
-      const index = underwriters.value.findIndex(u => u.id === underwriterId)
-      if (index !== -1) {
-        underwriters.value[index] = res.data
-      }
-      return res.data
+      await api().delete(`/underwriters/${id}`)
+      underwriters.value = underwriters.value.filter(u => u.id !== id)
     } catch (err) {
-      error.value = 'Failed to update underwriter'
+      error.value = err
+      console.error('[deleteUnderwriter]', err.response?.data || err.message)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
     }
   }
 
   return {
+    provinces,
+    sectors,
     underwriters,
     loading,
-    adding,
+    saving,
     error,
+    fetchAllUnderwriters,
     fetchUnderwriters,
     createUnderwriter,
+    updateUnderwriter,
     deleteUnderwriter,
-    updateUnderwriter
   }
 })

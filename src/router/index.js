@@ -27,12 +27,12 @@ const router = createRouter({
     {
       path: '/underwriters',
       name: 'underwriters',
-      component: () => import('../views/UnderWritersView.vue'),
+      component: () => import('../views/underwriters/IndexUnderwriter.vue'),
     },
     {
       path: '/crm',
       name: 'crm',
-      component: () => import('../views/CrmView.vue'),
+      component: () => import('../views/people/IndexPeople.vue'),
     },
     {
       path: '/profile',
@@ -48,6 +48,21 @@ const router = createRouter({
       path: '/age-groups',
       name: 'age-groups',
       component: () => import('../views/AgeGroupsView.vue'),
+    },
+    {
+      path: '/settings/rules',
+      name: 'rules',
+      component: () => import('../views/rules/IndexRules.vue'),
+    },
+    {
+      path: '/settings/templates',
+      name: 'templates',
+      component: () => import('../views/templates/IndexTemplate.vue'),
+    },
+    {
+      path: '/settings/notifications',
+      name: 'notifications',
+      component: () => import('../views/notify/IndexNotify.vue'),
     },
   ],
 })

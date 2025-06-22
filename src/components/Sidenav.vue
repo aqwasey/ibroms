@@ -10,8 +10,7 @@
     <nav class="flex-1 px-4 text-base space-y-3">
       <template v-for="(item, index) in menuItems" :key="index">
         <!-- Single menu item -->
-        <div
-          v-if="!item.children"
+        <div v-if="!item.children"
           class="flex items-center gap-2 font-medium text-gray-600 px-3 py-2 rounded-lg hover:bg-[#CF7F081A] hover:text-primary transition cursor-pointer">
           <component :is="item.icon" />
           <RouterLink :to="item.to" class="w-full">
@@ -20,35 +19,25 @@
         </div>
 
         <!-- Grouped item with children -->
-        <div v-else
-          @mouseover="item.hovered.value = true"
-          @mouseleave="item.hovered.value = false">
+        <div v-else @mouseover="item.hovered.value = true" @mouseleave="item.hovered.value = false">
           <!-- Parent button -->
-          <button
-            @click="item.open.value = !item.open.value"
+          <button @click="item.open.value = !item.open.value"
             class="flex justify-between items-center px-3 py-2 font-medium rounded-lg transition !cursor-pointer !h-10 w-full !mb-2"
             :class="{
-                'text-primary bg-background-secondary': item.hovered.value || item.open.value,
-                'text-black': !item.hovered.value
-              }">
-              <span class="flex items-center gap-2">
-                <component :is="item.icon" />
-                <span class="!font-medium">{{ item.label }}</span>
-              </span>
+              'text-primary bg-background-secondary': item.hovered.value || item.open.value,
+              'text-black': !item.hovered.value
+            }">
+            <span class="flex items-center gap-2">
+              <component :is="item.icon" />
+              <span class="!font-medium">{{ item.label }}</span>
+            </span>
             <component :is="item.open.value ? ChevronDown : ChevronUp" />
           </button>
 
           <!-- Children (submenu) -->
-          <div
-            v-if="item.open.value"
-            class="ml-5 py-2 flex flex-col gap-2"
-          >
-            <RouterLink
-              v-for="(sub, i) in item.children"
-              :key="i"
-              :to="sub.to"
-              class="w-full px-10 py-2 text-black !font-medium hover:text-primary hover:bg-[#CF7F081A] rounded-lg transition cursor-pointer"
-            >
+          <div v-if="item.open.value" class="ml-5 py-2 flex flex-col gap-2">
+            <RouterLink v-for="(sub, i) in item.children" :key="i" :to="sub.to"
+              class="w-full px-10 py-2 text-black !font-medium hover:text-primary hover:bg-[#CF7F081A] rounded-lg transition cursor-pointer">
               {{ sub.label }}
             </RouterLink>
           </div>
@@ -60,9 +49,9 @@
 
 
 <script setup>
-import { ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Users, Layers, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { Users, Layers, Wrench, Settings, FileBox, FileSliders, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import Icon from '@/components/icon.vue'
 
 const menuItems = [
@@ -80,7 +69,7 @@ const menuItems = [
   },
   {
     label: 'Admin',
-    icon: Layers,
+    icon: FileBox,
     children: [
       { label: 'Underwriters', to: '/underwriters' },
       { label: 'Packages', to: '/packages' },
@@ -102,10 +91,32 @@ const menuItems = [
   },
   {
     label: 'Tools',
-    icon: Layers,
+    icon: Wrench,
     children: [
       { label: 'Import', to: '/import' },
       { label: 'Export', to: '/export' }
+    ],
+    open: ref(false),
+    hovered: ref(false)
+  },
+  {
+    label: 'Reports & BI',
+    icon: FileSliders,
+    children: [
+      { label: 'Sales', to: '/reports/sales' },
+      { label: 'Claims', to: '/reports/claims' },
+      { label: 'Analytics', to: '/reports/analytics' }
+    ],
+    open: ref(false),
+    hovered: ref(false)
+  },
+  {
+    label: 'Settings',
+    icon: Settings,
+    children: [
+      { label: 'Message Templates', to: '/settings/templates' },
+      { label: 'Notifications', to: '/settings/notifications' },
+      { label: 'Rules', to: '/settings/rules' },
     ],
     open: ref(false),
     hovered: ref(false)

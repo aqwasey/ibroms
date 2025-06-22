@@ -1,6 +1,6 @@
 <template>
-  <div class="flex h-screen max-w-screen-2xl !mx-auto">
-    <Sidenav class="w-[312px] bg-gray-800 text-white" />
+  <div class="flex h-screen w-screen max-w-none">
+    <Sidenav class="w-[280px]" />
     <div class="flex-1 flex flex-col border bg-white">
       <TopNav class="h-16 bg-white shadow px-4" />
 
@@ -17,7 +17,7 @@
 import { RouterView } from 'vue-router'
 import Sidenav from '@/components/Sidenav.vue'
 import TopNav from './components/TopNav.vue'
-import MessageProvider from '@/providers/message-provider.vue'
+import MessageProvider from '@/providers/message-provider.vue';
 </script>
 
 

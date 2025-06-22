@@ -1,0 +1,137 @@
+<template>
+  <div class="p-4">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between mb-4 gap-4">
+      <h2 class="text-xl font-semibold text-gray-700 whitespace-nowrap">
+        Customer Relationship &nbsp;&nbsp;&nbsp;
+        <span class="text-sm text-gray-500">People</span>
+      </h2>
+
+      <div class="flex-1 flex justify-left">
+        <a-input v-model:value="searchTerm" placeholder="Enter a search term..." class="w-full max-w-md" />
+      </div>
+
+      <div class="flex items-center gap-6 pr-2">
+        <a-button type="text">
+          <Share2 class="w-4 h-4" />
+        </a-button>
+        <a-button type="text">
+          <FileText class="w-4 h-4" />
+        </a-button>
+        <a-button type="primary" @click="showEntryForm = true" class="flex items-center gap-2 px-4 py-2">
+          <UserPlus class="w-4 h-4" />
+          <span>Add Person</span>
+        </a-button>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <a-table class="py-2" :columns="columns" size="small" :data-source="filteredPersons" :loading="loading" rowKey="id">
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'actions'">
+          <!-- Wrap with a span/div to force proper render context -->
+          <div>
+            <a-dropdown :trigger="['click']">
+              <template #overlay>
+                <a-menu>
+                  <a-menu-item key="view" @click="viewPerson(record)">
+                    <View class="w-4 h-4 inline mr-1" /> View
+                  </a-menu-item>
+                  <a-menu-item key="edit" @click="editPerson(record)">
+                    <SquarePen class="w-4 h-4 inline mr-1" /> Edit
+                  </a-menu-item>
+                  <a-menu-item key="delete" danger @click="confirmDelete(record.id)">
+                    <X class="w-4 h-4 inline mr-1" /> Delete
+                  </a-menu-item>
+                </a-menu>
+              </template>
+              <a-button type="text">
+                <Ml class="w-4 h-4" />
+              </a-button>
+            </a-dropdown>
+          </div>
+        </template>
+      </template>
+    </a-table>
+
+
+    <!-- Modals -->
+    <a-modal v-model:open="showEntryForm" title="New Person" :footer="null" @cancel="showEntryForm = false">
+      <EntryForm @close="showEntryForm = false" />
+    </a-modal>
+
+    <a-modal v-model:open="showEditForm" title="Edit Person" :footer="null" @cancel="showEditForm = false">
+      <EditForm :modelValue="selectedPerson" @close="showEditForm = false" />
+    </a-modal>
+
+    <a-modal v-model:open="showViewForm" title="View Person" :footer="null" @cancel="showViewForm = false">
+      <ViewForm :modelValue="selectedPerson" />
+    </a-modal>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import EntryForm from './EntryPerson.vue'
+import EditForm from './EditPerson.vue'
+import ViewForm from './ViewPerson.vue'
+import { usePersonStore } from '@/stores/people'
+import { message, Modal } from 'ant-design-vue'
+import { SquarePen, Share2, FileText, UserPlus, X, View, Menu as Ml } from 'lucide-vue-next'
+import dayjs from 'dayjs'
+import 'dayjs/locale/en' // or your preferred locale
+
+dayjs.locale('en') // Set default locale
+const store = usePersonStore()
+const searchTerm = ref('')
+const showEntryForm = ref(false)
+const showEditForm = ref(false)
+const showViewForm = ref(false)
+const selectedPerson = ref(null)
+
+onMounted(() => {
+  store.fetchCurrentPersons()
+})
+
+const people = computed(() => store.persons)
+const loading = computed(() => store.loading)
+
+const filteredPersons = computed(() =>
+  people.value.filter(person =>
+    `${person.othername} ${person.surname}`.toLowerCase().includes(searchTerm.value.toLowerCase())
+  )
+)
+
+const columns = [
+  { title: 'Othername', dataIndex: 'othername', key: 'othername' },
+  { title: 'Surname', dataIndex: 'surname', key: 'surname' },
+  { title: 'Gender', dataIndex: 'gender', key: 'gender' },
+  { title: 'ID Type', dataIndex: 'id_type', key: 'id_type' },
+  { title: 'ID No.', dataIndex: 'idno', key: 'idno' },
+  { title: 'Birthdate', dataIndex: 'birthdate', key: 'birthdate' },
+  { title: 'Actions', key: 'actions' },
+]
+
+const confirmDelete = id => {
+  Modal.confirm({
+    title: 'Confirm Deletion',
+    content: 'Are you sure you want to delete this person?',
+    okText: 'Yes',
+    cancelText: 'No',
+    onOk: async () => {
+      await store.deletePerson(id)
+      await store.fetchCurrentPersons()
+      message.success('Person profile deleted successfully.')
+    },
+  })
+}
+
+const viewPerson = person => {
+  selectedPerson.value = person
+  showViewForm.value = true
+}
+const editPerson = person => {
+  selectedPerson.value = person
+  showEditForm.value = true
+}
+</script>

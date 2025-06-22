@@ -4,78 +4,54 @@
       <div class="border rounded-lg">
         <table class="w-full border-collapse">
           <thead>
-          <tr>
-            <th
-              v-for="column in columns"
-              :key="column.key"
-              class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs uppercase"
-            >
-              {{ column.label }}
-            </th>
-            <th class="w-12 bg-i-gray-50 rounded-tr-lg"></th>
-          </tr>
+            <tr>
+              <th v-for="column in columns" :key="column.key"
+                class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs uppercase">
+                {{ column.label }}
+              </th>
+              <th class="w-12 bg-i-gray-50 rounded-tr-lg"></th>
+            </tr>
           </thead>
           <tbody>
-          <tr
-            v-for="item in paginatedData"
-            :key="item.id || item.key"
-            class="even:bg-gray-50 text-i-gray-800 text-base"
-          >
-            <td
-              v-for="column in columns"
-              :key="`${item.id}-${column.key}`"
-              :class="['p-3', column.class]"
-            >
-              {{ truncateText(item[column.key]) }}
-            </td>
-            <td class="p-3 text-center">
-              <div class="relative inline-block">
-                <button
-                  @click.stop="toggleActionMenu(item.id || item.key)"
-                  class="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer"
-                >
-                  <EllipsisVertical size="18" />
-                </button>
-                <div
-                  v-if="activeActionMenu === (item.id || item.key)"
-                  class="absolute right-0 top-full bg-white border border-gray-200 rounded shadow-lg z-10 min-w-32"
-                >
-                  <button
-                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
-                    @click="handleAction('edit', item)"
-                  >
-                    Edit
+            <tr v-for="item in paginatedData" :key="item.id || item.key"
+              class="even:bg-gray-50 text-i-gray-800 text-base">
+              <td v-for="column in columns" :key="`${item.id}-${column.key}`" :class="['p-3', column.class]">
+                {{ truncateText(item[column.key]) }}
+              </td>
+              <td class="p-3 text-center">
+                <div class="relative inline-block">
+                  <button @click.stop="toggleActionMenu(item.id || item.key)"
+                    class="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer">
+                    <EllipsisVertical size="18" />
                   </button>
-                  <button
-                    class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
-                    @click="handleAction('delete', item)"
-                  >
-                    Delete
-                  </button>
+                  <div v-if="activeActionMenu === (item.id || item.key)"
+                    class="absolute right-0 top-full bg-white border border-gray-200 rounded shadow-lg z-10 min-w-32">
+                    <button class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
+                      @click="handleAction('edit', item)">
+                      Edit
+                    </button>
+                    <button class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
+                      @click="handleAction('delete', item)">
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
+              </td>
+            </tr>
           </tbody>
         </table>
 
         <div class="flex justify-between items-center p-4 border-t border-gray-200">
           <div class="text-sm text-gray-500">Page {{ currentPage }} of {{ totalPages }}</div>
           <div class="flex gap-2">
-            <button
-              :disabled="currentPage === 1"
-              @click="previousPage"
+            <button :disabled="currentPage === 1" @click="previousPage"
               class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
-            >
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
               Previous
             </button>
-            <button
-              :disabled="currentPage === totalPages"
-              @click="nextPage"
+            <button :disabled="currentPage === totalPages" @click="nextPage"
               class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }"
-            >
+              :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
               Next
             </button>
           </div>

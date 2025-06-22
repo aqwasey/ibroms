@@ -1,8 +1,10 @@
 @import './base.css';
 @import 'tailwindcss';
 
+/* Ant Design Vue */
+@import 'ant-design-vue/dist/reset.css';
 
-@theme {
+/* @theme {
   --color-i-gray-20: #F2F2F2;
   --color-i-gray-50: #E9EFF4;
   --color-i-gray-800: #334054;
@@ -132,4 +134,4 @@ input:-ms-input-placeholder {
 
 .ant-form-item-row {
   @apply -mb-5;
-}
+} */
