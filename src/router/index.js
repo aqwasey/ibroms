@@ -9,6 +9,7 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    // Original routes that work
     {
       path: '/products',
       name: 'products',
@@ -49,6 +50,22 @@ const router = createRouter({
       name: 'age-groups',
       component: () => import('../views/AgeGroupsView.vue'),
     },
+    // Routes that match the existing directories
+    {
+      path: '/personnel',
+      name: 'personnel',
+      component: () => import('../views/personnels/IndexPersonnel.vue'),
+    },
+    {
+      path: '/policy',
+      name: 'policy',
+      component: () => import('../views/policy/EditPolicy.vue'),
+    },
+    {
+      path: '/premium',
+      name: 'premium',
+      component: () => import('../views/premium/IndexPremium.vue'),
+    },
     {
       path: '/settings/rules',
       name: 'rules',
@@ -64,6 +81,11 @@ const router = createRouter({
       name: 'notifications',
       component: () => import('../views/notify/IndexNotify.vue'),
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+    }
   ],
 })
 
