@@ -79,15 +79,17 @@
                     class="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-32"
                     :style="{ borderColor: colors.BORDER }">
                     <div class="py-1">
-                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                         :style="{ color: colors.TEXT_BODY }"
                         @click="handleAction('edit', item)">
-                        <span class="w-4 h-4">✏️</span> Edit
+                        <span class="w-4 h-4 flex items-center justify-center">✏️</span>
+                        <span>Edit</span>
                       </button>
-                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center gap-2"
                         :style="{ color: colors.DANGER }"
                         @click="handleAction('delete', item)">
-                        <span class="w-4 h-4">🗑️</span> Delete
+                        <span class="w-4 h-4 flex items-center justify-center">🗑️</span>
+                        <span>Delete</span>
                       </button>
                     </div>
                   </div>
@@ -102,30 +104,18 @@
             Page {{ currentPage }} of {{ totalPages }}
           </div>
           <div class="flex gap-2">
-            <button
+            <ButtonBase
+              label="Previous"
+              variant="secondary"
               :disabled="currentPage === 1"
               @click="previousPage"
-              class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
-              :style="{
-                borderColor: colors.BORDER,
-                color: currentPage === 1 ? colors.TEXT_DISABLED : colors.TEXT_BODY,
-                backgroundColor: colors.WHITE
-              }"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
-                 Previous
-            </button>
-            <button
+            />
+            <ButtonBase
+              label="Next"
+              variant="secondary"
               :disabled="currentPage === totalPages"
               @click="nextPage"
-              class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
-              :style="{
-                borderColor: colors.BORDER,
-                color: currentPage === totalPages ? colors.TEXT_DISABLED : colors.TEXT_BODY,
-                backgroundColor: colors.WHITE
-              }"
-              :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
-              Next
-            </button>
+            />
           </div>
         </div>
       </div>
@@ -137,6 +127,7 @@
 import { ref, computed } from 'vue'
 import { EllipsisVertical, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { COLORS } from '@/constants/colors'
+import ButtonBase from '@/components/ButtonBase.vue'
 
 const colors = COLORS;
 

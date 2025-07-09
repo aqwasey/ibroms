@@ -23,50 +23,96 @@
         name="basic"
         autocomplete="off"
         @finish="onFinish">
+        
+        <!-- Bank Name Field -->
         <a-form-item
-          label="bank name"
+          label="Bank name"
           name="bank_name"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.bank_name" />
+          <a-input 
+            v-model:value="formState.bank_name"
+            placeholder="Enter bank name" 
+            :style="{ borderColor: colors.BORDER }"
+            class="rounded-md" />
         </a-form-item>
+        
+        <!-- Account Number Field -->
         <a-form-item
-          label="account no"
+          label="Account No"
           name="account_no"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.account_no" />
+          <a-input 
+            v-model:value="formState.account_no" 
+            placeholder="Enter account number"
+            :style="{ borderColor: colors.BORDER }"
+            class="rounded-md" />
         </a-form-item>
 
+        <!-- Account Type Field -->
         <a-form-item
-          label="account type"
+          label="Account Type"
           name="account_type"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select account type" show-search allow-clear
-                    v-model:value="formState.account_type">
-            <a-select-option value="Type 1">Type 1</a-select-option>
-            <a-select-option value="Type 2">Type 2</a-select-option>
+          <a-select 
+            placeholder="Select account type" 
+            show-search 
+            allow-clear
+            v-model:value="formState.account_type"
+            :style="{ borderColor: colors.BORDER }"
+            class="rounded-md">
+            <a-select-option value="Savings">Savings</a-select-option>
+            <a-select-option value="Checking">Checking</a-select-option>
+            <a-select-option value="Business">Business</a-select-option>
+            <a-select-option value="Trust">Trust</a-select-option>
+            <a-select-option value="Credit">Credit</a-select-option>
           </a-select>
         </a-form-item>
 
+        <!-- Email Field -->
         <a-form-item
-          label="email"
+          label="Email"
           name="email"
-          :rules="[{ required: true, message: 'Required' }, { type: 'email', message: 'Not a valid mail'}]">
-          <a-input v-model:value="formState.email" />
+          :rules="[{ required: true, message: 'Required' }, { type: 'email', message: 'Not a valid email address'}]">
+          <a-input 
+            v-model:value="formState.email" 
+            placeholder="Enter email address"
+            :style="{ borderColor: colors.BORDER }"
+            class="rounded-md" />
         </a-form-item>
+        
+        <!-- Purpose Field -->
         <a-form-item
-          label="purpose"
+          label="Purpose"
           name="purpose"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select placeholder="Select purpose" allow-clear v-model:value="formState.purpose">
-            <a-select-option value="Purpose 1">Purpose 1</a-select-option>
-            <a-select-option value="Purpose 2">Purpose 2</a-select-option>
+          <a-select 
+            placeholder="Select purpose" 
+            allow-clear 
+            v-model:value="formState.purpose"
+            :style="{ borderColor: colors.BORDER }"
+            class="rounded-md">
+            <a-select-option value="General Operations">General Operations</a-select-option>
+            <a-select-option value="Payroll">Payroll</a-select-option>
+            <a-select-option value="Expenses">Expenses</a-select-option>
+            <a-select-option value="Investments">Investments</a-select-option>
+            <a-select-option value="Emergency Fund">Emergency Fund</a-select-option>
+            <a-select-option value="Claims Payment">Claims Payment</a-select-option>
           </a-select>
         </a-form-item>
-        <div class="flex justify-end gap-3">
-          <button @click="isOpen = false" class="btn-light">
-            Cancel
-          </button>
-          <a-button type="primary" class="btn-primary" html-type="submit">Save</a-button>
+        
+        <!-- Form Buttons -->
+        <div class="flex justify-end gap-3 mt-6">
+          <ButtonBase 
+            @click="isOpen = false" 
+            variant="secondary" 
+            label="Cancel" 
+            class="min-w-[100px]" />
+          <ButtonBase 
+            type="submit" 
+            variant="primary" 
+            label="Save Changes" 
+            :disabled="bankAccountsStore.adding"
+            class="min-w-[150px]" />
         </div>
       </a-form>
 
@@ -118,7 +164,10 @@ import InputField from '@/components/InputField.vue'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
 import PageHeader from '@/components/PageHeader.vue'
+import ButtonBase from '@/components/ButtonBase.vue'
+import { COLORS } from '@/constants/colors'
 
+const colors = COLORS
 const useForm = Form.useForm
 const isOpen = ref(false)
 const showConfirm = ref(false)
@@ -259,11 +308,8 @@ const onDeleteItem = (item) => {
 }
 
 const handleSearch = (query) => {
-  // Here you would implement search functionality
-  // For example, filtering the bank accounts based on the search query
+
   console.log('Searching for:', query)
-  // You could filter the data or make a search API call
-  // For now, we'll just log the search query
 }
 
 const handleSelectionChange = (selectedIds) => {

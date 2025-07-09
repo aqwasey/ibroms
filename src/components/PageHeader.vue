@@ -11,10 +11,8 @@
       
       <ButtonBase
         v-if="showButton"
-        :text="buttonText"
-        :variant="buttonVariant"
-        :icon="buttonIcon"
-        :iconComponent="buttonIconComponent"
+        :label="buttonText"
+        :variant="buttonVariant === 'primary' ? 'add' : buttonVariant"
         @click="$emit('buttonClick', $event)"
       />
     </div>

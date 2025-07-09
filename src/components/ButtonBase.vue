@@ -2,56 +2,42 @@
   <button 
     class="button" 
     :class="[
-      `size-${size}`, 
-      { 
-        'with-icon': icon !== 'none',
-        'icon-leading': icon === 'leading',
-        'icon-trailing': icon === 'trailing'
-      }
+      variant,
+      { 'disabled': disabled }
     ]"
-    :style="{
-      backgroundColor: variant === 'primary' ? colors.PRIMARY : colors.WHITE,
-      borderColor: variant === 'primary' ? colors.PRIMARY : colors.BORDER_DARK,
-      color: variant === 'primary' ? colors.WHITE : colors.TEXT_PRIMARY
-    }"
+    :disabled="disabled"
     @click="$emit('click', $event)"
   >
-    <component v-if="icon === 'leading'" :is="iconComponent" class="icon" />
-    <span class="text">{{ text }}</span>
-    <component v-if="icon === 'trailing'" :is="iconComponent" class="icon" />
+    <Plus v-if="variant === 'add'" class="icon" />
+    <span class="text">{{ label }}</span>
   </button>
 </template>
 
 <script setup>
-import { defineProps, defineEmits, computed } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 import { COLORS } from '@/constants/colors';
 import { Plus } from 'lucide-vue-next';
 
 const colors = COLORS;
 
 const props = defineProps({
-  text: {
+  label: {
     type: String,
     required: true
-  },
-  size: {
-    type: String,
-    default: 'md',
-    validator: (value) => ['sm', 'md', 'lg'].includes(value)
   },
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'outline'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'add'].includes(value)
   },
-  icon: {
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  type: {
     type: String,
-    default: 'none',
-    validator: (value) => ['none', 'leading', 'trailing'].includes(value)
-  },
-  iconComponent: {
-    type: Object,
-    default: () => Plus
+    default: 'button',
+    validator: (value) => ['button', 'submit', 'reset'].includes(value)
   }
 });
 
@@ -69,6 +55,10 @@ defineEmits(['click']);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  padding: 10px 18px;
+  font-size: 16px;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
 }
 
 .button:hover {
@@ -79,25 +69,39 @@ defineEmits(['click']);
   transform: scale(0.98);
 }
 
-.size-sm {
-  padding: 8px 14px;
-  font-size: 14px;
+/* Primary Button - Main actions */
+.primary {
+  background-color: v-bind('colors.PRIMARY');
+  border-color: v-bind('colors.PRIMARY');
+  color: v-bind('colors.WHITE');
 }
 
-.size-md {
-  padding: 10px 16px;
-  font-size: 16px;
+/* Secondary Button - Cancel/alternative actions */
+.secondary {
+  background-color: v-bind('colors.WHITE');
+  border-color: v-bind('colors.BORDER_DARK');
+  color: v-bind('colors.TEXT_PRIMARY');
 }
 
-.size-lg {
-  padding: 12px 18px;
-  font-size: 18px;
+/* Add Button with Plus Icon */
+.add {
+  background-color: v-bind('colors.PRIMARY');
+  border-color: v-bind('colors.PRIMARY');
+  color: v-bind('colors.WHITE');
 }
 
-.with-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disabled:hover {
+  opacity: 0.6;
+}
+
+.disabled:active {
+  transform: none;
 }
 
 .icon {
@@ -106,21 +110,5 @@ defineEmits(['click']);
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.icon-leading .text {
-  order: 2;
-}
-
-.icon-leading .icon {
-  order: 1;
-}
-
-.icon-trailing .text {
-  order: 1;
-}
-
-.icon-trailing .icon {
-  order: 2;
 }
 </style>

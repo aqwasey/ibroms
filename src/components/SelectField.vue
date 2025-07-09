@@ -1,22 +1,26 @@
 <template>
-  <div class="input-wrapper">
+  <div class="select-wrapper">
     <label v-if="label" :for="id" class="label" :style="{ color: colors.TEXT_PRIMARY }">{{ label }}</label>
-    <div class="input" :class="{ 'input-error': error }" :style="{ 
-      borderColor: error ? colors.DANGER : colors.BORDER,
-      backgroundColor: colors.WHITE,
-      boxShadow: 'var(--shadow-xs)' 
-    }">
-      <div class="input-content">
-        <input
-          :type="type"
+    <div class="select-input" :class="{ 'input-error': error }" 
+      :style="{ 
+        borderColor: error ? colors.DANGER : colors.BORDER,
+        backgroundColor: colors.WHITE,
+        boxShadow: 'var(--shadow-xs)'
+      }">
+      <div class="select-content">
+        <select
           :id="id"
-          :placeholder="placeholder"
           v-model="localValue"
-          class="input-field"
+          class="select-field"
           :style="{ color: colors.TEXT_PRIMARY }"
-          :disabled="disabled"
-        />
+          :disabled="disabled">
+          <option v-if="placeholder" value="" disabled selected>{{ placeholder }}</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ option.label }}
+          </option>
+        </select>
       </div>
+      <ChevronDown class="chevron-icon" :color="colors.GRAY_600" />
     </div>
     <p v-if="error" class="error-text" :style="{ color: colors.DANGER }">{{ error }}</p>
   </div>
@@ -24,23 +28,24 @@
 
 <script setup>
 import { computed } from 'vue';
+import { ChevronDown } from 'lucide-vue-next';
 import { COLORS } from '@/constants/colors';
 
 const colors = COLORS;
 
 const props = defineProps({
-  modelValue: [String, Number],
+  modelValue: [String, Number, Boolean, Object],
   label: String,
   placeholder: String,
-  type: {
-    type: String,
-    default: 'text',
-  },
   id: String,
   error: String,
   disabled: {
     type: Boolean,
     default: false
+  },
+  options: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -54,7 +59,7 @@ const localValue = computed({
 </script>
 
 <style scoped>
-.input-wrapper {
+.select-wrapper {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -70,7 +75,7 @@ const localValue = computed({
   white-space: nowrap;
 }
 
-.input {
+.select-input {
   align-items: center;
   align-self: stretch;
   border: 1px solid;
@@ -79,9 +84,10 @@ const localValue = computed({
   padding: 10px 14px;
   position: relative;
   width: 100%;
+  justify-content: space-between;
 }
 
-.input-content {
+.select-content {
   align-items: center;
   display: flex;
   flex: 1;
@@ -89,7 +95,8 @@ const localValue = computed({
   position: relative;
 }
 
-.input-field {
+.select-field {
+  appearance: none;
   background: transparent;
   border: none;
   flex: 1;
@@ -100,11 +107,13 @@ const localValue = computed({
   width: 100%;
 }
 
-.input-field::placeholder {
-  color: var(--gray-400, #A3A3A3);
+.chevron-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
-.input-field:disabled {
+.select-field:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
