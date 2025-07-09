@@ -18,7 +18,17 @@ const router = createRouter({
     {
       path: '/accounts',
       name: 'accounts',
-      component: () => import('../views/BankAccountsView.vue'),
+      component: () => import('../views/accounts/IndexAccount.vue'),
+    },
+    {
+      path: '/accounts/new',
+      name: 'new-account',
+      component: () => import('../views/accounts/NewAccount.vue'),
+    },
+    {
+      path: '/accounts/:id/edit',
+      name: 'edit-account',
+      component: () => import('../views/accounts/EditAccount.vue'),
     },
     {
       path: '/category',

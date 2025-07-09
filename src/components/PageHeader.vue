@@ -1,14 +1,14 @@
 <template>
   <div class="page-header">
     <TitleLabel :title="title" :subtitle="subtitle" />
-    
+
     <div class="actions">
-      <SearchInput 
-        v-if="showSearch" 
-        :placeholder="searchPlaceholder" 
+      <SearchInput
+        v-if="showSearch"
+        :placeholder="searchPlaceholder"
         @search="$emit('search', $event)"
       />
-      
+
       <ButtonBase
         v-if="showButton"
         :label="buttonText"
@@ -36,7 +36,7 @@ defineProps({
     type: String,
     default: ''
   },
-  
+
   // Search props
   showSearch: {
     type: Boolean,
@@ -46,7 +46,7 @@ defineProps({
     type: String,
     default: 'Search'
   },
-  
+
   // Button props
   showButton: {
     type: Boolean,

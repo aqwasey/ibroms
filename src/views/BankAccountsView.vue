@@ -23,26 +23,26 @@
         name="basic"
         autocomplete="off"
         @finish="onFinish">
-        
+
         <!-- Bank Name Field -->
         <a-form-item
           label="Bank name"
           name="bank_name"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input 
+          <a-input
             v-model:value="formState.bank_name"
-            placeholder="Enter bank name" 
+            placeholder="Enter bank name"
             :style="{ borderColor: colors.BORDER }"
             class="rounded-md" />
         </a-form-item>
-        
+
         <!-- Account Number Field -->
         <a-form-item
           label="Account No"
           name="account_no"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-input 
-            v-model:value="formState.account_no" 
+          <a-input
+            v-model:value="formState.account_no"
             placeholder="Enter account number"
             :style="{ borderColor: colors.BORDER }"
             class="rounded-md" />
@@ -53,9 +53,9 @@
           label="Account Type"
           name="account_type"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select 
-            placeholder="Select account type" 
-            show-search 
+          <a-select
+            placeholder="Select account type"
+            show-search
             allow-clear
             v-model:value="formState.account_type"
             :style="{ borderColor: colors.BORDER }"
@@ -73,21 +73,21 @@
           label="Email"
           name="email"
           :rules="[{ required: true, message: 'Required' }, { type: 'email', message: 'Not a valid email address'}]">
-          <a-input 
-            v-model:value="formState.email" 
+          <a-input
+            v-model:value="formState.email"
             placeholder="Enter email address"
             :style="{ borderColor: colors.BORDER }"
             class="rounded-md" />
         </a-form-item>
-        
+
         <!-- Purpose Field -->
         <a-form-item
           label="Purpose"
           name="purpose"
           :rules="[{ required: true, message: 'Required' }]">
-          <a-select 
-            placeholder="Select purpose" 
-            allow-clear 
+          <a-select
+            placeholder="Select purpose"
+            allow-clear
             v-model:value="formState.purpose"
             :style="{ borderColor: colors.BORDER }"
             class="rounded-md">
@@ -99,18 +99,18 @@
             <a-select-option value="Claims Payment">Claims Payment</a-select-option>
           </a-select>
         </a-form-item>
-        
+
         <!-- Form Buttons -->
         <div class="flex justify-end gap-3 mt-6">
-          <ButtonBase 
-            @click="isOpen = false" 
-            variant="secondary" 
-            label="Cancel" 
+          <ButtonBase
+            @click="isOpen = false"
+            variant="secondary"
+            label="Cancel"
             class="min-w-[100px]" />
-          <ButtonBase 
-            type="submit" 
-            variant="primary" 
-            label="Save Changes" 
+          <ButtonBase
+            type="submit"
+            variant="primary"
+            label="Save Changes"
             :disabled="bankAccountsStore.adding"
             class="min-w-[150px]" />
         </div>

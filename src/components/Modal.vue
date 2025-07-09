@@ -1,18 +1,17 @@
 <template>
   <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-5" style="background-color: #00000066;">
-    <div 
-      class="modal-container bg-white rounded-lg shadow-lg w-full overflow-hidden" 
+    <div
+      class="modal-container bg-white rounded-lg shadow-lg w-full"
       :class="{
         'max-w-md': variant === 'default',
         'max-w-lg': variant === 'edit' || variant === 'view',
         'max-w-sm': variant === 'delete'
       }"
     >
-      <a-spin :spinning="loading" tip="Please wait...">
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between px-6 py-4" :style="{ borderColor: colors.BORDER }">
+      <a-spin :spinning="loading" tip="Please wait..." class="modal-spinner">
+        <div class="modal-header flex items-center justify-between px-6 py-4 border-b" :style="{ borderColor: colors.BORDER }">
           <h2 v-if="title" class="text-lg font-medium flex-1" :style="{ color: colors.TEXT_PRIMARY }">{{ title }}</h2>
-          <button 
+          <button
             @click="close"
             class="close-button p-2 rounded-full flex items-center justify-center"
             :style="{
@@ -25,26 +24,24 @@
             </svg>
           </button>
         </div>
-        
-        <!-- Modal Content -->
-        <div class="px-6 py-4">
+
+        <div class="modal-content px-6 py-4 overflow-y-auto">
           <slot />
         </div>
 
-        <!-- Modal Actions (for delete variant or when actions are provided) -->
-        <div v-if="variant === 'delete' || showActions" class="flex justify-end items-center px-6 py-4 gap-3 border-t" :style="{ borderColor: colors.BORDER }">
-          <ButtonBase 
-            v-if="showCancelButton" 
+        <div v-if="(variant === 'delete' && showActions !== false) || showActions" class="modal-actions flex justify-end items-center px-6 py-4 gap-3 border-t" :style="{ borderColor: colors.BORDER }">
+          <ButtonBase
+            v-if="showCancelButton"
             label="Cancel"
             variant="secondary"
             @click="close"
           />
-          <ButtonBase 
+          <ButtonBase
             v-if="showConfirmButton"
-            :label="confirmButtonText" 
+            :label="confirmButtonText"
             :variant="confirmButtonVariant"
             :disabled="confirmButtonDisabled"
-            @click="$emit('confirm')" 
+            @click="$emit('confirm')"
           />
         </div>
       </a-spin>
@@ -117,21 +114,39 @@ defineEmits(['confirm'])
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  max-height: 90vh;
 }
 
 .close-button:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-/* When the modal has a scrollable content, ensure proper layout */
-:deep(.ant-spin-container) {
-  display: flex;
-  flex-direction: column;
+/* Make sure the spinner container takes full height */
+:deep(.modal-spinner) {
+  height: 100%;
 }
 
-/* Modal content should be scrollable if too tall */
-:deep(.ant-spin-container > div:nth-child(2)) {
+/* Ensure the spin container takes full height and is a flex container */
+:deep(.modal-spinner .ant-spin-container) {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header is fixed at top */
+.modal-header {
+  flex-shrink: 0;
+}
+
+/* Content area is scrollable */
+.modal-content {
+  flex: 1;
   overflow-y: auto;
-  max-height: calc(80vh - 120px); /* Account for header and actions */
+  max-height: calc(90vh - 140px); /* Adjust based on header/footer height */
+}
+
+/* Footer actions are fixed at bottom */
+.modal-actions {
+  flex-shrink: 0;
 }
 </style>

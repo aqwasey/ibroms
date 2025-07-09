@@ -79,16 +79,19 @@
                     class="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-32"
                     :style="{ borderColor: colors.BORDER }">
                     <div class="py-1">
-                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+                        :style="{ color: colors.TEXT_BODY }"
+                        @click="handleAction('view', item)">
+                        <span>View</span>
+                      </button>
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                         :style="{ color: colors.TEXT_BODY }"
                         @click="handleAction('edit', item)">
-                        <span class="w-4 h-4 flex items-center justify-center">✏️</span>
                         <span>Edit</span>
                       </button>
-                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                         :style="{ color: colors.DANGER }"
                         @click="handleAction('delete', item)">
-                        <span class="w-4 h-4 flex items-center justify-center">🗑️</span>
                         <span>Delete</span>
                       </button>
                     </div>
