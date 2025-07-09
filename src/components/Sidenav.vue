@@ -1,9 +1,9 @@
 <template>
-  <aside class="h-screen !bg-[#FCFCFD] border-r border-gray-200 flex flex-col">
+  <aside class="h-screen" :style="{ backgroundColor: colors.BACKGROUND, borderRight: `1px solid ${colors.BORDER}` }">
     <div class="flex items-center justify-between pl-8 pr-10 pt-5 pb-8">
-      <span class="text-[22px] !font-bold text-gray-800">Pito iBROMS</span>
-      <div class="border rounded-lg px-2 py-1 border-[#F0F0F0]">
-        <Icon name="chevron-left" color="#2A2A2A" />
+      <span class="text-[22px] font-bold" :style="{ color: colors.TEXT_PRIMARY }">Pito iBROMS</span>
+      <div class="rounded-lg px-2 py-1" :style="{ border: `1px solid ${colors.BORDER}` }">
+        <Icon name="chevron-left" :color="colors.SECONDARY" />
       </div>
     </div>
 
@@ -11,9 +11,20 @@
       <template v-for="(item, index) in menuItems" :key="index">
         <!-- Single menu item -->
         <div v-if="!item.children"
-          class="flex items-center gap-2 font-medium text-gray-600 px-3 py-2 rounded-lg hover:bg-[#CF7F081A] hover:text-primary transition cursor-pointer">
-          <component :is="item.icon" />
-          <RouterLink :to="item.to" class="w-full">
+          class="flex items-center gap-2 font-medium px-3 py-2 rounded-lg transition cursor-pointer"
+          :style="{
+            color: isActive(item.to) ? colors.PRIMARY : colors.TEXT_BODY,
+            backgroundColor: isActive(item.to) ? colors.PRIMARY_BG : 'transparent'
+          }"
+          @mouseenter="hoveredItem = item"
+          @mouseleave="hoveredItem = null"
+          :class="{
+            'hover-effect': hoveredItem === item && !isActive(item.to)
+          }">
+          <component :is="item.icon" :color="isActive(item.to) ? colors.PRIMARY : colors.TEXT_BODY" />
+          <RouterLink :to="item.to" class="w-full" :style="{
+            color: isActive(item.to) ? colors.PRIMARY : colors.TEXT_BODY
+          }">
             {{ item.label }}
           </RouterLink>
         </div>
@@ -22,22 +33,34 @@
         <div v-else @mouseover="item.hovered.value = true" @mouseleave="item.hovered.value = false">
           <!-- Parent button -->
           <button @click="item.open.value = !item.open.value"
-            class="flex justify-between items-center px-3 py-2 font-medium rounded-lg transition !cursor-pointer !h-10 w-full !mb-2"
-            :class="{
-              'text-primary bg-background-secondary': item.hovered.value || item.open.value,
-              'text-black': !item.hovered.value
+            class="flex justify-between items-center px-3 py-2 font-medium rounded-lg transition cursor-pointer h-10 w-full mb-2"
+            :style="{
+              backgroundColor: item.hovered.value || item.open.value ? colors.PRIMARY_BG : 'transparent',
+              color: item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY
             }">
             <span class="flex items-center gap-2">
-              <component :is="item.icon" />
-              <span class="!font-medium">{{ item.label }}</span>
+              <component :is="item.icon" :color="item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY" />
+              <span class="font-medium">{{ item.label }}</span>
             </span>
-            <component :is="item.open.value ? ChevronDown : ChevronUp" />
+            <component 
+              :is="item.open.value ? ChevronDown : ChevronUp" 
+              :color="item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY" 
+            />
           </button>
 
           <!-- Children (submenu) -->
           <div v-if="item.open.value" class="ml-5 py-2 flex flex-col gap-2">
             <RouterLink v-for="(sub, i) in item.children" :key="i" :to="sub.to"
-              class="w-full px-10 py-2 text-black !font-medium hover:text-primary hover:bg-[#CF7F081A] rounded-lg transition cursor-pointer">
+              class="w-full px-10 py-2 font-medium rounded-lg transition cursor-pointer"
+              :style="{
+                color: isActive(sub.to) ? colors.PRIMARY : colors.TEXT_BODY,
+                backgroundColor: isActive(sub.to) ? colors.PRIMARY_BG : 'transparent'
+              }"
+              @mouseenter="hoveredSub = sub"
+              @mouseleave="hoveredSub = null"
+              :class="{
+                'hover-effect': hoveredSub === sub && !isActive(sub.to)
+              }">
               {{ sub.label }}
             </RouterLink>
           </div>
@@ -49,10 +72,36 @@
 
 
 <script setup>
-import { ref, shallowRef } from 'vue'
-import { RouterLink } from 'vue-router'
+import { ref, shallowRef, computed } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { Users, Layers, Wrench, Settings, FileBox, FileSliders, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import Icon from '@/components/icon.vue'
+import { COLORS } from '@/constants/colors'
+
+const route = useRoute();
+const colors = COLORS;
+
+// For hover effects
+const hoveredItem = ref(null);
+const hoveredSub = ref(null);
+
+// Check if route is active
+const isActive = (path) => {
+  if (!path) return false;
+  return route.path === path || route.path.startsWith(`${path}/`);
+};
+
+// Auto-open the section that contains the current active route
+const setInitialOpenState = (items) => {
+  items.forEach(item => {
+    if (item.children) {
+      const hasActiveChild = item.children.some(child => isActive(child.to));
+      if (hasActiveChild) {
+        item.open.value = true;
+      }
+    }
+  });
+};
 
 const menuItems = [
   {
@@ -73,7 +122,7 @@ const menuItems = [
     children: [
       { label: 'Underwriters', to: '/underwriters' },
       { label: 'Packages', to: '/packages' },
-      { label: 'Product', to: '/products' }
+      { label: 'Products', to: '/products' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -122,4 +171,14 @@ const menuItems = [
     hovered: ref(false)
   }
 ]
+
+// Call setInitialOpenState after menuItems is defined
+setInitialOpenState(menuItems);
 </script>
+
+<style scoped>
+.hover-effect:hover {
+  background-color: v-bind('colors.PRIMARY_LIGHT');
+  color: v-bind('colors.PRIMARY');
+}
+</style>

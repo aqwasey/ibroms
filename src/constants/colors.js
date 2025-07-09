@@ -1,8 +1,10 @@
 export const COLORS = {
   // Primary brand colors
-  PRIMARY: '#CF7F08',
-  PRIMARY_LIGHT: '#CF7F081A',
+  PRIMARY: '#CF7F08',       // Brand orange color
+  PRIMARY_VARIANT: '#CF7F07', // Slight variant from Figma
+  PRIMARY_LIGHT: '#CF7F081A', // Primary with opacity for hover states
   PRIMARY_DARK: '#A66500',
+  PRIMARY_BG: '#FBF3E7',    // Light orange background from Figma
 
   // Secondary colors
   SECONDARY: '#2A2A2A',
@@ -19,7 +21,8 @@ export const COLORS = {
   BACKGROUND_SECONDARY: '#F7F8FA',
 
   // Text colors
-  TEXT_PRIMARY: '#2A2A2A',
+  TEXT_PRIMARY: '#334054',   // Main text color from Figma for headings
+  TEXT_BODY: '#222222',      // Regular text color from Figma for body text
   TEXT_SECONDARY: '#757575',
   TEXT_DISABLED: '#AFAFAF',
   TEXT_WHITE: '#FFFFFF',
