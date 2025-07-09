@@ -5,16 +5,37 @@
         <table class="w-full border-collapse">
           <thead>
             <tr>
+              <!-- Checkbox column header (if selectable) -->
+              <th v-if="selectable" class="w-16 px-5 py-4 border-b"
+                :style="{ backgroundColor: colors.GRAY_50, borderColor: colors.BORDER }">
+                <div class="flex items-center justify-center">
+                  <label class="inline-flex cursor-pointer" :for="`select-all-checkbox`">
+                    <input
+                      type="checkbox"
+                      :id="`select-all-checkbox`"
+                      class="rounded border-gray-300 text-primary focus:ring-primary"
+                      :style="{ accentColor: colors.PRIMARY }"
+                      v-model="allSelected"
+                      @change="toggleSelectAll"
+                    >
+                    <span class="sr-only">Select All</span>
+                  </label>
+                </div>
+              </th>
+
+              <!-- Regular column headers -->
               <th v-for="column in columns" :key="column.key"
                 class="text-left font-medium px-5 py-4 text-xs uppercase border-b"
-                :style="{ 
-                  backgroundColor: colors.GRAY_50, 
-                  color: colors.TEXT_PRIMARY, 
-                  borderColor: colors.BORDER 
+                :style="{
+                  backgroundColor: colors.GRAY_50,
+                  color: colors.TEXT_PRIMARY,
+                  borderColor: colors.BORDER
                 }">
                 {{ column.label }}
               </th>
-              <th class="w-16 px-5 py-4 border-b" 
+
+              <!-- Action column header -->
+              <th class="w-16 px-5 py-4 border-b"
                 :style="{ backgroundColor: colors.GRAY_50, borderColor: colors.BORDER }">
                 <span class="sr-only">Actions</span>
               </th>
@@ -23,7 +44,26 @@
           <tbody>
             <tr v-for="(item, index) in paginatedData" :key="item.id || item.key"
               :style="{ backgroundColor: index % 2 === 0 ? colors.WHITE : colors.GRAY_50 }">
-              <td v-for="column in columns" :key="`${item.id}-${column.key}`" 
+
+              <!-- Row checkbox (if selectable) -->
+              <td v-if="selectable" class="px-5 py-4 align-middle">
+                <div class="flex items-center justify-center">
+                  <label class="inline-flex cursor-pointer" :for="`row-checkbox-${item.id || index}`">
+                    <input
+                      type="checkbox"
+                      :id="`row-checkbox-${item.id || index}`"
+                      class="rounded border-gray-300 text-primary focus:ring-primary"
+                      :style="{ accentColor: colors.PRIMARY }"
+                      :checked="isSelected(item.id || item.key)"
+                      @change="toggleSelect(item.id || item.key)"
+                    >
+                    <span class="sr-only">Select row</span>
+                  </label>
+                </div>
+              </td>
+
+              <!-- Row data cells -->
+              <td v-for="column in columns" :key="`${item.id}-${column.key}`"
                 class="px-5 py-4 align-middle"
                 :class="column.class"
                 :style="{ color: colors.TEXT_BODY }">
@@ -40,12 +80,12 @@
                     :style="{ borderColor: colors.BORDER }">
                     <div class="py-1">
                       <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
-                        :style="{ color: colors.TEXT_BODY }" 
+                        :style="{ color: colors.TEXT_BODY }"
                         @click="handleAction('edit', item)">
                         <span class="w-4 h-4">✏️</span> Edit
                       </button>
                       <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
-                        :style="{ color: colors.DANGER }" 
+                        :style="{ color: colors.DANGER }"
                         @click="handleAction('delete', item)">
                         <span class="w-4 h-4">🗑️</span> Delete
                       </button>
@@ -62,29 +102,29 @@
             Page {{ currentPage }} of {{ totalPages }}
           </div>
           <div class="flex gap-2">
-            <button 
-              :disabled="currentPage === 1" 
+            <button
+              :disabled="currentPage === 1"
               @click="previousPage"
               class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
-              :style="{ 
+              :style="{
                 borderColor: colors.BORDER,
                 color: currentPage === 1 ? colors.TEXT_DISABLED : colors.TEXT_BODY,
                 backgroundColor: colors.WHITE
               }"
               :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
-              <ChevronLeft :size="16" /> Previous
+                 Previous
             </button>
-            <button 
-              :disabled="currentPage === totalPages" 
+            <button
+              :disabled="currentPage === totalPages"
               @click="nextPage"
               class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
-              :style="{ 
+              :style="{
                 borderColor: colors.BORDER,
                 color: currentPage === totalPages ? colors.TEXT_DISABLED : colors.TEXT_BODY,
                 backgroundColor: colors.WHITE
               }"
               :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
-              Next <ChevronRight :size="16" />
+              Next
             </button>
           </div>
         </div>
@@ -129,9 +169,13 @@ const props = defineProps({
     type: String,
     default: 'Add item',
   },
+  selectable: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-const emit = defineEmits(['edit-item', 'delete-item', 'action'])
+const emit = defineEmits(['edit-item', 'delete-item', 'action', 'selection-change'])
 
 const searchQuery = ref('')
 const filteredData = computed(() => {
@@ -170,6 +214,49 @@ const previousPage = () => {
   if (currentPage.value > 1) {
     currentPage.value--
   }
+}
+
+// Selection state management
+const selectedItems = ref([])
+
+// Check if a specific item is selected
+const isSelected = (itemId) => {
+  return selectedItems.value.includes(itemId)
+}
+
+// Select all checkbox state
+const allSelected = computed({
+  get: () => {
+    return paginatedData.value.length > 0 && selectedItems.value.length === paginatedData.value.length
+  },
+  set: (value) => {
+    // This will be handled by toggleSelectAll
+  }
+})
+
+// Toggle selection of a single item
+const toggleSelect = (itemId) => {
+  const index = selectedItems.value.indexOf(itemId)
+  if (index === -1) {
+    selectedItems.value.push(itemId)
+  } else {
+    selectedItems.value.splice(index, 1)
+  }
+
+  emit('selection-change', selectedItems.value)
+}
+
+// Toggle selection of all items
+const toggleSelectAll = () => {
+  if (allSelected.value) {
+    // If all are selected, unselect all
+    selectedItems.value = []
+  } else {
+    // If not all are selected, select all visible items
+    selectedItems.value = paginatedData.value.map(item => item.id || item.key)
+  }
+
+  emit('selection-change', selectedItems.value)
 }
 
 const activeActionMenu = ref(null)

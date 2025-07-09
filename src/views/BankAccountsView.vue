@@ -73,19 +73,14 @@
     </Modal>
 
     <div>
-      <PageHeader 
-        title="Bank Accounts" 
-        searchPlaceholder="Search bank account" 
+      <PageHeader
+        title="Bank Accounts"
+        searchPlaceholder="Search bank account"
         buttonText="New Bank Account"
         @search="handleSearch"
         @buttonClick="openModal"
       />
-      <div>
-        <div class="flex items-center gap-x-5">
-          <Icon name="share" size="24" color="#2A2A2A" />
-          <Icon name="export" size="24" color="#2A2A2A" />
-        </div>
-      </div>
+
       <div v-if="bankAccountsStore.loading" class="text-gray-500 text-center py-4">
         Loading bankAccounts...
       </div>
@@ -104,6 +99,8 @@
           @action="onAction"
           @edit-item="onEditItem"
           @delete-item="onDeleteItem"
+          :selectable="true"
+          @selection-change="handleSelectionChange"
         />
       </div>
     </div>
@@ -267,6 +264,11 @@ const handleSearch = (query) => {
   console.log('Searching for:', query)
   // You could filter the data or make a search API call
   // For now, we'll just log the search query
+}
+
+const handleSelectionChange = (selectedIds) => {
+  console.log('Selected items:', selectedIds)
+  // Do something with the selected IDs
 }
 
 const handleDelete = async (itemId) => {
