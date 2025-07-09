@@ -73,16 +73,13 @@
     </Modal>
 
     <div>
-      <div class="flex justify-between items-center py-4">
-        <h2 class="text-[30px] font-medium text-i-gray-900">Bank Accounts</h2>
-        <div class="flex gap-4 items-center">
-          <InputField
-            type="text"
-            class="text-center rounded bg-gray-50 text-sm"
-          />
-          <Button @click="openModal">New Bank Account</Button>
-        </div>
-      </div>
+      <PageHeader 
+        title="Bank Accounts" 
+        searchPlaceholder="Search bank account" 
+        buttonText="New Bank Account"
+        @search="handleSearch"
+        @buttonClick="openModal"
+      />
       <div>
         <div class="flex items-center gap-x-5">
           <Icon name="share" size="24" color="#2A2A2A" />
@@ -123,6 +120,7 @@ import Button from '@/components/Button.vue'
 import InputField from '@/components/InputField.vue'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import { Form } from 'ant-design-vue'
+import PageHeader from '@/components/PageHeader.vue'
 
 const useForm = Form.useForm
 const isOpen = ref(false)
@@ -145,8 +143,71 @@ const messageApi = inject('messageApi')
 
 const bankAccountsStore = useBankAccountsStore()
 
+// DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
+const USE_DUMMY_DATA = true; // Set this to false to use real data from API
+
+const DUMMY_BANK_ACCOUNTS = [
+  {
+    id: '1',
+    bank_name: 'National Bank',
+    account_no: '123456789',
+    account_type: 'Savings',
+    email: 'accounts@national.com',
+    purpose: 'General Operations'
+  },
+  {
+    id: '2',
+    bank_name: 'Commerce Bank',
+    account_no: '987654321',
+    account_type: 'Checking',
+    email: 'finance@commerce-bank.com',
+    purpose: 'Payroll'
+  },
+  {
+    id: '3',
+    bank_name: 'First Trust',
+    account_no: '567891234',
+    account_type: 'Business',
+    email: 'business@firsttrust.com',
+    purpose: 'Investments'
+  },
+  {
+    id: '4',
+    bank_name: 'Global Finance',
+    account_no: '456123789',
+    account_type: 'Savings',
+    email: 'global@financebank.com',
+    purpose: 'Emergency Fund'
+  },
+  {
+    id: '5',
+    bank_name: 'City Credit Union',
+    account_no: '789123456',
+    account_type: 'Credit',
+    email: 'credit@citycu.com',
+    purpose: 'Expenses'
+  },
+  {
+    id: '6',
+    bank_name: 'Bank of Insurance',
+    account_no: '654987321',
+    account_type: 'Trust',
+    email: 'trust@bankofinsurance.com',
+    purpose: 'Claims Payment'
+  }
+];
+
+// Mock the store's data if using dummy data
+if (USE_DUMMY_DATA) {
+  // Override the store's properties for demo purposes
+  bankAccountsStore.bankAccounts = DUMMY_BANK_ACCOUNTS;
+  bankAccountsStore.loading = false;
+}
+
 onMounted(() => {
-  bankAccountsStore.fetchBankAccounts()
+  if (!USE_DUMMY_DATA) {
+    bankAccountsStore.fetchBankAccounts()
+  }
 })
 
 const columns = [
@@ -198,6 +259,14 @@ const onEditItem = (item) => {
 const onDeleteItem = (item) => {
   selectedItemId.value = item.id
   showConfirm.value = true
+}
+
+const handleSearch = (query) => {
+  // Here you would implement search functionality
+  // For example, filtering the bank accounts based on the search query
+  console.log('Searching for:', query)
+  // You could filter the data or make a search API call
+  // For now, we'll just log the search query
 }
 
 const handleDelete = async (itemId) => {
