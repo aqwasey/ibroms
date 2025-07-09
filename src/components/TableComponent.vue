@@ -1,39 +1,55 @@
 <template>
   <div class="w-full overflow-hidden" @click="closeDropdowns">
     <div class="overflow-x-auto">
-      <div class="border rounded-lg">
+      <div class="border rounded-lg border-gray-200" :style="{ backgroundColor: colors.WHITE }">
         <table class="w-full border-collapse">
           <thead>
             <tr>
               <th v-for="column in columns" :key="column.key"
-                class="bg-i-gray-50 text-left text-i-gray-800 font-medium px-3 py-4 first:rounded-tl-lg text-xs uppercase">
+                class="text-left font-medium px-5 py-4 text-xs uppercase border-b"
+                :style="{ 
+                  backgroundColor: colors.GRAY_50, 
+                  color: colors.TEXT_PRIMARY, 
+                  borderColor: colors.BORDER 
+                }">
                 {{ column.label }}
               </th>
-              <th class="w-12 bg-i-gray-50 rounded-tr-lg"></th>
+              <th class="w-16 px-5 py-4 border-b" 
+                :style="{ backgroundColor: colors.GRAY_50, borderColor: colors.BORDER }">
+                <span class="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in paginatedData" :key="item.id || item.key"
-              class="even:bg-gray-50 text-i-gray-800 text-base">
-              <td v-for="column in columns" :key="`${item.id}-${column.key}`" :class="['p-3', column.class]">
+            <tr v-for="(item, index) in paginatedData" :key="item.id || item.key"
+              :style="{ backgroundColor: index % 2 === 0 ? colors.WHITE : colors.GRAY_50 }">
+              <td v-for="column in columns" :key="`${item.id}-${column.key}`" 
+                class="px-5 py-4 align-middle"
+                :class="column.class"
+                :style="{ color: colors.TEXT_BODY }">
                 {{ truncateText(item[column.key]) }}
               </td>
-              <td class="p-3 text-center">
+              <td class="px-5 py-4 text-right">
                 <div class="relative inline-block">
                   <button @click.stop="toggleActionMenu(item.id || item.key)"
-                    class="p-1 rounded hover:bg-gray-100 text-gray-500 cursor-pointer">
-                    <EllipsisVertical size="18" />
+                    class="p-1.5 rounded-full hover:bg-gray-100 text-gray-500">
+                    <EllipsisVertical size="18" :color="colors.GRAY_600" />
                   </button>
                   <div v-if="activeActionMenu === (item.id || item.key)"
-                    class="absolute right-0 top-full bg-white border border-gray-200 rounded shadow-lg z-10 min-w-32">
-                    <button class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
-                      @click="handleAction('edit', item)">
-                      Edit
-                    </button>
-                    <button class="w-full text-left px-4 py-2 text-gray-600 text-sm hover:bg-gray-100 cursor-pointer"
-                      @click="handleAction('delete', item)">
-                      Delete
-                    </button>
+                    class="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-32"
+                    :style="{ borderColor: colors.BORDER }">
+                    <div class="py-1">
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                        :style="{ color: colors.TEXT_BODY }" 
+                        @click="handleAction('edit', item)">
+                        <span class="w-4 h-4">✏️</span> Edit
+                      </button>
+                      <button class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer flex items-center gap-2"
+                        :style="{ color: colors.DANGER }" 
+                        @click="handleAction('delete', item)">
+                        <span class="w-4 h-4">🗑️</span> Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -41,18 +57,34 @@
           </tbody>
         </table>
 
-        <div class="flex justify-between items-center p-4 border-t border-gray-200">
-          <div class="text-sm text-gray-500">Page {{ currentPage }} of {{ totalPages }}</div>
+        <div class="flex justify-between items-center px-5 py-4 border-t" :style="{ borderColor: colors.BORDER }">
+          <div class="text-sm" :style="{ color: colors.TEXT_SECONDARY }">
+            Page {{ currentPage }} of {{ totalPages }}
+          </div>
           <div class="flex gap-2">
-            <button :disabled="currentPage === 1" @click="previousPage"
-              class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            <button 
+              :disabled="currentPage === 1" 
+              @click="previousPage"
+              class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
+              :style="{ 
+                borderColor: colors.BORDER,
+                color: currentPage === 1 ? colors.TEXT_DISABLED : colors.TEXT_BODY,
+                backgroundColor: colors.WHITE
+              }"
               :class="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }">
-              Previous
+              <ChevronLeft :size="16" /> Previous
             </button>
-            <button :disabled="currentPage === totalPages" @click="nextPage"
-              class="px-3 py-1.5 border border-gray-200 rounded text-gray-500 text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            <button 
+              :disabled="currentPage === totalPages" 
+              @click="nextPage"
+              class="px-3 py-1.5 border rounded-md text-sm transition-colors flex items-center gap-1"
+              :style="{ 
+                borderColor: colors.BORDER,
+                color: currentPage === totalPages ? colors.TEXT_DISABLED : colors.TEXT_BODY,
+                backgroundColor: colors.WHITE
+              }"
               :class="{ 'opacity-50 cursor-not-allowed': currentPage === totalPages }">
-              Next
+              Next <ChevronRight :size="16" />
             </button>
           </div>
         </div>
@@ -63,7 +95,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { EllipsisVertical } from 'lucide-vue-next'
+import { EllipsisVertical, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { COLORS } from '@/constants/colors'
+
+const colors = COLORS;
 
 const props = defineProps({
   columns: {
