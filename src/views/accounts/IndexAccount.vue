@@ -13,6 +13,19 @@
       :account="selectedItem"
       v-model:show="showViewModal"
     />
+    
+    <!-- New Account Modal -->
+    <NewAccount
+      v-model:show="showNewModal"
+      @account-created="handleAccountCreated"
+    />
+    
+    <!-- Edit Account Modal -->
+    <EditAccount
+      :account="selectedItem"
+      v-model:show="showEditModal"
+      @account-updated="handleAccountUpdated"
+    />
 
     <div>
       <PageHeader
@@ -51,16 +64,18 @@
 
 <script setup>
 import { computed, inject, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import TableComponent from '@/components/TableComponent.vue'
 import { useBankAccountsStore } from '@/stores/bank-accounts.js'
 import ConfirmDelete from '@/components/ConfirmDelete.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ViewAccount from '@/views/accounts/ViewAccount.vue'
+import NewAccount from '@/views/accounts/NewAccount.vue'
+import EditAccount from '@/views/accounts/EditAccount.vue'
 
-const router = useRouter()
 const showConfirm = ref(false)
 const showViewModal = ref(false)
+const showNewModal = ref(false)
+const showEditModal = ref(false)
 const selectedItemId = ref(null)
 const selectedItem = ref(null)
 const messageApi = inject('messageApi')
@@ -177,11 +192,12 @@ const onAction = ({ action, item }) => {
 }
 
 const navigateToNewAccount = () => {
-  router.push('/accounts/new')
+  showNewModal.value = true
 }
 
 const onEditItem = (item) => {
-  router.push(`/accounts/${item.id}/edit`)
+  selectedItem.value = { ...item } // Create a fresh copy of the item
+  showEditModal.value = true
 }
 
 const onDeleteItem = (item) => {
@@ -209,5 +225,17 @@ const handleDelete = async (itemId) => {
   } catch (error) {
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   }
+}
+
+// Handle account created event
+const handleAccountCreated = (account) => {
+  messageApi.success('Account created successfully!')
+  // No need to refresh data as the store should be updated already
+}
+
+// Handle account updated event
+const handleAccountUpdated = (account) => {
+  messageApi.success('Account updated successfully!')
+  // No need to refresh data as the store should be updated already
 }
 </script>

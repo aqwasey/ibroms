@@ -1,7 +1,7 @@
 <template>
   <Modal
-    :show="true"
-    :close="() => navigateBack()"
+    :show="show"
+    :close="() => $emit('update:show', false)"
     title="Edit Account"
     variant="edit"
     :loading="loading"
@@ -62,21 +62,28 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, reactive, inject, watch } from 'vue'
 import { useBankAccountsStore } from '@/stores/bank-accounts.js'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import ButtonBase from '@/components/ButtonBase.vue'
 
-const route = useRoute()
-const router = useRouter()
+const props = defineProps({
+  show: {
+    type: Boolean,
+    default: false
+  },
+  account: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['update:show', 'account-updated'])
+
 const bankAccountsStore = useBankAccountsStore()
 const messageApi = inject('messageApi')
-
-// Account ID from route params
-const accountId = route.params.id
 
 // Form state
 const formState = reactive({
@@ -97,7 +104,6 @@ const errors = reactive({
 })
 
 const loading = ref(false)
-const accountLoaded = ref(false)
 
 // Options for select fields
 const accountTypeOptions = [
@@ -117,34 +123,17 @@ const purposeOptions = [
   { label: 'Claims Payment', value: 'Claims Payment' }
 ]
 
-// Load account data when component mounts
-onMounted(async () => {
-  try {
-    loading.value = true
-    
-    // DUMMY DATA - In a real application, you would fetch from API
-    // For demo purposes, we'll look for the account in the store
-    const account = bankAccountsStore.bankAccounts.find(acc => acc.id === accountId)
-    
-    if (account) {
-      // Populate form state with account data
-      Object.keys(formState).forEach(key => {
-        if (account[key]) {
-          formState[key] = account[key]
-        }
-      })
-      accountLoaded.value = true
-    } else {
-      messageApi.error('Account not found')
-      navigateBack()
-    }
-  } catch (error) {
-    console.error(error)
-    messageApi.error('Error loading account details')
-  } finally {
-    loading.value = false
+// Load account data when account prop changes
+watch(() => props.account, (newAccount) => {
+  if (newAccount && Object.keys(newAccount).length > 0) {
+    // Populate form state with account data
+    Object.keys(formState).forEach(key => {
+      if (newAccount[key]) {
+        formState[key] = newAccount[key]
+      }
+    })
   }
-})
+}, { immediate: true })
 
 // Validate form
 const validateForm = () => {
@@ -197,23 +186,19 @@ const handleSubmit = async () => {
     loading.value = true
     
     // Update account in store/API
-    await bankAccountsStore.updateBankAccount(accountId, {
+    const updatedAccount = await bankAccountsStore.updateBankAccount(props.account.id, {
       ...formState,
-      id: accountId // Ensure the ID is included
+      id: props.account.id // Ensure the ID is included
     })
     
     messageApi.success('Account updated successfully!')
-    navigateBack()
+    emit('account-updated', updatedAccount)
+    emit('update:show', false)
   } catch (error) {
     console.error(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   } finally {
     loading.value = false
   }
-}
-
-// Navigation
-const navigateBack = () => {
-  router.push('/accounts')
 }
 </script>

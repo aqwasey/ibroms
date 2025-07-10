@@ -1,7 +1,7 @@
 <template>
   <Modal
-    :show="true"
-    :close="() => navigateBack()"
+    :show="show"
+    :close="() => $emit('update:show', false)"
     title="Add Account"
     variant="edit"
     :loading="loading"
@@ -63,16 +63,29 @@
 
 <script setup>
 import { ref, reactive, inject } from 'vue'
-import { useRouter } from 'vue-router'
 import { useBankAccountsStore } from '@/stores/bank-accounts.js'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import ButtonBase from '@/components/ButtonBase.vue'
 
-const router = useRouter()
+const props = defineProps({
+  show: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['update:show', 'account-created'])
+
 const bankAccountsStore = useBankAccountsStore()
 const messageApi = inject('messageApi')
+
+// Reset form when modal is opened
+const resetForm = () => {
+  Object.keys(formState).forEach(key => formState[key] = '')
+  Object.keys(errors).forEach(key => errors[key] = '')
+}
 
 // Form state
 const formState = reactive({
@@ -163,24 +176,21 @@ const handleSubmit = async () => {
     loading.value = true
     
     // Save to store
-    await bankAccountsStore.createBankAccount({
+    const newAccount = await bankAccountsStore.createBankAccount({
       ...formState,
       reference: "string",
       company_id: 'b45cffe0-84dd-3d20-d928-bee85e7b0f21' // This should probably come from a store or environment
     })
     
     messageApi.success('Account created successfully!')
-    navigateBack()
+    emit('account-created', newAccount)
+    emit('update:show', false)
+    resetForm()
   } catch (error) {
     console.error(error)
     messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
   } finally {
     loading.value = false
   }
-}
-
-// Navigation
-const navigateBack = () => {
-  router.push('/bank-accounts')
 }
 </script>
