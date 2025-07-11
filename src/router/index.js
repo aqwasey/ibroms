@@ -43,7 +43,7 @@ const router = createRouter({
     {
       path: '/crm',
       name: 'crm',
-      component: () => import('../views/people/IndexPeople.vue'),
+      component: () => import('../views/crm/IndexCrm.vue'),
     },
     {
       path: '/profile',
