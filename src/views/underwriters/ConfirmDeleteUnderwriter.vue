@@ -2,7 +2,7 @@
   <Modal
     :show="show"
     :close="() => $emit('update:show', false)"
-    title="Delete User Account"
+    title="Delete Underwriter"
     variant="delete"
     :loading="loading"
     showActions
@@ -11,7 +11,7 @@
   >
     <p class="supporting-text">
       <span class="span">Are you sure you want to delete </span>
-      <span class="text-wrapper-2">{{ user.fullName }}</span>
+      <span class="text-wrapper-2">{{ underwriterName }}</span>
       <span class="span">? It will be deleted permanently</span>
     </p>
   </Modal>
@@ -19,7 +19,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, inject } from 'vue'
-import { useUserAccountStore } from '@/stores/userAccounts.js'
+import { useUnderwritersStore } from '@/stores/underwriters'
 import Modal from '@/components/Modal.vue'
 
 const props = defineProps({
@@ -27,31 +27,35 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  user: {
-    type: Object,
-    default: () => ({})
+  itemId: {
+    type: [String, Number],
+    default: ''
+  },
+  underwriterName: {
+    type: String,
+    default: 'this underwriter'
   }
 })
 
-const emit = defineEmits(['update:show', 'user-deleted'])
+const emit = defineEmits(['update:show', 'underwriter-deleted'])
 
-const userAccountStore = useUserAccountStore()
+const store = useUnderwritersStore()
 const messageApi = inject('messageApi')
 const loading = ref(false)
 
 const handleConfirm = async () => {
   try {
     loading.value = true
-    
-    // Delete the user account
-    await userAccountStore.deleteUser(props.user.id)
-    
-    messageApi.success('User account deleted successfully')
-    emit('user-deleted', props.user.id)
+
+    // Delete the underwriter
+    await store.deleteUnderwriter(props.itemId)
+
+    messageApi.success('Underwriter deleted successfully')
+    emit('underwriter-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting user account')
+    messageApi.error(error?.response?.data?.info ?? 'Error deleting underwriter')
   } finally {
     loading.value = false
   }
