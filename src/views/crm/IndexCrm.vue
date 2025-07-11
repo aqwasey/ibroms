@@ -41,10 +41,12 @@
           :data="filteredData"
           :loading="loading"
           :searchable="true"
+          :selectable="true"
           @search="searchData"
           @action="onAction"
           @edit-item="handleEdit"
           @delete-item="handleDelete"
+          @selection-change="handleSelectionChange"
         />
       </div>
     </div>
@@ -65,12 +67,12 @@ const store = useCrmStore()
 
 // Table configuration
 const columns = [
-  { title: 'Other Name(s)', dataIndex: 'otherNames', key: 'otherNames' },
-  { title: 'Surname', dataIndex: 'surname', key: 'surname' },
-  { title: 'Gender', dataIndex: 'gender', key: 'gender' },
-  { title: 'Date of Birth', dataIndex: 'dateOfBirth', key: 'dateOfBirth' },
-  { title: 'ID Type', dataIndex: 'idType', key: 'idType' },
-  { title: 'ID Number', dataIndex: 'idNumber', key: 'idNumber' }
+  { label: 'Other Name(s)', key: 'otherNames' },
+  { label: 'Surname', key: 'surname' },
+  { label: 'Gender', key: 'gender' },
+  { label: 'Date of Birth', key: 'dateOfBirth' },
+  { label: 'ID Type', key: 'idType' },
+  { label: 'ID Number', key: 'idNumber' }
 ]
 
 // Data handling
@@ -151,6 +153,12 @@ const handleCrmUpdated = () => {
 
 const handleCrmDeleted = () => {
   fetchData()
+}
+
+// Handler for checkbox selection
+const handleSelectionChange = (selectedIds) => {
+  console.log('Selected CRM items:', selectedIds)
+  // You can store the selected IDs for batch operations or other actions
 }
 
 // Fetch data on component mount

@@ -69,7 +69,7 @@ const router = createRouter({
     {
       path: '/policy',
       name: 'policy',
-      component: () => import('../views/policy/EditPolicy.vue'),
+      component: () => import('../views/policy/IndexPolicy.vue'),
     },
     {
       path: '/premium',
