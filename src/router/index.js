@@ -53,7 +53,7 @@ const router = createRouter({
     {
       path: '/packages',
       name: 'packages',
-      component: () => import('../views/PackagesView.vue'),
+      component: () => import('../views/packages/IndexPackage.vue'),
     },
     {
       path: '/age-groups',

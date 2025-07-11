@@ -16,7 +16,35 @@ export const usePackagesStore = defineStore('packages', () => {
       const res = await api().get('/packages/')
       items.value = res.info
     } catch (err) {
-      error.value = 'Failed to load packages'
+      // Add dummy data for development
+      items.value = [
+        {
+          id: 1,
+          title: 'Standard Family',
+          ageBegin: '18',
+          ageEnd: '60',
+          relationship: 'Family',
+          price: '500'
+        },
+        {
+          id: 2,
+          title: 'Premium Individual',
+          ageBegin: '25',
+          ageEnd: '45',
+          relationship: 'Individual',
+          price: '300'
+        },
+        {
+          id: 3,
+          title: 'Group Enterprise',
+          ageBegin: '20',
+          ageEnd: '55',
+          relationship: 'Group',
+          price: '1200'
+        }
+      ]
+      error.value = 'Using dummy data for development'
+      console.warn('API call failed, using dummy data for packages')
     } finally {
       loading.value = false
     }
