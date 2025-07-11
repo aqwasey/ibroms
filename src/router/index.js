@@ -77,6 +77,11 @@ const router = createRouter({
       component: () => import('../views/premium/IndexPremium.vue'),
     },
     {
+      path: '/user-accounts',
+      name: 'user-accounts',
+      component: () => import('../views/user-accounts/IndexUserAccount.vue'),
+    },
+    {
       path: '/settings/rules',
       name: 'rules',
       component: () => import('../views/rules/IndexRules.vue'),
