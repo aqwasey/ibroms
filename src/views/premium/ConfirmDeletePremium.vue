@@ -1,73 +1,38 @@
 <template>
-  <Modal
-    :show="show"
-    :close="() => $emit('update:show', false)"
-    title="Delete Premium"
-  >
-    <div class="text-gray-500 mb-6">
-      Are you sure you want to delete <span class="font-bold">{{ premiumName }}</span>? It will be deleted permanently
-    </div>
-    <div class="flex justify-end gap-3">
-      <ButtonBase
-        text="Cancel"
-        @click="$emit('update:show', false)"
-        variant="secondary"
-      />
-      <ButtonBase
-        text="Delete"
-        @click="handleDelete"
-        variant="primary"
-        :loading="loading"
-      />
-    </div>
+  <Modal :show="show" :close="() => $emit('update:show', false)" title="Delete Premium" variant="delete" :loading="loading" showActions @confirm="handleConfirm" confirmButtonText="Delete">
+    <p class="supporting-text">
+      <span class="span">Are you sure you want to delete </span>
+      <span class="text-wrapper-2">{{ premiumName }}</span>
+      <span class="span">? It will be deleted permanently</span>
+    </p>
   </Modal>
 </template>
-
 <script setup>
-import { ref, defineProps, defineEmits, watchEffect } from 'vue'
+import { defineProps, defineEmits, ref, inject } from 'vue'
+import { usePremiumStore } from '@/stores/premium'
 import Modal from '@/components/Modal.vue'
-import ButtonBase from '@/components/ButtonBase.vue'
-import { usePremiumStore } from '@/stores/premium.js'
-
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
-  },
-  itemId: {
-    type: String,
-    default: ''
-  }
-})
-
-const emit = defineEmits(['update:show', 'confirm'])
-const premiumStore = usePremiumStore()
+const props = defineProps({ show: { type: Boolean, default: false }, itemId: { type: [String, Number], default: '' }, premiumName: { type: String, default: 'this premium' } })
+const emit = defineEmits(['update:show', 'premium-deleted'])
+const store = usePremiumStore()
+const messageApi = inject('messageApi')
 const loading = ref(false)
-const premiumName = ref('')
-
-watchEffect(async () => {
-  console.log('ConfirmDeletePremium watchEffect triggered, show:', props.show, 'itemId:', props.itemId)
-  if (props.show && props.itemId) {
-    console.log('Fetching premium data for deletion confirmation...')
-    await fetchPremiumData()
-  }
-})
-
-const fetchPremiumData = async () => {
-  if (!props.itemId) return
-
-  loading.value = true
+const handleConfirm = async () => {
   try {
-    const premium = await premiumStore.fetchPremiumById(props.itemId)
-    premiumName.value = premium.policyNo
+    loading.value = true
+    await store.deletePremium(props.itemId)
+    messageApi.success('Premium deleted successfully')
+    emit('premium-deleted', props.itemId)
+    emit('update:show', false)
   } catch (error) {
-    console.error('Error fetching premium data:', error)
+    console.error(error)
+    messageApi.error(error?.response?.data?.info ?? 'Error deleting premium')
   } finally {
     loading.value = false
   }
 }
-
-const handleDelete = () => {
-  emit('confirm')
-}
 </script>
+<style scoped>
+.supporting-text { align-self: stretch; color: var(--gray-500); font-family: "Inter-Regular", Helvetica; font-size: 16px; font-weight: 400; letter-spacing: 0; line-height: 24px; position: relative; }
+.span { color: #667084; font-family: "Inter-Regular", Helvetica; font-size: 16px; font-weight: 400; letter-spacing: 0; line-height: 24px; }
+.text-wrapper-2 { font-family: "Inter-Bold", Helvetica; font-weight: 700; }
+</style>
