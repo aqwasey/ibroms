@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="p-6">
     <PageHeader
       title="Policies"
       subtitle="Manage all policies"
@@ -8,7 +8,7 @@
       buttonText="Add Policy"
       @buttonClick="showAddModal = true"
     />
-    
+
     <TableComponent
       :columns="columns"
       :data="policies"
@@ -22,22 +22,22 @@
       @delete="handleDelete"
       @selection-change="handleSelectionChange"
     />
-    
+
     <!-- Modals -->
     <NewPolicy v-model:show="showAddModal" @policy-added="handlePolicyAdded" />
-    <EditPolicy 
-      v-model:show="showEditModal" 
+    <EditPolicy
+      v-model:show="showEditModal"
       :policy-id="selectedPolicyId"
-      @policy-updated="handlePolicyUpdated" 
+      @policy-updated="handlePolicyUpdated"
     />
-    <ViewPolicy 
-      v-model:show="showViewModal" 
+    <ViewPolicy
+      v-model:show="showViewModal"
       :policy-id="selectedPolicyId"
     />
-    <ConfirmDeletePolicy 
-      v-model:show="showDeleteModal" 
+    <ConfirmDeletePolicy
+      v-model:show="showDeleteModal"
       :item-id="selectedPolicyId"
-      @confirm="confirmDelete" 
+      @confirm="confirmDelete"
     />
   </div>
 </template>
