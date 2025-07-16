@@ -1,8 +1,16 @@
 <template>
   <div class="page-header">
-    <TitleLabel :title="title" :subtitle="subtitle" />
+    <div class="header-left">
+      <TitleLabel :title="title" :subtitle="subtitle" />
+    </div>
 
     <div class="actions">
+      <ShareExportIcons 
+        v-if="showShareExport" 
+        @share="$emit('share', $event)" 
+        @export="$emit('export', $event)" 
+      />
+      
       <SearchInput
         v-if="showSearch"
         :placeholder="searchPlaceholder"
@@ -25,6 +33,7 @@ import { Plus } from 'lucide-vue-next';
 import TitleLabel from './TitleLabel.vue';
 import SearchInput from './SearchInput.vue';
 import ButtonBase from './ButtonBase.vue';
+import ShareExportIcons from './ShareExportIcons.vue';
 
 defineProps({
   // Title section props
@@ -35,6 +44,12 @@ defineProps({
   subtitle: {
     type: String,
     default: ''
+  },
+  
+  // Share/Export icons props
+  showShareExport: {
+    type: Boolean,
+    default: true
   },
 
   // Search props
@@ -70,7 +85,7 @@ defineProps({
   }
 });
 
-defineEmits(['search', 'buttonClick']);
+defineEmits(['search', 'buttonClick', 'share', 'export']);
 </script>
 
 <style scoped>
@@ -82,10 +97,17 @@ defineEmits(['search', 'buttonClick']);
   padding: 16px 0;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .actions {
-  align-items: flex-start;
+  align-items: center; /* Changed from flex-start to center for vertical alignment */
   display: inline-flex;
   flex: 0 0 auto;
   gap: 15px;
+  height: 36px; /* Set fixed height for consistent alignment */
 }
 </style>

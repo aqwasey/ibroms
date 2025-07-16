@@ -55,8 +55,8 @@ defineEmits(['click']);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  padding: 10px 18px;
-  font-size: 16px;
+  padding: 6px 16px;
+  font-size: 14px;
   gap: 8px;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
 }
