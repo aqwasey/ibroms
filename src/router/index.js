@@ -89,7 +89,7 @@ const router = createRouter({
     {
       path: '/settings/templates',
       name: 'templates',
-      component: () => import('../views/templates/IndexTemplate.vue'),
+      component: () => import('../views/templates/IndexTemplates.vue'),
     },
     {
       path: '/settings/notifications',

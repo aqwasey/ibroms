@@ -1,16 +1,16 @@
 <template>
-  <a-modal :open="true" :footer="null" title="View Template" @cancel="emit('close')">
-    <a-descriptions bordered column="1">
-      <a-descriptions-item label="Title">{{ template.title }}</a-descriptions-item>
-      <a-descriptions-item label="Category">{{ template.category }}</a-descriptions-item>
-      <a-descriptions-item label="Type">{{ template.template_type }}</a-descriptions-item>
-      <a-descriptions-item label="Params">{{ template.params_list?.join(', ') }}</a-descriptions-item>
-      <a-descriptions-item label="Template">{{ template.template }}</a-descriptions-item>
-    </a-descriptions>
-  </a-modal>
+  <ViewModal :show="show" @update:show="$emit('update:show', $event)" title="View Template">
+    <ViewField label="Title" :value="template.title" />
+    <ViewField label="Category" :value="template.category" />
+    <ViewField label="Template Type" :value="template.template_type" />
+    <ViewField label="Parameters" :value="template.params_list ? template.params_list.join(', ') : 'None'" />
+    <ViewField label="Template Content" :value="template.template" />
+  </ViewModal>
 </template>
-
 <script setup>
-const props = defineProps({ template: Object })
-const emit = defineEmits(['close'])
+import { defineProps, defineEmits } from 'vue'
+import ViewModal from '@/components/ViewModal.vue'
+import ViewField from '@/components/ViewField.vue'
+const props = defineProps({ show: { type: Boolean, default: false }, template: { type: Object, required: true } })
+defineEmits(['update:show'])
 </script>

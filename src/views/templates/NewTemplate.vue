@@ -1,5 +1,5 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Edit Template" @save="handleSave">
+  <Modal :show="show" :close="() => $emit('update:show', false)" title="Add Template" @save="handleSave">
     <div class="w-full flex flex-col gap-4">
       <InputField v-model="form.title" label="Title" placeholder="Enter template title" class="w-full" />
       <SelectField v-model="form.category" label="Category" placeholder="Select category" :options="categoryOptions" class="w-full" />
@@ -13,7 +13,7 @@
   </Modal>
 </template>
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
@@ -21,21 +21,22 @@ import TagInput from '@/components/TagInput.vue'
 import { useTemplateStore } from '@/stores/templates'
 import { message } from 'ant-design-vue'
 const store = useTemplateStore()
-const props = defineProps({ show: { type: Boolean, default: false }, template: { type: Object, required: true } })
-const emits = defineEmits(['update:show', 'template-updated'])
-const form = ref({ id: '', title: '', category: 'UNCATEGORIZED', template_type: '', params_list: [], template: '' })
-watch(() => props.template, (newVal) => { if (newVal) { form.value = { ...newVal, params_list: newVal.params_list || [] } } }, { immediate: true, deep: true })
+const props = defineProps({ show: { type: Boolean, default: false } })
+const emits = defineEmits(['update:show', 'template-created'])
+const form = ref({ title: '', category: 'UNCATEGORIZED', template_type: '', params_list: [], template: '' })
 const categoryOptions = [ { value: 'UNCATEGORIZED', label: 'Uncategorized' }, { value: 'POLICY', label: 'Policy' }, { value: 'MARKETING', label: 'Marketing' }, { value: 'NOTIFICATION', label: 'Notification' } ]
 const templateTypeOptions = store.template_types
 const handleSave = async () => {
   try {
-    await store.updateTemplate(form.value.id, form.value)
-    message.success('Template updated successfully')
-    emits('template-updated')
+    await store.createTemplate(form.value)
+    message.success('Template added successfully')
+    resetForm()
+    emits('template-created')
     emits('update:show', false)
   } catch (error) {
-    message.error('Failed to update template')
+    message.error('Failed to add template')
     console.error(error)
   }
 }
+const resetForm = () => { form.value = { title: '', category: 'UNCATEGORIZED', template_type: '', params_list: [], template: '' } }
 </script>
