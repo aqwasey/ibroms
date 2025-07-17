@@ -14,6 +14,22 @@ export const useTemplateStore = defineStore('templates', () => {
     { value: 'sms', label: 'SMS' },
     { value: 'push', label: 'Push Notification' }
   ]
+  
+  // Available parameters for templates
+  const allParams = [
+    { name: 'client_firstname', label: 'Client Firstname', type: 'string', description: 'The first name of the client' },
+    { name: 'client_lastname', label: 'Client Lastname', type: 'string', description: 'The last name of the client' },
+    { name: 'policy_number', label: 'Policy Number', type: 'string', description: 'The policy number associated with the client' },
+    { name: 'policy_type', label: 'Policy Type', type: 'string', description: 'The type of policy (e.g., health, life, auto)' },
+    { name: 'policy_status', label: 'Policy Status', type: 'string', description: 'The current status of the policy (e.g., active, expired)' },
+    { name: 'policy_start_date', label: 'Policy Start Date', type: 'date', description: 'The start date of the policy' },
+    { name: 'client_email', label: 'Client Email', type: 'string', description: 'The email address of the client' },
+    { name: 'client_phone', label: 'Client Phone', type: 'string', description: 'The phone number of the client' },
+    { name: 'policy_premium', label: 'Policy Premium', type: 'string', description: 'The premium amount for the policy' },
+    { name: 'client_birth_date', label: 'Client Birth Date', type: 'date', description: 'The date of the client\'s birth' },
+    { name: 'client_address', label: 'Client Address', type: 'string', description: 'The address of the client' },
+    { name: 'policy_arrears', label: 'Policy Arrears', type: 'number', description: 'Policy premium arrears' }
+  ]
   const fetchTemplates = async () => {
     loading.value = true
     error.value = null
@@ -86,6 +102,7 @@ export const useTemplateStore = defineStore('templates', () => {
     adding,
     error,
     template_types,
+    allParams,
     fetchTemplates,
     createTemplate,
     deleteTemplate,

@@ -3,40 +3,44 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Edit Product"
-    @save="handleSave"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
   >
     <div class="w-full flex flex-col gap-4">
-      <InputField 
+      <InputField
         v-model="form.name"
         label="Product Name"
         placeholder="Enter product name"
         class="w-full"
       />
-      
-      <InputField 
+
+      <InputField
         v-model="form.code"
         label="Product Code"
         placeholder="Enter product code"
         class="w-full"
       />
-      
-      <SelectField 
+
+      <SelectField
         v-model="form.category"
         label="Category"
         placeholder="Select category"
         :options="categoryOptions"
         class="w-full"
       />
-      
-      <SelectField 
+
+      <SelectField
         v-model="form.underwriter"
         label="Underwriter"
         placeholder="Select underwriter"
         :options="underwriterOptions"
         class="w-full"
       />
-      
-      <InputField 
+
+      <InputField
         v-model="form.premium"
         label="Premium"
         placeholder="Enter premium amount"

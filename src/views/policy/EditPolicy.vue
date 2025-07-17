@@ -3,7 +3,11 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Edit Policy"
-    @save="handleSubmit"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
   >
     <div class="w-full flex flex-col gap-4">
       <InputField

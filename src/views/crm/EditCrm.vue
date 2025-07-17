@@ -3,7 +3,11 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Edit CRM"
-    @save="handleSubmit"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
   >
     <div class="w-full flex flex-col gap-4">
       <InputField
@@ -128,7 +132,7 @@ watch(() => props.crm, (newCrm) => {
 // Form validation
 const validateForm = () => {
   let isValid = true
-  
+
   // Reset errors
   Object.keys(errors).forEach(key => {
     errors[key] = ''
@@ -139,45 +143,45 @@ const validateForm = () => {
     errors.otherNames = 'Other Name(s) is required'
     isValid = false
   }
-  
+
   if (!formData.surname) {
     errors.surname = 'Surname is required'
     isValid = false
   }
-  
+
   if (!formData.gender) {
     errors.gender = 'Gender is required'
     isValid = false
   }
-  
+
   if (!formData.dateOfBirth) {
     errors.dateOfBirth = 'Date of Birth is required'
     isValid = false
   }
-  
+
   if (!formData.idType) {
     errors.idType = 'ID Type is required'
     isValid = false
   }
-  
+
   if (!formData.idNumber) {
     errors.idNumber = 'ID Number is required'
     isValid = false
   }
-  
+
   return isValid
 }
 
 // Form submission
 const handleSubmit = async () => {
   if (!validateForm()) return
-  
+
   try {
     loading.value = true
-    
+
     // Update CRM
     await store.updateCrm(formData)
-    
+
     messageApi.success('CRM updated successfully')
     emit('crm-updated')
     emit('update:show', false)

@@ -1,5 +1,15 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Edit Premium" @save="handleSave">
+  <Modal :show="show" :close="() => $emit('update:show', false)"
+
+    title="Edit Premium"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
+
+
+    >
     <div class="w-full flex flex-col gap-4">
       <InputField v-model="form.policyNo" label="Policy NO" placeholder="Enter policy number" class="w-full" />
       <SelectField v-model="form.paymentOption" label="Payment Option" placeholder="Select payment option" :options="paymentOptions" class="w-full" />

@@ -3,39 +3,43 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Edit Package"
-    @save="handleSave"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
   >
     <div class="w-full flex flex-col gap-4">
-      <InputField 
+      <InputField
         v-model="form.title"
         label="Title"
         placeholder="Enter package title"
         class="w-full"
       />
-      
-      <InputField 
+
+      <InputField
         v-model="form.ageBegin"
         label="Age Begin"
         placeholder="Enter starting age"
         class="w-full"
       />
-      
-      <InputField 
+
+      <InputField
         v-model="form.ageEnd"
         label="Age End"
         placeholder="Enter ending age"
         class="w-full"
       />
-      
-      <SelectField 
+
+      <SelectField
         v-model="form.relationship"
         label="Relationship"
         placeholder="Select relationship type"
         :options="relationshipOptions"
         class="w-full"
       />
-      
-      <InputField 
+
+      <InputField
         v-model="form.price"
         label="Price"
         placeholder="Enter price"
