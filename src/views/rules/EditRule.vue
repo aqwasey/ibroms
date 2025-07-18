@@ -1,52 +1,89 @@
 <template>
-  <a-modal :open="visible" title="Edit Rule" @cancel="emit('close')" @ok="submit">
-    <a-form layout="vertical">
-      <a-form-item label="Title">
-        <a-input v-model:value="form.title" />
-      </a-form-item>
-
-      <a-form-item label="Description">
-        <a-textarea v-model:value="form.description" />
-      </a-form-item>
-
-      <a-form-item label="Service List">
-        <a-select v-model:value="form.service_list" mode="tags" />
-      </a-form-item>
-
-      <a-form-item label="Limit Type">
-        <a-select v-model:value="form.limit_type">
-          <a-select-option value="RESTRICTED">RESTRICTED</a-select-option>
-          <a-select-option value="UNLIMITED">UNLIMITED</a-select-option>
-        </a-select>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+  <Modal :show="show" :close="() => $emit('update:show', false)"
+    title="Edit Rule"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Save Changes"
+  >
+    <div class="w-full flex flex-col gap-4">
+      <InputField v-model="form.title" label="Title" placeholder="Enter rule title" class="w-full" />
+      <InputField v-model="form.description" label="Description" placeholder="Enter rule description" class="w-full" />
+      <TagInput
+        v-model="form.service_list"
+        label="Service List"
+        placeholder="Select services"
+        :options="serviceOptions"
+        optionLabel="name"
+        optionValue="name"
+        class="w-full"
+      />
+      <SelectField
+        v-model="form.limit_type"
+        label="Limit Type"
+        placeholder="Select limit type"
+        :options="limitTypeOptions"
+        class="w-full"
+      />
+    </div>
+  </Modal>
 </template>
-
 <script setup>
-import { hydrateOnVisible, ref, watch } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
+import Modal from '@/components/Modal.vue'
+import InputField from '@/components/InputField.vue'
+import SelectField from '@/components/SelectField.vue'
+import TagInput from '@/components/TagInput.vue'
 import { useRulesStore } from '@/stores/rules'
+import { message } from 'ant-design-vue'
 
-const props = defineProps({
-  rule: Object,
-  visible: Boolean
- })
-const emit = defineEmits(['close'])
 const store = useRulesStore()
+const props = defineProps({ show: { type: Boolean, default: false }, rule: { type: Object, required: true } })
+const emit = defineEmits(['update:show', 'rule-updated'])
+const loading = ref(false)
 
+// Form data with defaults
 const form = ref({
+  id: '',
   title: '',
   description: '',
   service_list: [],
-  limit_type: 'RESTRICTED'
+  limit_type: 'RESTRICTED',
+  company_id: ''
 })
 
-watch(() => props.rule, (val) => {
-  if (val) form.value = { ...val }
-}, { immediate: true })
+// Update form when rule changes
+watch(() => props.rule, (newVal) => {
+  if (newVal) {
+    form.value = {
+      ...newVal,
+      service_list: newVal.service_list || []
+    }
+  }
+}, { immediate: true, deep: true })
 
-const submit = async () => {
-  await store.updateRuleById(props.rule.id, form.value)
-  emit('close')
+// Options for select fields
+const limitTypeOptions = [
+  { label: 'Restricted', value: 'RESTRICTED' },
+  { label: 'Unlimited', value: 'UNLIMITED' }
+]
+
+// Get service options from store
+const serviceOptions = store.serviceOptions || []
+
+const handleSubmit = async () => {
+  try {
+    loading.value = true
+    await store.updateRule(form.value.id, form.value)
+    message.success('Rule updated successfully')
+    emit('rule-updated')
+    emit('update:show', false)
+  } catch (error) {
+    message.error('Failed to update rule')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>

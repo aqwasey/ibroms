@@ -1,89 +1,79 @@
 <template>
-  <div class="p-4">
-    <a-button type="primary" @click="showEntry = true">Add Rule</a-button>
-    <a-table :columns="columns" :data-source="rules" rowKey="id" :loading="loading" size="small" class="mt-4">
-      <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'actions'">
-          <a-space>
-            <a-button type="link" @click="viewRule(record)">View</a-button>
-            <a-button type="link" @click="editRule(record)">Edit</a-button>
-            <a-popconfirm title="Confirm delete?" @confirm="deleteRule(record.id)">
-              <a-button danger type="link">Delete</a-button>
-            </a-popconfirm>
-          </a-space>
-        </template>
-      </template>
-    </a-table>
-
-    <EntryRule v-if="showEntry" @close="showEntry = false" />
-    <EditRule v-if="selectedRule && showEdit" :rule="selectedRule" @close="closeEdit" />
-    <ViewRule v-if="selectedRule && showView" :rule="selectedRule" @close="closeView" />
+  <div class="p-6">
+    <ConfirmDeleteRule v-model:show="showConfirm" :itemId="selectedItemId" :ruleName="selectedItem?.title" @rule-deleted="handleRuleDeleted" />
+    <ViewRule v-model:show="showViewModal" :rule="selectedItem" />
+    <NewRule v-model:show="showNewModal" @rule-created="handleRuleCreated" />
+    <EditRule v-model:show="showEditModal" :rule="selectedItem" @rule-updated="handleRuleUpdated" />
+    <div>
+      <PageHeader title="Rules" subtitle="Manage all rules" searchPlaceholder="Search rules..." buttonText="Add Rule" @search="handleSearch" @button-click="showAddModal" />
+      <div v-if="store.loading" class="text-gray-500 text-center py-4">Loading rules...</div>
+      <div v-else>
+        <div v-if="!filteredRules.length" class="text-gray-500 text-center py-4">No rules found</div>
+        <TableComponent v-else :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems" :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem" @delete-item="onDeleteItem" :selectable="true" @selection-change="handleSelectionChange" />
+      </div>
+    </div>
   </div>
 </template>
-
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { useRulesStore } from '@/stores/rules'
-import EntryRule from './EntryRule.vue'
-import EditRule from './EditRule.vue'
-import ViewRule from './ViewRule.vue'
+import NewRule from '@/views/rules/EntryRule.vue'
+import EditRule from '@/views/rules/EditRule.vue'
+import ViewRule from '@/views/rules/ViewRule.vue'
+import ConfirmDeleteRule from '@/views/rules/ConfirmDeleteRule.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import TableComponent from '@/components/TableComponent.vue'
 
+const showConfirm = ref(false)
+const showViewModal = ref(false)
+const showNewModal = ref(false)
+const showEditModal = ref(false)
+const selectedItemId = ref(null)
+const selectedItem = ref(null)
+const searchQuery = ref('')
+const messageApi = inject('messageApi')
 const store = useRulesStore()
-const rules = store.rules
-const loading = ref(false)
 
-const showEntry = ref(false)
-const showEdit = ref(false)
-const showView = ref(false)
-const selectedRule = ref(null)
+onMounted(() => {
+  store.fetchRules()
+})
 
 const columns = [
-  { title: 'Title', dataIndex: 'title' },
-  { title: 'Limit Type', dataIndex: 'limit_type' },
-  { title: 'Description', dataIndex: 'description' },
-  { title: 'Service List', dataIndex: 'service_list', customRender: ({ text }) => text.join(', ') },
-  { title: 'Status', dataIndex: 'status', customRender: ({ text }) => text ? 'Active' : 'Inactive' },
-  { title: 'Created At', dataIndex: 'created_at', customRender: ({ text }) => new Date(text).toLocaleDateString() },
-  { title: 'Actions', key: 'actions' }
+  { key: 'title', label: 'Title' },
+  { key: 'description', label: 'Description' },
+  { key: 'limit_type', label: 'Limit Type' },
+  { key: 'service_list', label: 'Services', format: (value) => value && value.length ? value.join(', ') : 'None' }
 ]
-
-const loadAllRules = async () => {
-  loading.value = true
-  await store.fetchRulesByCompanyId('company-id') // Replace with real ID
-  loading.value = false
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+const totalItems = computed(() => filteredRules.value.length)
+const data = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredRules.value.slice(start, end)
+})
+const filteredRules = computed(() => {
+  if (!searchQuery.value) return store.items
+  const query = searchQuery.value.toLowerCase()
+  return store.items.filter(rule =>
+    rule.title?.toLowerCase().includes(query) ||
+    rule.description?.toLowerCase().includes(query) ||
+    rule.limit_type?.toLowerCase().includes(query) ||
+    (rule.service_list && rule.service_list.some(service => service.toLowerCase().includes(query)))
+  )
+})
+const onPageChanged = (page) => { currentPage.value = page }
+const onAction = ({ action, item }) => {
+  if (action === 'view') { selectedItem.value = { ...item }; showViewModal.value = true }
+  else if (action === 'edit') { onEditItem(item) }
+  else if (action === 'delete') { onDeleteItem(item) }
 }
-
-const loadRules = async () => {
-  loading.value = true
-  await store.fetchRulesByCompanyId('company-id') // Replace with real ID
-  loading.value = false
-}
-
-const viewRule = rule => {
-  selectedRule.value = rule
-  showView.value = true
-}
-
-const editRule = rule => {
-  selectedRule.value = rule
-  showEdit.value = true
-}
-
-const deleteRule = async id => {
-  await store.deleteRuleById(id)
-  await loadRules()
-}
-
-const closeEdit = () => {
-  selectedRule.value = null
-  showEdit.value = false
-  loadRules()
-}
-
-const closeView = () => {
-  selectedRule.value = null
-  showView.value = false
-}
-
-// onMounted(loadAllRules)
+const onEditItem = (item) => { selectedItem.value = { ...item }; showEditModal.value = true }
+const onDeleteItem = (item) => { selectedItemId.value = item.id; selectedItem.value = { ...item }; showConfirm.value = true }
+const showAddModal = () => { showNewModal.value = true }
+const handleRuleCreated = () => { store.fetchRules(); showNewModal.value = false }
+const handleRuleUpdated = () => { store.fetchRules(); showEditModal.value = false }
+const handleRuleDeleted = () => { store.fetchRules(); showConfirm.value = false }
+const handleSearch = (query) => { searchQuery.value = query }
+const handleSelectionChange = () => {}
 </script>
