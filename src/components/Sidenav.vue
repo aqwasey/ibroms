@@ -58,6 +58,7 @@
               }"
               @mouseenter="hoveredSub = sub"
               @mouseleave="hoveredSub = null"
+              @click="handleNavClick(sub)"
               :class="{
                 'hover-effect': hoveredSub === sub && !isActive(sub.to)
               }">
@@ -89,6 +90,12 @@ const hoveredSub = ref(null);
 const isActive = (path) => {
   if (!path) return false;
   return route.path === path || route.path.startsWith(`${path}/`);
+};
+
+// Debug navigation clicks
+const handleNavClick = (item) => {
+  console.log('Navigation clicked:', item);
+  console.log('Navigating to:', item.to);
 };
 
 // Auto-open the section that contains the current active route

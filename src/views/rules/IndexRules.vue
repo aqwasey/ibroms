@@ -17,7 +17,7 @@
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
 import { useRulesStore } from '@/stores/rules'
-import NewRule from '@/views/rules/EntryRule.vue'
+import NewRule from '@/views/rules/NewRule.vue'
 import EditRule from '@/views/rules/EditRule.vue'
 import ViewRule from '@/views/rules/ViewRule.vue'
 import ConfirmDeleteRule from '@/views/rules/ConfirmDeleteRule.vue'
