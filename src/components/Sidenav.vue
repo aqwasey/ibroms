@@ -115,10 +115,10 @@ const menuItems = [
     label: 'Business',
     icon: Users,
     children: [
-      { label: 'Profile', to: '/profile' },
-      { label: 'Accounts', to: '/accounts' },
-      { label: 'Personnel', to: '/personnel' },
-      { label: 'User Accounts', to: '/user-accounts' }
+      { label: 'Profile', to: '/dashboard/profile' },
+      { label: 'Accounts', to: '/dashboard/accounts' },
+      { label: 'Personnel', to: '/dashboard/personnel' },
+      { label: 'User Accounts', to: '/dashboard/user-accounts' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -127,9 +127,9 @@ const menuItems = [
     label: 'Admin',
     icon: FileBox,
     children: [
-      { label: 'Underwriters', to: '/underwriters' },
-      { label: 'Packages', to: '/packages' },
-      { label: 'Products', to: '/products' }
+      { label: 'Underwriters', to: '/dashboard/underwriters' },
+      { label: 'Packages', to: '/dashboard/packages' },
+      { label: 'Products', to: '/dashboard/products' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -138,9 +138,9 @@ const menuItems = [
     label: 'Services',
     icon: Layers,
     children: [
-      { label: 'CRM', to: '/crm' },
-      { label: 'Policy', to: '/policy' },
-      { label: 'Premium', to: '/premium' }
+      { label: 'CRM', to: '/dashboard/crm' },
+      { label: 'Policy', to: '/dashboard/policy' },
+      { label: 'Premium', to: '/dashboard/premium' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -149,8 +149,8 @@ const menuItems = [
     label: 'Tools',
     icon: Wrench,
     children: [
-      { label: 'Import', to: '/import' },
-      { label: 'Export', to: '/export' }
+      { label: 'Import', to: '/dashboard/import' },
+      { label: 'Export', to: '/dashboard/export' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -159,9 +159,9 @@ const menuItems = [
     label: 'Reports & BI',
     icon: FileSliders,
     children: [
-      { label: 'Sales', to: '/reports/sales' },
-      { label: 'Claims', to: '/reports/claims' },
-      { label: 'Analytics', to: '/reports/analytics' }
+      { label: 'Sales', to: '/dashboard/reports/sales' },
+      { label: 'Claims', to: '/dashboard/reports/claims' },
+      { label: 'Analytics', to: '/dashboard/reports/analytics' }
     ],
     open: ref(false),
     hovered: ref(false)
@@ -170,9 +170,9 @@ const menuItems = [
     label: 'Settings',
     icon: Settings,
     children: [
-      { label: 'Message Templates', to: '/settings/templates' },
-      { label: 'Notifications', to: '/settings/notifications' },
-      { label: 'Rules', to: '/settings/rules' },
+      { label: 'Message Templates', to: '/dashboard/settings/templates' },
+      { label: 'Notifications', to: '/dashboard/settings/notifications' },
+      { label: 'Rules', to: '/dashboard/settings/rules' },
     ],
     open: ref(false),
     hovered: ref(false)
