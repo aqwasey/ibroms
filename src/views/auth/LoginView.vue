@@ -29,6 +29,8 @@
       </div>
     </template>
 
+
+
     <!-- Action buttons -->
     <template #actions>
       <ButtonBase
@@ -36,6 +38,8 @@
         variant="primary"
         @click="login"
         class="w-full"
+        :disabled="isLoading"
+        :loading="isLoading"
       />
     </template>
 
@@ -54,22 +58,69 @@ import AuthLayout from '@/components/auth/AuthLayout.vue';
 import InputField from '@/components/InputField.vue';
 import ButtonBase from '@/components/ButtonBase.vue';
 import Checkbox from '@/components/Checkbox.vue';
+import authService from '@/services/authService';
+import notificationService from '@/services/notificationService';
+import { isValidEmail, sanitizeInput, validatePassword } from '@/utils/validation';
 
 const router = useRouter();
 const email = ref('');
 const password = ref('');
 const rememberMe = ref(false);
+const isLoading = ref(false);
 
-const login = () => {
-  if (!email.value || !password.value) {
-    alert('Please fill in all required fields');
+
+
+const login = async () => {
+  // Validate required fields
+  if (!email.value?.trim() || !password.value?.trim()) {
+    notificationService.error('Please fill in all required fields');
     return;
   }
+  
+  // Validate email format
+  if (!isValidEmail(email.value)) {
+    notificationService.error('Please enter a valid email address');
+    return;
+  }
+  
+  // Validate password
+  const passwordValidation = validatePassword(password.value);
+  if (!passwordValidation.isValid) {
+    notificationService.error(passwordValidation.errors[0]);
+    return;
+  }
+  
+  // Sanitize inputs (extra security measure)
+  const sanitizedEmail = sanitizeInput(email.value.trim());
+  const sanitizedPassword = password.value; // Don't modify password but ensure it's a string
 
-  console.log('Logging in with:', { email: email.value, rememberMe: rememberMe.value });
+  try {
+    isLoading.value = true;
+    const response = await authService.login(sanitizedEmail, sanitizedPassword);
 
-  // Navigate to dashboard after successful login
-  router.push('/dashboard/products');
+    if (response.status === 1) {
+      // Show success notification
+      notificationService.success('Login successful!');
+
+      // If remember me is not checked, we could set token to expire sooner
+      if (!rememberMe.value) {
+        // For demo, we'll just log this - in a real app we might set a shorter expiry
+        console.log('Remember me not checked - token would expire sooner');
+      }
+
+      // Navigate to dashboard after successful login
+      router.push('/dashboard/products');
+    } else {
+      // Handle unsuccessful login but with response
+      notificationService.error(response.info || 'Login failed. Please try again.');
+    }
+  } catch (error) {
+    // Handle API errors
+    console.error('Login error:', error);
+    notificationService.error(error.data || 'An error occurred during login. Please try again.', 'Authentication Error');
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 const goToRegister = () => {
@@ -94,5 +145,16 @@ const goToForgotPassword = () => {
   font-size: 14px;
   font-weight: 500;
   line-height: 20px;
+}
+
+.error-message {
+  color: #d92d20;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #fff1f0;
+  border-radius: 6px;
+  border-left: 3px solid #d92d20;
 }
 </style>

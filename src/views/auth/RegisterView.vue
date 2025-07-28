@@ -79,6 +79,8 @@ import AuthLayout from '@/components/auth/AuthLayout.vue';
 import InputField from '@/components/InputField.vue';
 import ButtonBase from '@/components/ButtonBase.vue';
 import PhoneInput from '@/components/PhoneInput.vue';
+import notificationService from '@/services/notificationService';
+import { isValidEmail, sanitizeInput, validatePassword, isValidSAPhoneNumber, validateRequiredFields } from '@/utils/validation';
 
 const router = useRouter();
 
@@ -154,58 +156,92 @@ const handleProvinceChange = () => {
   town_city.value = '';
 };
 
-const register = () => {
-  // Validate required fields
-  const requiredFields = [
-    { field: business_name.value, name: 'Business Name' },
-    { field: regis_no.value, name: 'Registration Number' },
-    { field: phone.value, name: 'Phone Number' },
-    { field: email.value, name: 'Email' },
-    { field: province.value, name: 'Province' },
-    { field: town_city.value, name: 'Town/City' },
-    { field: password.value, name: 'Password' },
-    { field: confirmPassword.value, name: 'Confirm Password' }
-  ];
+const register = async () => {
+  // Create a data object with all form fields
+  const formData = {
+    business_name: business_name.value?.trim(),
+    regis_no: regis_no.value?.trim(),
+    phone: phone.value?.trim(),
+    email: email.value?.trim(),
+    province: province.value,
+    town_city: town_city.value,
+    password: password.value,
+    confirmPassword: confirmPassword.value
+  };
 
-  for (const item of requiredFields) {
-    if (!item.field) {
-      alert(`${item.name} is required`);
-      return;
-    }
+  // Validate all required fields are filled
+  const requiredFieldsResult = validateRequiredFields(
+    formData,
+    ['business_name', 'regis_no', 'phone', 'email', 'province', 'town_city', 'password', 'confirmPassword']
+  );
+  
+  if (!requiredFieldsResult.isValid) {
+    const missingField = requiredFieldsResult.missingFields[0];
+    const fieldNames = {
+      'business_name': 'Business Name',
+      'regis_no': 'Registration Number',
+      'phone': 'Phone Number',
+      'email': 'Email',
+      'province': 'Province',
+      'town_city': 'Town/City',
+      'password': 'Password',
+      'confirmPassword': 'Confirm Password'
+    };
+    notificationService.error(`${fieldNames[missingField]} is required`);
+    return;
   }
   
   // Validate passwords match
-  if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match');
+  if (formData.password !== formData.confirmPassword) {
+    notificationService.error('Passwords do not match');
     return;
   }
 
   // Validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.value)) {
-    alert('Please enter a valid email address');
+  if (!isValidEmail(formData.email)) {
+    notificationService.error('Please enter a valid email address');
+    return;
+  }
+
+  // Validate password strength
+  const passwordValidation = validatePassword(formData.password, { 
+    minLength: 6,
+    requireNumbers: true 
+  });
+  
+  if (!passwordValidation.isValid) {
+    notificationService.error(passwordValidation.errors[0]);
     return;
   }
 
   // Validate phone number (South African format)
-  const phoneRegex = /^\d{9}$/;
-  if (!phoneRegex.test(phone.value)) {
-    alert('Please enter a valid 9-digit South African phone number (without the +27)');
+  if (!isValidSAPhoneNumber(formData.phone)) {
+    notificationService.error('Please enter a valid South African phone number');
     return;
   }
 
-  console.log('Registering business with:', {
-    business_name: business_name.value,
-    regis_no: regis_no.value,
-    phone: `+27${phone.value}`,
-    email: email.value,
-    province: province.value,
-    town_city: town_city.value,
-    password: password.value,
-  });
+  // Sanitize inputs
+  const sanitizedData = {
+    business_name: sanitizeInput(formData.business_name),
+    regis_no: sanitizeInput(formData.regis_no),
+    phone: `+27${formData.phone.replace(/\D/g, '')}`,
+    email: sanitizeInput(formData.email),
+    province: sanitizeInput(formData.province),
+    town_city: sanitizeInput(formData.town_city),
+    password: formData.password
+  };
 
-  // For demo purposes, navigate to verification page
-  router.push('/verify-email');
+  try {
+    // Show success for demo
+    notificationService.success('Registration successful! Please verify your email.');
+    console.log('Registering business with:', sanitizedData);
+
+    // For demo purposes, navigate to verification page
+    router.push('/verify-email');
+  } catch (error) {
+    console.error('Registration error:', error);
+    notificationService.error('An error occurred during registration. Please try again.');
+  }
 };
 
 const goToLogin = () => {
