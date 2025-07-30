@@ -18,9 +18,10 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits, ref, inject } from 'vue'
+import { defineProps, defineEmits, ref } from 'vue'
 import { useUnderwritersStore } from '@/stores/underwriters'
 import Modal from '@/components/Modal.vue'
+import notificationService from '@/services/notificationService'
 
 const props = defineProps({
   show: {
@@ -40,7 +41,6 @@ const props = defineProps({
 const emit = defineEmits(['update:show', 'underwriter-deleted'])
 
 const store = useUnderwritersStore()
-const messageApi = inject('messageApi')
 const loading = ref(false)
 
 const handleConfirm = async () => {
@@ -50,12 +50,12 @@ const handleConfirm = async () => {
     // Delete the underwriter
     await store.deleteUnderwriter(props.itemId)
 
-    messageApi.success('Underwriter deleted successfully')
+    notificationService.success('Underwriter deleted successfully')
     emit('underwriter-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting underwriter')
+    notificationService.error(error?.response?.data?.detail || 'Error deleting underwriter')
   } finally {
     loading.value = false
   }

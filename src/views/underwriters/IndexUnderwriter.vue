@@ -81,73 +81,20 @@ const showEditModal = ref(false)
 const selectedItemId = ref(null)
 const selectedItem = ref(null)
 const searchQuery = ref('')
-const messageApi = inject('messageApi')
-
 const store = useUnderwritersStore()
 
-// DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
-const USE_DUMMY_DATA = true; // Set this to false to use real data from API
-
-const DUMMY_UNDERWRITERS = [
-  { 
-    id: '1', 
-    name: 'ABC Insurance', 
-    sector: 'Funeral', 
-    province: 'Accra', 
-    town_city: 'Accra Central',
-    created_on: new Date('2025-03-10').toISOString(),
-    updated_on: new Date('2025-05-15').toISOString()
-  },
-  { 
-    id: '2', 
-    name: 'XYZ Underwriters', 
-    sector: 'Life', 
-    province: 'Ashanti', 
-    town_city: 'Kumasi',
-    created_on: new Date('2025-01-20').toISOString(),
-    updated_on: new Date('2025-06-05').toISOString()
-  },
-  { 
-    id: '3', 
-    name: 'Golden Life Insurance', 
-    sector: 'Medical', 
-    province: 'Eastern', 
-    town_city: 'Koforidua',
-    created_on: new Date('2025-02-14').toISOString(),
-    updated_on: new Date('2025-04-22').toISOString()
-  },
-  { 
-    id: '4', 
-    name: 'Premier Underwriting', 
-    sector: 'General', 
-    province: 'Central', 
-    town_city: 'Cape Coast',
-    created_on: new Date('2025-04-05').toISOString(),
-    updated_on: new Date('2025-06-10').toISOString()
-  },
-  { 
-    id: '5', 
-    name: 'Nationwide Insurance', 
-    sector: 'Funeral', 
-    province: 'Northern', 
-    town_city: 'Tamale',
-    created_on: new Date('2025-05-12').toISOString(),
-    updated_on: new Date('2025-07-01').toISOString()
-  }
-];
-
-// Mock the store's data if using dummy data
-if (USE_DUMMY_DATA) {
-  // Override the store's properties for demo purposes
-  store.underwriters = DUMMY_UNDERWRITERS;
-  store.loading = false;
-}
-
 onMounted(() => {
-  if (!USE_DUMMY_DATA) {
-    store.fetchAllUnderwriters()
-  }
+  fetchUnderwriters()
 })
+
+// Function to fetch underwriters from API
+const fetchUnderwriters = async () => {
+  try {
+    await store.fetchAllUnderwriters()
+  } catch (error) {
+    console.error('Error fetching underwriters:', error)
+  }
+}
 
 const columns = [
   { key: 'name', label: 'Name' },
@@ -236,41 +183,22 @@ const handleSelectionChange = (selectedIds) => {
 
 // Handle underwriter created event
 const handleUnderwriterCreated = (underwriter) => {
-  messageApi?.success('Underwriter created successfully!')
-  // In a real app, this might refresh the data
-  // In our dummy data scenario, we would push to the array
-  if (USE_DUMMY_DATA) {
-    store.underwriters.push(underwriter)
-  }
+  fetchUnderwriters() // Refresh the list
 }
 
 // Handle underwriter updated event
 const handleUnderwriterUpdated = (underwriter) => {
-  messageApi?.success('Underwriter updated successfully!')
-  // In a real app, the store would be updated
-  // In our dummy data scenario, we would update the array
-  if (USE_DUMMY_DATA && underwriter?.id) {
-    const index = store.underwriters.findIndex(u => u.id === underwriter.id)
-    if (index !== -1) {
-      store.underwriters[index] = { ...underwriter }
-    }
-  }
+  fetchUnderwriters() // Refresh the list
 }
 
 // Handle underwriter deleted event
 const handleUnderwriterDeleted = (underwriterId) => {
-  // The actual delete operation is now handled by ConfirmDeleteUnderwriter component
+  // Reset selections
   selectedItemId.value = null
   selectedItem.value = null
   
-  // Remove from dummy data if using it
-  if (USE_DUMMY_DATA && underwriterId) {
-    const index = store.underwriters.findIndex(u => u.id === underwriterId)
-    if (index !== -1) {
-      store.underwriters.splice(index, 1)
-      messageApi?.success('Underwriter deleted successfully!')
-    }
-  }
+  // Refresh the list
+  fetchUnderwriters()
 }
 </script>
 

@@ -3,51 +3,91 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Edit Underwriter"
-    @save="handleSave"
+    variant="edit"
+    :loading="loading"
+    showActions
+    @confirm="handleSubmit"
+    confirmButtonText="Update"
   >
-    <div class="w-full flex flex-col gap-4">
+    <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
+      <!-- Underwriter Name Field -->
       <InputField 
-        v-model="form.name"
-        label="Title"
+        v-model="formState.name"
+        label="Underwriter Name"
         placeholder="Enter underwriter name"
-        class="w-full"
+        id="name"
+        :error="errors.name"
       />
       
+      <!-- Description Field -->
+      <InputField 
+        v-model="formState.description"
+        label="Description"
+        placeholder="Enter description"
+        id="description"
+        :error="errors.description"
+      />
+      
+      <!-- Website Field -->
+      <InputField 
+        v-model="formState.website"
+        label="Website"
+        placeholder="Enter website URL"
+        id="website"
+        :error="errors.website"
+      />
+      
+      <!-- Logo Field -->
+      <InputField 
+        v-model="formState.logo"
+        label="Logo URL"
+        placeholder="Enter logo URL"
+        id="logo"
+        :error="errors.logo"
+      />
+      
+      <!-- Sector Field -->
       <SelectField 
-        v-model="form.sector"
+        v-model="formState.sector"
         label="Sector"
         placeholder="Select sector"
+        id="sector"
         :options="sectorOptions"
-        class="w-full"
+        :error="errors.sector"
       />
       
+      <!-- Province Field -->
       <SelectField 
-        v-model="form.province"
+        v-model="formState.province"
         label="Province"
         placeholder="Select province"
+        id="province"
         :options="provinceOptions"
-        class="w-full"
+        :error="errors.province"
       />
       
+      <!-- Town/City Field -->
       <InputField 
-        v-model="form.town_city"
+        v-model="formState.town_city"
         label="Town/City"
-        placeholder="Enter town / city"
-        class="w-full"
+        placeholder="Enter town/city"
+        id="town_city"
+        :error="errors.town_city"
       />
-    </div>
+    </form>
   </Modal>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue'
+import { ref, reactive, inject, watch } from 'vue'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import { useUnderwritersStore } from '@/stores/underwriters'
-import { message } from 'ant-design-vue'
+import notificationService from '@/services/notificationService'
 
 const store = useUnderwritersStore()
+const loading = ref(false)
 
 const props = defineProps({
   show: {
@@ -60,11 +100,29 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['update:show'])
+const emit = defineEmits(['update:show', 'underwriter-updated'])
 
-const form = ref({
+// Form state
+const formState = reactive({
   id: '',
   name: '',
+  description: '',
+  website: '',
+  logo: '',
+  sector: '',
+  province: '',
+  town_city: '',
+  active: false,
+  created_on: '',
+  updated_on: ''
+})
+
+// Form errors
+const errors = reactive({
+  name: '',
+  description: '',
+  website: '',
+  logo: '',
   sector: '',
   province: '',
   town_city: ''
@@ -73,10 +131,14 @@ const form = ref({
 // Watch for changes in the underwriter prop to update form
 watch(() => props.underwriter, (newVal) => {
   if (newVal) {
-    form.value = { ...newVal }
+    // Map all properties from the provided underwriter object
+    Object.keys(formState).forEach(key => {
+      formState[key] = newVal[key] !== undefined ? newVal[key] : '';
+    });
   }
 }, { immediate: true, deep: true })
 
+// Options for select fields
 const sectorOptions = [
   { value: 'Funeral', label: 'Funeral' },
   { value: 'Life', label: 'Life' },
@@ -85,21 +147,88 @@ const sectorOptions = [
 ]
 
 const provinceOptions = [
-  { value: 'Accra', label: 'Accra' },
-  { value: 'Ashanti', label: 'Ashanti' },
-  { value: 'Central', label: 'Central' },
-  { value: 'Eastern', label: 'Eastern' },
-  { value: 'Northern', label: 'Northern' }
+  { value: 'Eastern Cape', label: 'Eastern Cape' },
+  { value: 'Free State', label: 'Free State' },
+  { value: 'Gauteng', label: 'Gauteng' },
+  { value: 'KwaZulu-Natal', label: 'KwaZulu-Natal' },
+  { value: 'Limpopo', label: 'Limpopo' },
+  { value: 'Mpumalanga', label: 'Mpumalanga' },
+  { value: 'Northern Cape', label: 'Northern Cape' },
+  { value: 'North West', label: 'North West' },
+  { value: 'Western Cape', label: 'Western Cape' }
 ]
 
-const handleSave = async () => {
+// Validate form
+const validateForm = () => {
+  let isValid = true
+  
+  // Reset errors
+  Object.keys(errors).forEach(key => errors[key] = '')
+  
+  // Required field validation
+  if (!formState.name) {
+    errors.name = 'Underwriter name is required'
+    isValid = false
+  } else if (formState.name.length > 120) {
+    errors.name = 'Name must be 120 characters or less'
+    isValid = false
+  }
+  
+  // Sector validation
+  if (!formState.sector) {
+    errors.sector = 'Sector is required'
+    isValid = false
+  } else if (formState.sector.length > 25) {
+    errors.sector = 'Sector must be 25 characters or less'
+    isValid = false
+  }
+  
+  // Website validation (optional but must be valid URL if provided)
+  if (formState.website) {
+    try {
+      new URL(formState.website)
+    } catch (e) {
+      errors.website = 'Please enter a valid URL'
+      isValid = false
+    }
+  }
+  
+  return isValid
+}
+
+// Submit handler
+const handleSubmit = async () => {
+  if (!validateForm()) return
+  
   try {
-    await store.updateUnderwriter(form.value)
-    message.success('Underwriter updated successfully')
-    emits('update:show', false)
+    loading.value = true
+    
+    // Create API payload
+    const payload = {
+      id: formState.id,
+      name: formState.name,
+      description: formState.description || null,
+      website: formState.website || null,
+      logo: formState.logo || null,
+      sector: formState.sector,
+      province: formState.province || null,
+      town_city: formState.town_city || null,
+      active: formState.active,
+      created_on: formState.created_on,
+      updated_on: formState.updated_on
+    }
+    
+    // Save to store/API
+    const updatedUnderwriter = await store.updateUnderwriter(formState.id, payload)
+    
+    notificationService.success('Underwriter updated successfully!')
+    emit('underwriter-updated', updatedUnderwriter)
+    emit('update:show', false)
   } catch (error) {
-    message.error('Failed to update underwriter')
     console.error(error)
+    notificationService.error(error?.response?.data?.detail || 'Failed to update underwriter')
+  } finally {
+    loading.value = false
   }
 }
 </script>

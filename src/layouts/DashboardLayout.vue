@@ -18,4 +18,8 @@ import { RouterView } from 'vue-router'
 import Sidenav from '@/components/Sidenav.vue'
 import TopNav from '@/components/TopNav.vue'
 import MessageProvider from '@/providers/message-provider.vue';
+import { useAuthGuard } from '@/guards/AuthGuard';
+
+// Check authentication when dashboard loads
+const { checkAuth } = useAuthGuard();
 </script>

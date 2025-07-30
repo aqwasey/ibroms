@@ -4,7 +4,7 @@
     :close="() => $emit('update:show', false)"
     title="Edit Account"
     variant="edit"
-    :loading="loading"
+    :loading="bankAccountsStore.saving"
     showActions
     @confirm="handleSubmit"
     confirmButtonText="Save Changes"
@@ -103,7 +103,7 @@ const errors = reactive({
   purpose: ''
 })
 
-const loading = ref(false)
+// Using saving state from the store instead of local loading state
 
 // Options for select fields
 const accountTypeOptions = [
@@ -183,22 +183,33 @@ const handleSubmit = async () => {
   if (!validateForm()) return
   
   try {
-    loading.value = true
+    // Get company_id from localStorage where user info is stored
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (!user?.company_id) {
+      messageApi.error('User company information not found')
+      return
+    }
+    
+    // Create a clean object with only the fields the API needs
+    const updateData = {
+      bank_name: formState.bank_name,
+      account_no: formState.account_no,
+      account_type: formState.account_type,
+      email: formState.email,
+      purpose: formState.purpose,
+      company_id: user.company_id,
+      reference: props.account.reference || (formState.bank_name.substring(0, 8) + '-' + formState.account_no.substring(0, 4))
+    }
     
     // Update account in store/API
-    const updatedAccount = await bankAccountsStore.updateBankAccount(props.account.id, {
-      ...formState,
-      id: props.account.id // Ensure the ID is included
-    })
+    const updatedAccount = await bankAccountsStore.updateBankAccount(props.account.id, updateData)
     
     messageApi.success('Account updated successfully!')
     emit('account-updated', updatedAccount)
     emit('update:show', false)
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
-  } finally {
-    loading.value = false
+    messageApi.error(error?.message || 'Failed to update account')
   }
 }
 </script>

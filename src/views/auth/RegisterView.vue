@@ -26,20 +26,11 @@
         label="Email"
         placeholder="Enter your email"
       />
-      <div class="select-container">
-        <label>Province</label>
-        <select v-model="province" @change="handleProvinceChange" class="select-field">
-          <option value="" disabled>Select province</option>
-          <option v-for="prov in provinces" :key="prov.code" :value="prov.name">{{ prov.name }}</option>
-        </select>
-      </div>
-      <div class="select-container">
-        <label>Town/City</label>
-        <select v-model="town_city" class="select-field" :disabled="!province">
-          <option value="" disabled>Select town/city</option>
-          <option v-for="city in filteredCities" :key="city" :value="city">{{ city }}</option>
-        </select>
-      </div>
+      <ProvinceSelect 
+        v-model="locationData" 
+        provinceLabel="Province" 
+        cityLabel="Town/City" 
+      />
       <InputField
         v-model="password"
         label="Password"
@@ -73,12 +64,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthLayout from '@/components/auth/AuthLayout.vue';
 import InputField from '@/components/InputField.vue';
 import ButtonBase from '@/components/ButtonBase.vue';
 import PhoneInput from '@/components/PhoneInput.vue';
+import ProvinceSelect from '@/components/ProvinceSelect.vue';
 import notificationService from '@/services/notificationService';
 import { isValidEmail, sanitizeInput, validatePassword, isValidSAPhoneNumber, validateRequiredFields } from '@/utils/validation';
 
@@ -89,72 +81,11 @@ const business_name = ref('');
 const regis_no = ref('');
 const phone = ref('');
 const email = ref('');
-const province = ref('');
-const town_city = ref('');
+const locationData = ref({ province: '', city: '' });
 const password = ref('');
 const confirmPassword = ref('');
 
-// South African provinces and their major cities
-const provinces = [
-  {
-    code: 'EC',
-    name: 'Eastern Cape',
-    cities: ['East London', 'Gqeberha (Port Elizabeth)', 'Makhanda (Grahamstown)', 'Mthatha', 'Bhisho']
-  },
-  {
-    code: 'FS',
-    name: 'Free State',
-    cities: ['Bloemfontein', 'Welkom', 'Bethlehem', 'Sasolburg', 'Kroonstad']
-  },
-  {
-    code: 'GP',
-    name: 'Gauteng',
-    cities: ['Johannesburg', 'Pretoria', 'Soweto', 'Centurion', 'Sandton', 'Midrand', 'Benoni', 'Kempton Park']
-  },
-  {
-    code: 'KZN',
-    name: 'KwaZulu-Natal',
-    cities: ['Durban', 'Pietermaritzburg', 'Newcastle', 'Richards Bay', 'Ladysmith']
-  },
-  {
-    code: 'LP',
-    name: 'Limpopo',
-    cities: ['Polokwane', 'Tzaneen', 'Mokopane', 'Musina', 'Thohoyandou']
-  },
-  {
-    code: 'MP',
-    name: 'Mpumalanga',
-    cities: ['Nelspruit', 'Witbank', 'Secunda', 'Middelburg', 'Ermelo']
-  },
-  {
-    code: 'NC',
-    name: 'Northern Cape',
-    cities: ['Kimberley', 'Upington', 'Kuruman', 'Springbok', 'De Aar']
-  },
-  {
-    code: 'NW',
-    name: 'North West',
-    cities: ['Rustenburg', 'Mahikeng', 'Potchefstroom', 'Klerksdorp', 'Brits']
-  },
-  {
-    code: 'WC',
-    name: 'Western Cape',
-    cities: ['Cape Town', 'Stellenbosch', 'Paarl', 'George', 'Worcester', 'Mossel Bay']
-  }
-];
-
-// Computed property for filtering cities based on selected province
-const filteredCities = computed(() => {
-  if (!province.value) return [];
-  const selectedProvince = provinces.find(p => p.name === province.value);
-  return selectedProvince ? selectedProvince.cities : [];
-});
-
-// Handle province change
-const handleProvinceChange = () => {
-  // Reset city selection when province changes
-  town_city.value = '';
-};
+// Province/city data is now handled by the ProvinceSelect component
 
 const register = async () => {
   // Create a data object with all form fields
@@ -163,8 +94,8 @@ const register = async () => {
     regis_no: regis_no.value?.trim(),
     phone: phone.value?.trim(),
     email: email.value?.trim(),
-    province: province.value,
-    town_city: town_city.value,
+    province: locationData.value.province,
+    town_city: locationData.value.city,
     password: password.value,
     confirmPassword: confirmPassword.value
   };

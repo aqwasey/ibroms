@@ -2,7 +2,7 @@
   <div class="p-6">
     <ConfirmDelete
       :item-id="selectedItemId"
-      :loading="bankAccountsStore.adding"
+      :loading="bankAccountsStore.saving"
       :title="'Account'"
       :text="'Are you sure you want to delete? It will be deleted permanently'"
       @delete-item="handleDelete"
@@ -82,70 +82,15 @@ const messageApi = inject('messageApi')
 
 const bankAccountsStore = useBankAccountsStore()
 
-// DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
-const USE_DUMMY_DATA = true; // Set this to false to use real data from API
+// No longer using dummy data - real API integration
 
-const DUMMY_BANK_ACCOUNTS = [
-  {
-    id: '1',
-    bank_name: 'National Bank',
-    account_no: '123456789',
-    account_type: 'Savings',
-    email: 'accounts@national.com',
-    purpose: 'General Operations'
-  },
-  {
-    id: '2',
-    bank_name: 'Commerce Bank',
-    account_no: '987654321',
-    account_type: 'Checking',
-    email: 'finance@commerce-bank.com',
-    purpose: 'Payroll'
-  },
-  {
-    id: '3',
-    bank_name: 'First Trust',
-    account_no: '567891234',
-    account_type: 'Business',
-    email: 'business@firsttrust.com',
-    purpose: 'Investments'
-  },
-  {
-    id: '4',
-    bank_name: 'Global Finance',
-    account_no: '456123789',
-    account_type: 'Savings',
-    email: 'global@financebank.com',
-    purpose: 'Emergency Fund'
-  },
-  {
-    id: '5',
-    bank_name: 'City Credit Union',
-    account_no: '789123456',
-    account_type: 'Credit',
-    email: 'credit@citycu.com',
-    purpose: 'Expenses'
-  },
-  {
-    id: '6',
-    bank_name: 'Bank of Insurance',
-    account_no: '654987321',
-    account_type: 'Trust',
-    email: 'trust@bankofinsurance.com',
-    purpose: 'Claims Payment'
-  }
-];
-
-// Mock the store's data if using dummy data
-if (USE_DUMMY_DATA) {
-  // Override the store's properties for demo purposes
-  bankAccountsStore.bankAccounts = DUMMY_BANK_ACCOUNTS;
-  bankAccountsStore.loading = false;
-}
-
-onMounted(() => {
-  if (!USE_DUMMY_DATA) {
-    bankAccountsStore.fetchBankAccounts()
+// Fetch bank accounts when component mounts
+onMounted(async () => {
+  try {
+    await bankAccountsStore.fetchBankAccounts()
+  } catch (error) {
+    messageApi.error(error?.message || 'Failed to load bank accounts')
+    console.error('Error fetching bank accounts:', error)
   }
 })
 
@@ -223,7 +168,8 @@ const handleDelete = async (itemId) => {
     showConfirm.value = false
     messageApi.success('Account deleted successfully!')
   } catch (error) {
-    messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
+    messageApi.error(error?.message || 'Failed to delete account')
+    console.error('Error deleting account:', error)
   }
 }
 

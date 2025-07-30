@@ -1,9 +1,12 @@
 // stores/underwriters.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/utils/api.js'
+import { createCrudService } from '@/services/crudService'
 
 export const useUnderwritersStore = defineStore('underwriters', () => {
+  // Create CRUD service for underwriters endpoint
+  const underwriterService = createCrudService('/underwriters')
+  
   const underwriters = ref([])
   const loading = ref(false)
   const saving = ref(false)
@@ -20,26 +23,13 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api().get('/underwriters/')
-      // Case: API returns 200 with an "info" message
-      if (response.data?.info) {
-        underwriters.value = []  // no actual data
-        error.value = response.data.info // show message as a user-facing notice
-        console.warn('Info:', response.data.info)
-      } else {
-        underwriters.value = response.data
-      }
+      const response = await underwriterService.getAll()
+      // Process the response
+      underwriters.value = response
     } catch (err) {
-      // If the backend returns a JSON error response (e.g. 404 with { info: "Not found" })
-      if (err.response && err.response.data?.info) {
-        underwriters.value = []
-        error.value = err.response.data.info
-        console.warn('Info (error case):', err.response.data.info)
-      } else {
-        // Generic fallback for unexpected errors
-        error.value = err.message || 'Unexpected error occurred'
-        console.error('Fetch error:', err)
-      }
+      error.value = err.message || 'Unexpected error occurred'
+      console.error('Fetch error:', err)
+      underwriters.value = []
     } finally {
       loading.value = false
     }
@@ -51,13 +41,12 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     error.value = null
     try {
       const companyId = localStorage.getItem('company_id')  // Or wherever you store it
-      const data = await api().get('/underwriters/', {
-        params: { company_id: companyId }
-      })
-      underwriters.value = data
+      const response = await underwriterService.getAll({ company_id: companyId })
+      underwriters.value = response
     } catch (err) {
-      error.value = err.response?.data || err.message
-      // console.error('Fetch error:', err.response?.data || err.message)
+      error.value = err.message || 'Unexpected error occurred'
+      console.error('Fetch error:', err)
+      underwriters.value = []
     } finally {
       loading.value = false
     }
@@ -68,12 +57,12 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      const newUnderwriter = await api().post('/underwriters/', underwriterData)
+      const newUnderwriter = await underwriterService.create(underwriterData)
       underwriters.value.push(newUnderwriter)
       return newUnderwriter
     } catch (err) {
       error.value = err
-      console.error('[createUnderwriter]', err.response?.data || err.message)
+      console.error('[createUnderwriter]', err.message)
       throw err
     } finally {
       saving.value = false
@@ -84,13 +73,13 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      const updated = await api().patch(`/underwriters/${id}`, underwriterData)
+      const updated = await underwriterService.patch(id, underwriterData)
       const index = underwriters.value.findIndex(u => u.id === id)
       if (index !== -1) underwriters.value[index] = updated
       return updated
     } catch (err) {
       error.value = err
-      console.error('[updateUnderwriter]', err.response?.data || err.message)
+      console.error('[updateUnderwriter]', err.message)
       throw err
     } finally {
       saving.value = false
@@ -101,11 +90,11 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      await api().delete(`/underwriters/${id}`)
+      await underwriterService.delete(id)
       underwriters.value = underwriters.value.filter(u => u.id !== id)
     } catch (err) {
       error.value = err
-      console.error('[deleteUnderwriter]', err.response?.data || err.message)
+      console.error('[deleteUnderwriter]', err.message)
       throw err
     } finally {
       saving.value = false

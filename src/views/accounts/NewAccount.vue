@@ -4,7 +4,7 @@
     :close="() => $emit('update:show', false)"
     title="Add Account"
     variant="edit"
-    :loading="loading"
+    :loading="bankAccountsStore.saving"
     showActions
     @confirm="handleSubmit"
     confirmButtonText="Save"
@@ -105,7 +105,7 @@ const errors = reactive({
   purpose: ''
 })
 
-const loading = ref(false)
+// Using saving state from the store instead of local loading state
 
 // Options for select fields
 const accountTypeOptions = [
@@ -173,13 +173,18 @@ const handleSubmit = async () => {
   if (!validateForm()) return
   
   try {
-    loading.value = true
+    // Get company_id from localStorage where user info is stored
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (!user?.company_id) {
+      messageApi.error('User company information not found')
+      return
+    }
     
     // Save to store
     const newAccount = await bankAccountsStore.createBankAccount({
       ...formState,
-      reference: "string",
-      company_id: 'b45cffe0-84dd-3d20-d928-bee85e7b0f21' // This should probably come from a store or environment
+      reference: formState.bank_name.substring(0, 8) + '-' + formState.account_no.substring(0, 4), // Generate simple reference from bank name and account
+      company_id: user.company_id
     })
     
     messageApi.success('Account created successfully!')
@@ -188,9 +193,7 @@ const handleSubmit = async () => {
     resetForm()
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Something went wrong')
-  } finally {
-    loading.value = false
+    messageApi.error(error?.message || 'Failed to create account')
   }
 }
 </script>

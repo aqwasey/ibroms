@@ -80,7 +80,15 @@ export const authService = {
    */
   isLoggedIn() {
     const token = localStorage.getItem('token');
-    return !!token;
+    if (!token) return false;
+    
+    // Check if token is expired
+    const tokenData = this.parseJwt(token);
+    if (!tokenData) return false;
+    
+    // Check expiration (exp is in seconds since epoch)
+    const currentTime = Math.floor(Date.now() / 1000);
+    return tokenData.exp > currentTime;
   },
   
   /**
@@ -90,6 +98,78 @@ export const authService = {
   getCurrentUser() {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
+  },
+  
+  /**
+   * Check if the current token is expired
+   * @returns {boolean} True if token is expired or invalid
+   */
+  isTokenExpired() {
+    const token = localStorage.getItem('token');
+    if (!token) return true;
+    
+    const tokenData = this.parseJwt(token);
+    if (!tokenData || !tokenData.exp) return true;
+    
+    const currentTime = Math.floor(Date.now() / 1000);
+    return tokenData.exp <= currentTime;
+  },
+  
+  /**
+   * Attempt to refresh the access token
+   * @returns {Promise<boolean>} True if refresh was successful
+   */
+  async refreshToken() {
+    try {
+      // Get the current token for the refresh request
+      const currentToken = localStorage.getItem('token');
+      if (!currentToken) return false;
+      
+      // Call the refresh endpoint
+      const response = await api.post('/auth/refresh', { token: currentToken });
+      
+      // Store the new token if successful
+      if (response && response.data) {
+        localStorage.setItem('token', response.data);
+        
+        // Update user info from new token
+        const tokenPayload = this.parseJwt(response.data);
+        if (tokenPayload) {
+          localStorage.setItem('user', JSON.stringify({
+            email: tokenPayload.email,
+            company_id: tokenPayload.company_id,
+            bin: tokenPayload.bin,
+            last_login: tokenPayload.last_login
+          }));
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
+    }
+  },
+  
+  /**
+   * Check token and refresh if needed
+   * @returns {Promise<boolean>} True if valid token is available (either existing or refreshed)
+   */
+  async ensureValidToken() {
+    // If token is not expired, we're good
+    if (!this.isTokenExpired()) {
+      return true;
+    }
+    
+    // Try to refresh token
+    const refreshed = await this.refreshToken();
+    if (refreshed) {
+      return true;
+    }
+    
+    // If refresh failed, log user out
+    this.logout();
+    return false;
   }
 };
 
@@ -98,7 +178,8 @@ export const authService = {
  * @param {string} token - JWT token
  * @returns {object|null} Decoded token payload or null if invalid
  */
-function parseJwt(token) {
+// Export parseJwt for use within the authService object
+export function parseJwt(token) {
   try {
     // Split the token and get the payload part
     const base64Url = token.split('.')[1];
@@ -113,5 +194,8 @@ function parseJwt(token) {
     return null;
   }
 }
+
+// Add parseJwt to authService for internal use
+authService.parseJwt = parseJwt;
 
 export default authService;
