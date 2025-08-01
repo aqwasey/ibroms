@@ -7,7 +7,6 @@ import router from './router'
 
 const app = createApp(App)
 app.use(createPinia())
-app.use()
 app.use(router)
 
 Sentry.init({

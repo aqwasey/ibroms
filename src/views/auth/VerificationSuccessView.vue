@@ -19,9 +19,9 @@
     <!-- Action buttons -->
     <template #actions>
       <ButtonBase
-        label="Continue to Dashboard"
+        label="Continue to Login"
         variant="primary"
-        @click="goToDashboard"
+        @click="goToLogin"
         class="w-full"
       />
     </template>
@@ -32,12 +32,15 @@
 import { useRouter } from 'vue-router';
 import AuthLayout from '@/components/auth/AuthLayout.vue';
 import ButtonBase from '@/components/ButtonBase.vue';
+import notificationService from '@/services/notificationService';
 
 const router = useRouter();
 
-const goToDashboard = () => {
-  // For demo purposes, navigate to the main dashboard
-  router.push('/dashboard/products');
+const goToLogin = () => {
+  // After verification is complete, user needs to log in
+  localStorage.removeItem('registrationEmail'); // Clean up stored email
+  notificationService.success('Your account has been verified. Please log in.');
+  router.push('/login');
 };
 </script>
 

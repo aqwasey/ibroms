@@ -22,18 +22,31 @@
       </div>
 
       <div class="resend-container">
-        <div class="checkbox-label">Didn't receive code?</div>
-        <button class="link-button checkbox-label" @click="resendCode">Resend</button>
+        <div class="checkbox-label">
+          Didn't receive code?
+          <span v-if="remainingTime" class="otp-timer">({{ remainingTime }})</span>
+        </div>
+        <button 
+          class="link-button checkbox-label" 
+          @click="resendCode"
+          :disabled="isResending || !canResend"
+        >
+          <template v-if="isResending">Sending...</template>
+          <template v-else-if="!canResend">Wait</template>
+          <template v-else>Resend</template>
+        </button>
       </div>
     </template>
 
     <!-- Action buttons -->
     <template #actions>
       <ButtonBase
-        label="Verify Email"
+        :label="isSubmitting ? 'Verifying...' : 'Verify Email'"
         variant="primary"
         @click="verifyEmail"
         class="w-full"
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
       />
     </template>
 
@@ -47,19 +60,92 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import AuthLayout from '@/components/auth/AuthLayout.vue';
 import ButtonBase from '@/components/ButtonBase.vue';
+import api from '@/services/api';
+import authService from '@/services/authService';
+import notificationService from '@/services/notificationService';
 
 const router = useRouter();
-const otpDigits = ref(['', '', '', '', '', '']);
+const otpDigits = ref(['', '', '', '', '']); // Changed from 6 to 5 digits
 const otpInputs = ref([]);
+const isSubmitting = ref(false);
+const isResending = ref(false);
+const otpExpiry = ref(null); // To store OTP expiry timestamp
+const remainingTime = ref(''); // Formatted time remaining for display
+const canResend = ref(false); // Controls whether resend button is enabled
+const timerInterval = ref(null); // To store the interval reference
+
+// Get the email from localStorage (saved during registration)
+const userEmail = computed(() => {
+  return localStorage.getItem('registrationEmail') || '';
+});
+
+// Function to update the timer display and resend button state
+const updateTimer = () => {
+  if (!otpExpiry.value) {
+    remainingTime.value = '';
+    canResend.value = true;
+    return;
+  }
+  
+  const now = new Date();
+  const expiryDate = new Date(otpExpiry.value);
+  const timeDiff = expiryDate - now;
+  
+  if (timeDiff <= 0) {
+    // OTP has expired
+    remainingTime.value = '';
+    canResend.value = true;
+    
+    // Clear the interval as we don't need to update anymore
+    if (timerInterval.value) {
+      clearInterval(timerInterval.value);
+      timerInterval.value = null;
+    }
+    return;
+  }
+  
+  // OTP still valid, calculate remaining time
+  const minutes = Math.floor(timeDiff / 60000);
+  const seconds = Math.floor((timeDiff % 60000) / 1000);
+  remainingTime.value = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  canResend.value = false;
+};
 
 onMounted(() => {
   // Focus the first OTP input when component mounts
   if (otpInputs.value[0]) {
     otpInputs.value[0].focus();
+  }
+  
+  // Check if we have an email to verify
+  if (!userEmail.value) {
+    notificationService.error('No email found to verify. Please register first.');
+    router.push('/register');
+  }
+  
+  // Check if we have a stored expiry time in localStorage
+  const storedExpiry = localStorage.getItem('otpExpiry');
+  if (storedExpiry) {
+    otpExpiry.value = storedExpiry;
+    updateTimer();
+    
+    // Set up timer to update every second
+    timerInterval.value = setInterval(updateTimer, 1000);
+  } else {
+    // No stored expiry time, enable resend immediately
+    canResend.value = true;
+  }
+});
+
+onBeforeUnmount(() => {
+  // Clean up the interval when component is unmounted
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value);
+    timerInterval.value = null;
   }
 });
 
@@ -84,21 +170,105 @@ const handleKeyDown = (event, index) => {
   }
 };
 
-const verifyEmail = () => {
+const verifyEmail = async () => {
+  // Join OTP digits to form the complete code
   const otp = otpDigits.value.join('');
-  console.log('Verifying email with OTP:', otp);
-
-  // For demo purposes, check if OTP is "123456"
-  if (otp === "123456") {
-    router.push('/verification-success');
-  } else {
-    alert('Invalid OTP. For demo purposes, use "123456"');
+  
+  // Validate OTP format (should be 5 digits)
+  if (otp.length !== 5 || !/^\d+$/.test(otp)) {
+    notificationService.error('Please enter a valid 5-digit verification code');
+    return;
+  }
+  
+  isSubmitting.value = true;
+  
+  try {
+    // Call the verify-otp API endpoint (POST method with JSON body)
+    const response = await api.post('/auth/verify-otp', {
+      email: userEmail.value,
+      otp: otp
+    });
+    
+    console.log('OTP verification response:', response);
+    
+    if (response && response.status === 1) {
+      notificationService.success('Email verified successfully!');
+      router.push('/verification-success');
+    } else {
+      notificationService.error(response?.info || 'Verification failed. Please check your OTP code.');
+    }
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    
+    // Handle validation errors (422 responses)
+    if (error?.detail && Array.isArray(error.detail)) {
+      // Extract and display specific validation errors
+      const errorMessages = error.detail.map(item => item.msg || 'Validation error').join(', ');
+      notificationService.error(errorMessages || 'Invalid verification code');
+    } else if (error?.detail) {
+      notificationService.error(typeof error.detail === 'string' ? error.detail : 'Verification failed');
+    } else {
+      notificationService.error('Failed to verify email. Please try again.');
+    }
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
-const resendCode = () => {
-  console.log('Resending verification code...');
-  alert('New verification code sent! (This is a demo)');
+const resendCode = async () => {
+  if (isResending.value || !canResend.value) return;
+  
+  isResending.value = true;
+  
+  try {
+    // Call the refresh-otp API endpoint (POST with query parameter)
+    const response = await api.post(`/auth/refresh-otp?email=${encodeURIComponent(userEmail.value)}`);
+    
+    console.log('Resend OTP response:', response);
+    
+    // Check if response contains OTP and expiry (success case)
+    if (response && response.otp) {
+      notificationService.success('New verification code sent to your email');
+      
+      // Clear the current OTP fields (5 digits)
+      otpDigits.value = ['', '', '', '', ''];
+      if (otpInputs.value[0]) {
+        otpInputs.value[0].focus();
+      }
+      
+      // Store expiry time and update timer
+      if (response.otp_expiry) {
+        otpExpiry.value = response.otp_expiry;
+        localStorage.setItem('otpExpiry', response.otp_expiry);
+        
+        // Reset timer if needed
+        if (timerInterval.value) {
+          clearInterval(timerInterval.value);
+        }
+        
+        // Update timer immediately and start interval
+        updateTimer();
+        timerInterval.value = setInterval(updateTimer, 1000);
+      }
+    } else {
+      notificationService.error(response?.info || 'Failed to send new verification code');
+    }
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    
+    // Handle validation errors (422 responses)
+    if (error?.detail && Array.isArray(error.detail)) {
+      // Extract and display specific validation errors
+      const errorMessages = error.detail.map(item => item.msg || 'Validation error').join(', ');
+      notificationService.error(errorMessages || 'Failed to send verification code');
+    } else if (error?.detail) {
+      notificationService.error(typeof error.detail === 'string' ? error.detail : 'Failed to send verification code');
+    } else {
+      notificationService.error('Failed to send new verification code. Please try again.');
+    }
+  } finally {
+    isResending.value = false;
+  }
 };
 
 const goToLogin = () => {
@@ -140,6 +310,14 @@ const goToLogin = () => {
   gap: 4px;
   justify-content: center;
   margin-top: 12px;
+}
+
+/* OTP timer styling */
+.otp-timer {
+  font-size: 0.875rem;
+  color: #667085;
+  margin-left: 4px;
+  font-weight: 500;
 }
 
 .checkbox-label {

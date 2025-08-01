@@ -48,10 +48,12 @@
     <!-- Action buttons -->
     <template #actions>
       <ButtonBase
-        label="Create Account"
+        :label="isSubmitting ? 'Creating Account...' : 'Create Account'"
         variant="primary"
         @click="register"
         class="w-full"
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
       />
     </template>
 
@@ -72,6 +74,8 @@ import ButtonBase from '@/components/ButtonBase.vue';
 import PhoneInput from '@/components/PhoneInput.vue';
 import ProvinceSelect from '@/components/ProvinceSelect.vue';
 import notificationService from '@/services/notificationService';
+import api from '@/services/api';
+import authService from '@/services/authService';
 import { isValidEmail, sanitizeInput, validatePassword, isValidSAPhoneNumber, validateRequiredFields } from '@/utils/validation';
 
 const router = useRouter();
@@ -84,6 +88,7 @@ const email = ref('');
 const locationData = ref({ province: '', city: '' });
 const password = ref('');
 const confirmPassword = ref('');
+const isSubmitting = ref(false);
 
 // Province/city data is now handled by the ProvinceSelect component
 
@@ -151,27 +156,49 @@ const register = async () => {
     return;
   }
 
-  // Sanitize inputs
-  const sanitizedData = {
+  // Create the payload as per API requirements
+  const registerPayload = {
     business_name: sanitizeInput(formData.business_name),
     regis_no: sanitizeInput(formData.regis_no),
     phone: `+27${formData.phone.replace(/\D/g, '')}`,
     email: sanitizeInput(formData.email),
     province: sanitizeInput(formData.province),
     town_city: sanitizeInput(formData.town_city),
-    password: formData.password
+    auth: {
+      email: sanitizeInput(formData.email),
+      password: formData.password
+    }
   };
 
   try {
-    // Show success for demo
-    notificationService.success('Registration successful! Please verify your email.');
-    console.log('Registering business with:', sanitizedData);
-
-    // For demo purposes, navigate to verification page
-    router.push('/verify-email');
+    isSubmitting.value = true;
+    
+    // Call the API to register the company
+    const response = await api.post('/company', registerPayload);
+    
+    console.log('Registration response:', response);
+    
+    if (response && response.status === 1) {
+      // Store email in localStorage for verification process
+      localStorage.setItem('registrationEmail', formData.email);
+      
+      // Set default OTP expiry time (typically 5-10 minutes from now)
+      // This ensures the timer shows up when navigating to OTP page
+      const defaultExpiryTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+      localStorage.setItem('otpExpiry', defaultExpiryTime.toISOString());
+      
+      notificationService.success('Registration successful! Please verify your email.');
+      
+      // Navigate to verification page
+      router.push('/verify-email');
+    } else {
+      notificationService.error(response?.info || 'Registration failed. Please try again.');
+    }
   } catch (error) {
     console.error('Registration error:', error);
-    notificationService.error('An error occurred during registration. Please try again.');
+    notificationService.error(error?.detail || 'An error occurred during registration. Please try again.');
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
