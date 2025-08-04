@@ -1,8 +1,9 @@
 <template>
   <div class="p-4">
+    <!-- Page Header -->
+    <PageHeader title="My Account" />
+    
     <div>
-      <h2 class="text-i-black-soft font-semibold text-xl pb-5">My Account</h2>
-      <hr>
       <div class="pt-5">
         <div class="flex items-center gap-4">
           <div class="relative h-20 w-20 rounded-full bg-cover bg-center overflow-hidden" style="background-image: url('https://placehold.co/600x400')">
@@ -18,50 +19,38 @@
           </div>
         </div>
       </div>
-      <a-form
-        class="account-form"
-        size="large"
-        :hide-required-mark="true"
-        layout="vertical">
+      <div class="form-section">
         <div class="grid grid-cols-2 gap-x-5">
-          <a-form-item
+          <InputField
+            v-model="formState.firstName"
             label="First Name"
-            name="first_name"
-            :rules="[{ required: true, message: 'Required' }]">
-            <a-input v-model:value="formState.name" />
-          </a-form-item>
-
-          <a-form-item
+            placeholder="Enter first name"
+          />
+          <InputField
+            v-model="formState.lastName"
             label="Last Name"
-            name="last_name"
-            :rules="[{ required: true, message: 'Required' }]">
-            <a-input v-model:value="formState.name" />
-          </a-form-item>
-
-          <a-form-item
+            placeholder="Enter last name"
+          />
+          <InputField
+            v-model="formState.birthDate"
             label="Birth Date"
-            name="birth_date"
-            :rules="[{ required: true, message: 'Required' }]">
-            <a-input v-model:value="formState.name" />
-          </a-form-item>
-
-          <a-form-item
+            placeholder="Select birth date"
+            type="date"
+          />
+          <SelectField
+            v-model="formState.country"
             label="Country"
-            name="country"
-            :rules="[{ required: true, message: 'Required' }]">
-            <a-select show-search placeholder="Select Country" allow-clear v-model:value="formState.province">
-              <a-select-option value="Country 1">Country 1</a-select-option>
-              <a-select-option value="Country 2">Country 2</a-select-option>
-            </a-select>
-          </a-form-item>
+            placeholder="Select Country"
+            :options="countryOptions"
+          />
         </div>
-        <a-form-item
+        <InputField
+          v-model="formState.address"
           label="Address"
-          name="address"
-          :rules="[{ required: true, message: 'Required' }]">
-          <a-input v-model:value="formState.name" />
-        </a-form-item>
-      </a-form>
+          placeholder="Enter your address"
+          class="mt-5"
+        />
+      </div>
     </div>
     <account-security/>
   </div>
@@ -70,17 +59,26 @@
 <script setup>
 import { inject, onMounted, reactive } from 'vue'
 import { useUnderwritersStore } from '@/stores/underwriters.js'
-import { Form } from 'ant-design-vue'
+import PageHeader from '@/components/PageHeader.vue'
+import InputField from '@/components/InputField.vue'
+import SelectField from '@/components/SelectField.vue'
 import AccountSecurity from '@/views/Profile/AccountSecurity.vue'
 
-const useForm = Form.useForm
-
 let formState = reactive({
-  name: '',
-  sector: '',
-  town_city: '',
-  province: ''
+  firstName: '',
+  lastName: '',
+  birthDate: '',
+  country: '',
+  address: ''
 })
+
+// Country options for select field
+const countryOptions = [
+  { value: 'south-africa', label: 'South Africa' },
+  { value: 'nigeria', label: 'Nigeria' },
+  { value: 'ghana', label: 'Ghana' },
+  { value: 'kenya', label: 'Kenya' }
+]
 
 const messageApi = inject('messageApi')
 
@@ -89,8 +87,6 @@ const underwritersStore = useUnderwritersStore()
 onMounted(() => {
   underwritersStore.fetchUnderwriters()
 })
-
-const { resetFields } = useForm(formState)
 
 </script>
 
