@@ -110,19 +110,16 @@ const errors = reactive({
 // Options for select fields
 const accountTypeOptions = [
   { label: 'Savings', value: 'Savings' },
-  { label: 'Checking', value: 'Checking' },
-  { label: 'Business', value: 'Business' },
-  { label: 'Trust', value: 'Trust' },
-  { label: 'Credit', value: 'Credit' }
+  { label: 'Current', value: 'Current' },
+  { label: 'Transmission', value: 'Transmission' },
+  { label: 'Other', value: 'Other' }
 ]
 
+
 const purposeOptions = [
-  { label: 'General', value: 'General' },
-  { label: 'Payroll', value: 'Payroll' },
-  { label: 'Expenses', value: 'Expenses' },
-  { label: 'Investments', value: 'Investments' },
-  { label: 'Emergency', value: 'Emergency' },
-  { label: 'Claims', value: 'Claims' }
+  { label: 'Premium', value: 'Premium' },
+  { label: 'Claims Payout', value: 'Claims Payout' },
+  { label: 'Other', value: 'Other' }
 ]
 
 // Validate form
