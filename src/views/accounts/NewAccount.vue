@@ -18,7 +18,7 @@
           id="bank_name"
           :error="errors.bank_name"
         />
-        
+
         <!-- Account Number Field -->
         <InputField
           v-model="formState.account_no"
@@ -27,7 +27,7 @@
           id="account_no"
           :error="errors.account_no"
         />
-        
+
         <!-- Account Type Field -->
         <SelectField
           v-model="formState.account_type"
@@ -37,7 +37,7 @@
           :options="accountTypeOptions"
           :error="errors.account_type"
         />
-        
+
         <!-- Email Field -->
         <InputField
           v-model="formState.email"
@@ -47,7 +47,7 @@
           id="email"
           :error="errors.email"
         />
-        
+
         <!-- Purpose Field -->
         <SelectField
           v-model="formState.purpose"
@@ -117,39 +117,39 @@ const accountTypeOptions = [
 ]
 
 const purposeOptions = [
-  { label: 'General Operations', value: 'General Operations' },
+  { label: 'General', value: 'General' },
   { label: 'Payroll', value: 'Payroll' },
   { label: 'Expenses', value: 'Expenses' },
   { label: 'Investments', value: 'Investments' },
-  { label: 'Emergency Fund', value: 'Emergency Fund' },
-  { label: 'Claims Payment', value: 'Claims Payment' }
+  { label: 'Emergency', value: 'Emergency' },
+  { label: 'Claims', value: 'Claims' }
 ]
 
 // Validate form
 const validateForm = () => {
   let isValid = true
-  
+
   // Reset errors
   Object.keys(errors).forEach(key => errors[key] = '')
-  
+
   // Bank name validation
   if (!formState.bank_name) {
     errors.bank_name = 'Bank name is required'
     isValid = false
   }
-  
+
   // Account number validation
   if (!formState.account_no) {
     errors.account_no = 'Account number is required'
     isValid = false
   }
-  
+
   // Account type validation
   if (!formState.account_type) {
     errors.account_type = 'Account type is required'
     isValid = false
   }
-  
+
   // Email validation
   if (!formState.email) {
     errors.email = 'Email is required'
@@ -158,20 +158,20 @@ const validateForm = () => {
     errors.email = 'Please enter a valid email address'
     isValid = false
   }
-  
+
   // Purpose validation
   if (!formState.purpose) {
     errors.purpose = 'Purpose is required'
     isValid = false
   }
-  
+
   return isValid
 }
 
 // Submit handler
 const handleSubmit = async () => {
   if (!validateForm()) return
-  
+
   try {
     // Get company_id from localStorage where user info is stored
     const user = JSON.parse(localStorage.getItem('user'))
@@ -179,14 +179,14 @@ const handleSubmit = async () => {
       messageApi.error('User company information not found')
       return
     }
-    
+
     // Save to store
     const newAccount = await bankAccountsStore.createBankAccount({
       ...formState,
       reference: formState.bank_name.substring(0, 8) + '-' + formState.account_no.substring(0, 4), // Generate simple reference from bank name and account
       company_id: user.company_id
     })
-    
+
     messageApi.success('Account created successfully!')
     emit('account-created', newAccount)
     emit('update:show', false)

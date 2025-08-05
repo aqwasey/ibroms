@@ -13,13 +13,13 @@
       :account="selectedItem"
       v-model:show="showViewModal"
     />
-    
+
     <!-- New Account Modal -->
     <NewAccount
       v-model:show="showNewModal"
       @account-created="handleAccountCreated"
     />
-    
+
     <!-- Edit Account Modal -->
     <EditAccount
       :account="selectedItem"
@@ -40,11 +40,7 @@
         Loading accounts...
       </div>
       <div v-else>
-        <div v-if="!bankAccountsStore?.bankAccounts?.length" class="text-gray-500 text-center py-4">
-          No accounts found
-        </div>
         <TableComponent
-          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -56,7 +52,14 @@
           @delete-item="onDeleteItem"
           :selectable="true"
           @selection-change="handleSelectionChange"
-        />
+        >
+          <template #empty-state>
+            <NoDataFound
+              title="No Bank Accounts Found"
+              description="You haven't added any bank accounts yet. Create your first bank account to get started."
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -71,6 +74,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ViewAccount from '@/views/accounts/ViewAccount.vue'
 import NewAccount from '@/views/accounts/NewAccount.vue'
 import EditAccount from '@/views/accounts/EditAccount.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 
 const showConfirm = ref(false)
 const showViewModal = ref(false)
@@ -87,7 +91,7 @@ const bankAccountsStore = useBankAccountsStore()
 // Fetch bank accounts when component mounts
 onMounted(async () => {
   try {
-    await bankAccountsStore.fetchBankAccounts()
+    await bankAccountsStore.fetchAllBankAccounts()
   } catch (error) {
     messageApi.error(error?.message || 'Failed to load bank accounts')
     console.error('Error fetching bank accounts:', error)
@@ -174,14 +178,26 @@ const handleDelete = async (itemId) => {
 }
 
 // Handle account created event
-const handleAccountCreated = (account) => {
-  messageApi.success('Account created successfully!')
-  // No need to refresh data as the store should be updated already
+const handleAccountCreated = async (account) => {
+  // Force refresh the bank accounts list to ensure UI is updated
+  // Note: Success message is already shown in NewAccount.vue, no need to duplicate
+  try {
+    await bankAccountsStore.fetchAllBankAccounts()
+  } catch (error) {
+    console.error('Error refreshing bank accounts after creation:', error)
+  }
 }
 
 // Handle account updated event
-const handleAccountUpdated = (account) => {
-  messageApi.success('Account updated successfully!')
-  // No need to refresh data as the store should be updated already
+const handleAccountUpdated = async (account) => {
+  // Force refresh the bank accounts list to ensure UI is updated
+  // Note: Success message is already shown in EditAccount.vue, no need to duplicate
+  try {
+    await bankAccountsStore.fetchAllBankAccounts()
+  } catch (error) {
+    console.error('Error refreshing bank accounts after update:', error)
+  }
 }
 </script>
+
+

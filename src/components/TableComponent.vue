@@ -42,7 +42,19 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in paginatedData" :key="item.id || item.key"
+            <!-- Empty state row when no data -->
+            <tr v-if="paginatedData.length === 0">
+              <td :colspan="totalColumns" class="px-5 py-4 text-center">
+                <slot name="empty-state">
+                  <div class="py-8 text-gray-500">
+                    No data available
+                  </div>
+                </slot>
+              </td>
+            </tr>
+            
+            <!-- Data rows -->
+            <tr v-else v-for="(item, index) in paginatedData" :key="item.id || item.key"
               :style="{ backgroundColor: index % 2 === 0 ? colors.WHITE : colors.GRAY_50 }">
 
               <!-- Row checkbox (if selectable) -->
@@ -190,6 +202,13 @@ const paginatedData = computed(() => {
 
 const totalPages = computed(() => {
   return Math.ceil(filteredData.value.length / props.itemsPerPage)
+})
+
+// Calculate total columns for colspan in empty state
+const totalColumns = computed(() => {
+  let count = props.columns.length + 1 // +1 for actions column
+  if (props.selectable) count++ // +1 for checkbox column
+  return count
 })
 
 const goToPage = (page) => {
