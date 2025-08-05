@@ -109,6 +109,7 @@ const errors = reactive({
 
 // Options for select fields
 const accountTypeOptions = [
+  { label: 'Stokvel', value: 'Stokvel' },
   { label: 'Savings', value: 'Savings' },
   { label: 'Current', value: 'Current' },
   { label: 'Transmission', value: 'Transmission' },
@@ -118,6 +119,7 @@ const accountTypeOptions = [
 
 const purposeOptions = [
   { label: 'Premium', value: 'Premium' },
+  { label: 'Purpose', value: 'Purpose' },
   { label: 'Claims Payout', value: 'Claims Payout' },
   { label: 'Other', value: 'Other' }
 ]
