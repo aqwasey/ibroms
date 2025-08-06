@@ -38,11 +38,11 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      const res = await api().post('/company/', productData)
-      company.value.push(res.data)
+      const res = await api.post('/company/', productData)
+      company.value = res.data
       return res.data
     } catch (err) {
-      error.value = 'Failed to create product'
+      error.value = 'Failed to create company'
       throw err
     } finally {
       adding.value = false
@@ -54,29 +54,44 @@ export const useCompanyStore = defineStore('company', () => {
     error.value = null
 
     try {
-      await api().delete(`/company/${productId}`)
-      company.value = company.value.filter(u => u.id !== productId)
+      await api.delete(`/company/${productId}`)
+      company.value = null
     } catch (err) {
-      error.value = 'Failed to delete product'
+      error.value = 'Failed to delete company'
       throw err
     } finally {
       adding.value = false
     }
   }
 
-  const updateProduct = async (productId, productData) => {
+  const updateProduct = async (productData) => {
     adding.value = true
     error.value = null
+    console.log('📝 Company Store: Starting update with data:', productData)
 
     try {
-      const res = await api().patch(`/company/${productId}`, productData)
-      const index = company.value.findIndex(u => u.id === productId)
-      if (index !== -1) {
-        company.value[index] = res.data
+      // Get company ID from user data in localStorage
+      const user = JSON.parse(localStorage.getItem('user') || '{}')
+      const companyId = user.company_id
+      
+      if (!companyId) {
+        throw new Error('Company ID not found in user data')
       }
+      
+      console.log('🏪 Company Store: Updating company ID:', companyId)
+      console.log('📝 Company Store: Update payload:', productData)
+      
+      const res = await api.patch(`/company/${companyId}`, productData)
+      console.log('🏪 Company Store: Update response:', res)
+      
+      // Update the stored company data
+      company.value = res.data
+      console.log('🏪 Company Store: Updated company value:', company.value)
+      
       return res.data
     } catch (err) {
-      error.value = 'Failed to update product'
+      console.error('🏪 Company Store: Update error:', err)
+      error.value = 'Failed to update company profile'
       throw err
     } finally {
       adding.value = false

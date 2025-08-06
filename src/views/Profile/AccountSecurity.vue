@@ -1,65 +1,73 @@
 <template>
-  <div class="account-security-section space-y-8">
+  <div class="bg-white rounded-xl p-10 ">
     <!-- Section Header -->
-    <div class="pb-4">
+    <div class="mb-10">
       <TitleLabel
         title="Account Security"
         subtitle="Manage your account security settings"
       />
     </div>
 
-    <!-- Email Section -->
-    <div class="grid grid-cols-2 gap-x-6 items-end mt-12">
-      <InputField
-        v-model="formState.email"
-        label="Email"
-        placeholder="Enter your email"
-        type="email"
-        disabled
-      />
-      <div class="flex justify-end">
-        <ButtonBase
-          label="Change Email"
-          variant="secondary"
-          @click="changeEmail"
-        />
+    <div class="space-y-10">
+      <!-- Email Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
+        <div class="lg:col-span-2">
+          <InputField
+            v-model="formState.email"
+            label="Email Address"
+            placeholder="Enter your email"
+            type="email"
+            disabled
+          />
+        </div>
+        <div class="flex justify-start lg:justify-end">
+          <ButtonBase
+            label="Change Email"
+            variant="secondary"
+            @click="changeEmail"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- Password Section -->
-    <div class="grid grid-cols-2 gap-x-6 items-end mt-8">
-      <InputField
-        v-model="formState.password"
-        label="Password"
-        placeholder="*******************"
-        type="password"
-        disabled
-      />
-      <div class="flex justify-end">
-        <ButtonBase
-          label="Change Password"
-          variant="secondary"
-          @click="changePassword"
-        />
+      <!-- Password Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end mt-6">
+        <div class="lg:col-span-2">
+          <InputField
+            v-model="formState.password"
+            label="Password"
+            placeholder="*******************"
+            type="password"
+            disabled
+          />
+        </div>
+        <div class="flex justify-start lg:justify-end">
+          <ButtonBase
+            label="Change Password"
+            variant="secondary"
+            @click="changePassword"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- 2-Step Verification Section -->
-    <div class="grid grid-cols-2 gap-x-6 items-center pt-4">
-      <div>
-        <p class="text-base font-medium text-gray-900">2-Step Verification</p>
-        <p class="text-gray-500 text-sm mt-1">Add an additional layer of security to your account during login.</p>
-      </div>
-      <div class="flex justify-end">
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            v-model="formState.twoFactorEnabled"
-            class="sr-only peer"
-            @change="toggleTwoFactor"
-          >
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-        </label>
+      <!-- 2-Step Verification Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center mt-6">
+        <div class="lg:col-span-2">
+          <div class="space-y-2">
+            <h3 class="text-base font-semibold text-gray-900">2-Step Verification</h3>
+            <p class="text-gray-600 text-sm leading-relaxed">Add an additional layer of security to your account during login. This helps protect your account even if your password is compromised.</p>
+          </div>
+        </div>
+        <div class="flex justify-start lg:justify-end">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              v-model="formState.twoFactorEnabled"
+              class="sr-only peer"
+              @change="toggleTwoFactor"
+            >
+            <div class="w-12 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 shadow-sm"></div>
+          </label>
+        </div>
       </div>
     </div>
   </div>

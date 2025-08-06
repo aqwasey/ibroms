@@ -1,5 +1,5 @@
 <template>
-  <div class="province-select">
+  <div class="province-select" :class="layoutClass">
     <!-- Province Selection -->
     <div class="select-container">
       <label>{{ provinceLabel }}</label>
@@ -144,6 +144,11 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  layout: {
+    type: String,
+    default: 'column', // 'column' or 'row'
+    validator: (value) => ['column', 'row'].includes(value)
+  },
   provinces: {
     type: Array,
     default: () => southAfricanProvinces
@@ -155,6 +160,11 @@ const emit = defineEmits(['update:modelValue', 'province-change', 'city-change']
 // Reactive references for province and city
 const selectedProvince = ref(props.modelValue.province || '');
 const selectedCity = ref(props.modelValue.city || '');
+
+// Computed property for layout class
+const layoutClass = computed(() => {
+  return props.layout === 'row' ? 'layout-row' : 'layout-column';
+});
 
 // Computed property for filtering cities based on selected province
 const filteredCities = computed(() => {
@@ -212,8 +222,25 @@ defineExpose({
   width: 100%;
 }
 
-.select-container {
+/* Column layout (default) */
+.layout-column .select-container {
   margin-bottom: 16px;
+  width: 100%;
+}
+
+/* Row layout */
+.layout-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.layout-row .select-container {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.select-container {
   width: 100%;
 }
 
