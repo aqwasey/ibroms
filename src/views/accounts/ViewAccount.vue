@@ -1,31 +1,72 @@
 <template>
-  <ViewModal
+  <Modal
     :show="show"
-    @update:show="$emit('update:show', $event)"
+    :close="() => $emit('update:show', false)"
     title="Bank Account Details"
+    variant="view"
+    :showActions="false"
   >
-    <template v-if="account">
-      <div class="grid grid-cols-1 gap-4 mb-4 p-1">
-        <div class="bg-blue-50 rounded-lg p-4 mb-2">
-          <h3 class="font-medium text-lg text-blue-800 mb-2">{{ account.bank_name }}</h3>
-          <p class="text-gray-600">{{ account.account_type }} Account</p>
-          <p class="text-gray-600 font-mono mt-1">{{ formatAccountNumber(account.account_no) }}</p>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-          <ViewField label="Account Purpose" :value="account.purpose" />
-          <ViewField label="Email" :value="account.email" />
-          <ViewField label="Reference" :value="account.reference || 'N/A'" />
-          <ViewField label="Last Updated" :value="formatDate(account.updated_on)" />
-        </div>
-      </div>
-    </template>
-  </ViewModal>
+    <ViewLayout
+      :title="account.bank_name"
+      :meta-items="metaItems"
+    >
+      <!-- Account Information Card -->
+      <InfoCard title="Account Information" :icon="CARD_ICONS.BANK">
+        <InfoGrid>
+          <InfoItem label="Bank Name" :value="account.bank_name" />
+          <InfoItem label="Account Type" :value="account.account_type" />
+          <InfoItem label="Account Number" :full-width="true">
+            <AccountNumber :account-number="account.account_no" />
+          </InfoItem>
+        </InfoGrid>
+      </InfoCard>
+
+      <!-- Contact & Purpose Information Card -->
+      <InfoCard title="Contact & Purpose" :icon="CARD_ICONS.CONTACT">
+        <InfoGrid>
+          <InfoItem label="Email" :value="account.email" />
+          <InfoItem label="Purpose" :value="account.purpose" />
+          <InfoItem 
+            v-if="account.reference" 
+            label="Reference" 
+            :value="account.reference" 
+          />
+        </InfoGrid>
+      </InfoCard>
+
+      <!-- System Information Card -->
+      <InfoCard title="System Information" :icon="CARD_ICONS.TIME" v-if="account.created_on || account.updated_on">
+        <InfoGrid>
+          <InfoItem 
+            v-if="account.created_on" 
+            label="Created On" 
+            :value="account.created_on" 
+            :formatter="formatDate" 
+          />
+          <InfoItem 
+            v-if="account.updated_on" 
+            label="Last Updated" 
+            :value="account.updated_on" 
+            :formatter="formatDate" 
+          />
+        </InfoGrid>
+      </InfoCard>
+    </ViewLayout>
+  </Modal>
 </template>
 
 <script setup>
-import ViewModal from '@/components/ViewModal.vue'
-import ViewField from '@/components/ViewField.vue'
+import { computed } from 'vue'
+import Modal from '@/components/Modal.vue'
+import { 
+  ViewLayout, 
+  InfoCard, 
+  InfoGrid, 
+  InfoItem,
+  AccountNumber,
+  CARD_ICONS,
+  formatDate
+} from '@/components/view'
 
 const props = defineProps({
   account: {
@@ -40,43 +81,26 @@ const props = defineProps({
 
 defineEmits(['close', 'update:show'])
 
-/**
- * Format account number for better readability
- * Example: 123456789 -> **** **** 6789
- */
-const formatAccountNumber = (accountNo) => {
-  if (!accountNo) return 'N/A'
+// Meta items for header
+const metaItems = computed(() => {
+  const items = []
   
-  // Show only last 4 digits and mask the rest
-  if (accountNo.length > 4) {
-    const lastFour = accountNo.slice(-4)
-    const maskedPart = '*'.repeat(Math.min(accountNo.length - 4, 8))
-    return `${maskedPart} ${lastFour}`
+  if (props.account.account_type) {
+    items.push({
+      text: props.account.account_type,
+      class: 'meta-tag'
+    })
   }
   
-  return accountNo
-}
+  if (props.account.purpose) {
+    items.push({
+      text: props.account.purpose,
+      class: 'meta-tag'
+    })
+  }
+  
+  return items
+})
 
-/**
- * Format date string to a more readable format
- */
-const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  
-  try {
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
-  } catch (error) {
-    console.error('Error formatting date:', error)
-    return dateString
-  }
-}
+// All formatting functions are now handled by the reusable view components
 </script>
-
-
