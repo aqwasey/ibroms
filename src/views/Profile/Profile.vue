@@ -1,9 +1,18 @@
 <template>
   <div class="p-4">
-    <!-- Page Header -->
-    <PageHeader title="My Account" />
-    
-    <div>
+    <!-- Page Header - Title only -->
+    <PageHeader
+      title="My Account"
+      :showSearch="false"
+      :showButton="false"
+      :showShareExport="false"
+    />
+
+    <div v-if="companyStore.loading" class="text-center py-8">
+      <div class="text-gray-500">Loading profile...</div>
+    </div>
+
+    <div v-else>
       <div class="pt-5">
         <div class="flex items-center gap-4">
           <div class="relative h-20 w-20 rounded-full bg-cover bg-center overflow-hidden" style="background-image: url('https://placehold.co/600x400')">
@@ -19,73 +28,200 @@
           </div>
         </div>
       </div>
-      <div class="form-section">
-        <div class="grid grid-cols-2 gap-x-5">
-          <InputField
-            v-model="formState.firstName"
-            label="First Name"
-            placeholder="Enter first name"
-          />
-          <InputField
-            v-model="formState.lastName"
-            label="Last Name"
-            placeholder="Enter last name"
-          />
-          <InputField
-            v-model="formState.birthDate"
-            label="Birth Date"
-            placeholder="Select birth date"
-            type="date"
-          />
-          <SelectField
-            v-model="formState.country"
-            label="Country"
-            placeholder="Select Country"
-            :options="countryOptions"
+
+      <!-- Company Profile Form -->
+      <div class="bg-white rounded-lg p-8 mt-12">
+        <!-- Business Information Section -->
+        <div class="space-y-6">
+          <div class="grid grid-cols-2 gap-6">
+            <InputField
+              v-model="formState.business_name"
+              label="Business Name"
+              placeholder="Enter business name"
+            />
+            <InputField
+              v-model="formState.regis_no"
+              label="Registration Number"
+              placeholder="Enter registration number"
+            />
+          </div>
+          
+          <div class="grid grid-cols-2 gap-6">
+            <InputField
+              v-model="formState.phone"
+              label="Phone Number"
+              placeholder="Enter phone number"
+            />
+            <InputField
+              v-model="formState.website"
+              label="Website"
+              placeholder="Enter website URL"
+            />
+          </div>
+        </div>
+
+        <!-- Location Section -->
+        <div class="mt-12">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <ProvinceSelect
+                v-model="locationData"
+                provinceLabel="Province"
+                cityLabel="Town/City"
+                :showCitySelect="false"
+              />
+            </div>
+            <div>
+              <label class="block font-medium text-sm leading-5 text-gray-700 mb-1.5">Town/City</label>
+              <select
+                v-model="locationData.city"
+                class="w-full h-11 px-3.5 bg-white border border-gray-300 shadow-sm rounded-lg text-base text-gray-700"
+                :disabled="!locationData.province"
+              >
+                <option value="" disabled>Select town/city</option>
+                <option
+                  v-for="city in filteredCities"
+                  :key="city"
+                  :value="city"
+                >
+                  {{ city }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="mt-12">
+          <div class="grid grid-cols-2 gap-6">
+            <InputField
+              v-model="formState.postal_code"
+              label="Postal Code"
+              placeholder="Enter postal code"
+            />
+            <InputField
+              v-model="formState.address"
+              label="Address"
+              placeholder="Enter full address"
+            />
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="mt-12 pt-6 border-t border-gray-100">
+          <ButtonBase
+            :label="isSaving ? 'Saving...' : 'Save Changes'"
+            variant="primary"
+            @click="saveProfile"
+            :disabled="isSaving"
+            :loading="isSaving"
           />
         </div>
-        <InputField
-          v-model="formState.address"
-          label="Address"
-          placeholder="Enter your address"
-          class="mt-5"
-        />
+      </div>
+
+      <!-- Account Security Section -->
+      <div class="mt-12">
+        <AccountSecurity />
       </div>
     </div>
-    <account-security/>
+
   </div>
 </template>
 
 <script setup>
-import { inject, onMounted, reactive } from 'vue'
-import { useUnderwritersStore } from '@/stores/underwriters.js'
+import { inject, onMounted, reactive, ref, computed } from 'vue'
+import { useCompanyStore } from '@/stores/company.js'
 import PageHeader from '@/components/PageHeader.vue'
 import InputField from '@/components/InputField.vue'
-import SelectField from '@/components/SelectField.vue'
+import ProvinceSelect, { southAfricanProvinces } from '@/components/ProvinceSelect.vue'
+import ButtonBase from '@/components/ButtonBase.vue'
 import AccountSecurity from '@/views/Profile/AccountSecurity.vue'
+import notificationService from '@/services/notificationService'
 
+const companyStore = useCompanyStore()
+const isLoading = ref(false)
+const isSaving = ref(false)
+
+// Form state with company profile fields
 let formState = reactive({
-  firstName: '',
-  lastName: '',
-  birthDate: '',
-  country: '',
+  business_name: '',
+  regis_no: '',
+  phone: '',
+  website: '',
+  postal_code: '',
   address: ''
 })
 
-// Country options for select field
-const countryOptions = [
-  { value: 'south-africa', label: 'South Africa' },
-  { value: 'nigeria', label: 'Nigeria' },
-  { value: 'ghana', label: 'Ghana' },
-  { value: 'kenya', label: 'Kenya' }
-]
+// Location data for ProvinceSelect component
+const locationData = ref({ province: '', city: '' })
 
-const messageApi = inject('messageApi')
+// Computed property for filtering cities based on selected province
+const filteredCities = computed(() => {
+  if (!locationData.value.province) return []
+  const selected = southAfricanProvinces.find(p => p.name === locationData.value.province)
+  return selected ? selected.cities : []
+})
 
-const underwritersStore = useUnderwritersStore()
+// Fetch company profile data
+const fetchProfile = async () => {
+  try {
+    isLoading.value = true
 
+    await companyStore.fetchCompany()
+
+    // Populate form with company data if available
+    const company = companyStore.company
+
+    if (company) {
+      formState.business_name = company.business_name || ''
+      formState.regis_no = company.regis_no || ''
+      formState.phone = company.phone || ''
+      formState.website = company.website || ''
+      formState.postal_code = company.postal_code || ''
+      formState.address = company.address || ''
+
+      // Set location data for ProvinceSelect component
+      locationData.value = {
+        province: company.province || '',
+        city: company.town_city || ''
+      }
+
+    }
+  } catch (error) {
+    console.error('💥 Error fetching profile:', error)
+    notificationService.error('Failed to load profile data')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Save profile changes
+const saveProfile = async () => {
+  try {
+    isSaving.value = true
+
+    // Combine form data with location data
+    const profileData = {
+      ...formState,
+      province: locationData.value.province,
+      town_city: locationData.value.city
+    }
+
+    // Use company store to update profile
+    await companyStore.updateProduct(profileData)
+
+    notificationService.success('Profile updated successfully!')
+  } catch (error) {
+    console.error('Error saving profile:', error)
+    notificationService.error('Failed to save profile changes')
+  } finally {
+    isSaving.value = false
+  }
+}
+
+// Load profile data when component mounts
 onMounted(() => {
-  underwritersStore.fetchUnderwriters()
+  fetchProfile()
 })
 
 </script>

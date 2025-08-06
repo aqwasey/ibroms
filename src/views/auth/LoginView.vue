@@ -109,7 +109,7 @@ const login = async () => {
       }
 
       // Navigate to dashboard after successful login
-      router.push('/dashboard/products');
+      router.push('/dashboard/profile');
     } else {
       // Handle unsuccessful login but with response
       notificationService.error(response.info || 'Login failed. Please try again.');
