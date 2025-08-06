@@ -6,27 +6,31 @@
 
     <!-- Form content -->
     <template #form-content>
-      <InputField
-        v-model="email"
-        label="Email"
-        placeholder="Enter your email"
-      />
-      <InputField
-        v-model="password"
-        label="Password"
-        placeholder="••••••••"
-        type="password"
-      />
+      <form @submit.prevent="login">
+        <InputField
+          v-model="email"
+          label="Email"
+          placeholder="Enter your email"
+          @keyup.enter="login"
+        />
+        <InputField
+          v-model="password"
+          label="Password"
+          placeholder="••••••••"
+          type="password"
+          @keyup.enter="login"
+        />
 
-      <!-- Remember me and forgot password row -->
-      <div class="row">
-        <div class="checkbox-container">
-          <Checkbox v-model="rememberMe" />
-          <div class="checkbox-label">Remember me</div>
-          <br>
+        <!-- Remember me and forgot password row -->
+        <div class="row">
+          <div class="checkbox-container">
+            <Checkbox v-model="rememberMe" />
+            <div class="checkbox-label">Remember me</div>
+            <br>
+          </div>
+          <button type="button" class="link-button checkbox-label" @click.prevent="goToForgotPassword">Forgot password</button>
         </div>
-        <button class="link-button checkbox-label" @click="goToForgotPassword">Forgot password</button>
-      </div>
+      </form>
     </template>
 
 
@@ -36,10 +40,11 @@
       <ButtonBase
         label="Sign in"
         variant="primary"
-        @click="login"
+        @click.prevent="login"
         class="w-full"
         :disabled="isLoading"
         :loading="isLoading"
+        type="button"
       />
     </template>
 
@@ -70,54 +75,75 @@ const isLoading = ref(false);
 
 
 
-const login = async () => {
+const login = async (event) => {
+  // Prevent any form submission behavior
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   // Validate required fields
   if (!email.value?.trim() || !password.value?.trim()) {
-    notificationService.error('Please fill in all required fields');
+    notificationService.error('Please fill in all required fields', '', { autoClose: true, duration: 5000 });
     return;
   }
-  
+
   // Validate email format
   if (!isValidEmail(email.value)) {
-    notificationService.error('Please enter a valid email address');
+    notificationService.error('Please enter a valid email address', '', { autoClose: true, duration: 5000 });
     return;
   }
-  
-  // Validate password
-  const passwordValidation = validatePassword(password.value);
-  if (!passwordValidation.isValid) {
-    notificationService.error(passwordValidation.errors[0]);
-    return;
-  }
-  
+
   // Sanitize inputs (extra security measure)
   const sanitizedEmail = sanitizeInput(email.value.trim());
-  const sanitizedPassword = password.value; // Don't modify password but ensure it's a string
+  const sanitizedPassword = password.value;
 
   try {
     isLoading.value = true;
+
     const response = await authService.login(sanitizedEmail, sanitizedPassword);
 
-    if (response.status === 1) {
-      // Show success notification
+    if (response && response.status === 1) {
       notificationService.success('Login successful!');
 
-      // If remember me is not checked, we could set token to expire sooner
-      if (!rememberMe.value) {
-        // For demo, we'll just log this - in a real app we might set a shorter expiry
-        console.log('Remember me not checked - token would expire sooner');
-      }
-
-      // Navigate to dashboard after successful login
-      router.push('/dashboard/profile');
+      setTimeout(() => {
+        router.push('/dashboard/profile');
+      }, 1000);
     } else {
-      // Handle unsuccessful login but with response
-      notificationService.error(response.info || 'Login failed. Please try again.');
+      const errorMessage = response?.info || response?.message || 'Login failed. Please check your credentials.';
+
+      setTimeout(() => {
+        notificationService.error(errorMessage, '', {
+          autoClose: true,
+          duration: 5000,
+          dismissable: true
+        });
+      }, 100);
     }
   } catch (error) {
-    // Handle API errors
-    console.error('Login error:', error);
-    notificationService.error(error.data || 'An error occurred during login. Please try again.', 'Authentication Error');
+
+    let errorMessage = 'An error occurred during login. Please try again.';
+
+    if (error.data && typeof error.data === 'string') {
+      errorMessage = error.data;
+    } else if (error.response?.data?.info) {
+      errorMessage = error.response.data.info;
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    } else if (error.response?.data) {
+      errorMessage = typeof error.response.data === 'string' ? error.response.data : errorMessage;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+
+    setTimeout(() => {
+      notificationService.error(errorMessage, '', {
+        autoClose: true,
+        duration: 5000,
+        dismissable: true
+      });
+    }, 100);
   } finally {
     isLoading.value = false;
   }

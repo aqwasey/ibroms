@@ -38,6 +38,8 @@ api.interceptors.request.use(async config => {
   
   // Skip token check for public routes
   if (publicRoutes.some(route => config.url.includes(route))) {
+    // Mark public routes so we don't redirect on auth errors
+    config._isPublicRoute = true;
     return config;
   }
   
@@ -62,11 +64,15 @@ api.interceptors.request.use(async config => {
           config.headers.Authorization = `Bearer ${newToken}`;
           processQueue(null, newToken);
         } else {
-          // If refresh failed, redirect to login
+          // If refresh failed, redirect to login (but not for public routes)
           console.error('Token refresh failed, logging out');
           authService.logout();
           processQueue(new Error('Token refresh failed'));
-          window.location.href = '/login'; // Fallback if router isn't available
+          
+          // Don't redirect if this is a public route (like login)
+          if (!config._isPublicRoute) {
+            window.location.href = '/login';
+          }
         }
       } catch (error) {
         processQueue(error);
@@ -96,8 +102,8 @@ api.interceptors.response.use(
   async error => {
     const originalRequest = error.config;
     
-    // Handle 401 Unauthorized errors specifically
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
+    // Handle 401 Unauthorized errors specifically (but skip for public routes like login)
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest._isPublicRoute) {
       if (isRefreshing) {
         // Wait for the refresh to complete
         try {
@@ -133,10 +139,14 @@ api.interceptors.response.use(
           processQueue(null, token);
           return axios(originalRequest);
         } else {
-          // If refresh failed, redirect to login
+          // If refresh failed, redirect to login (but not for public routes)
           authService.logout();
           processQueue(new Error('Token refresh failed'));
-          window.location.href = '/login';
+          
+          // Don't redirect if this is a public route (like login)
+          if (!originalRequest._isPublicRoute) {
+            window.location.href = '/login';
+          }
           return Promise.reject({ message: 'Authentication session expired' });
         }
       } catch (refreshError) {
