@@ -21,7 +21,6 @@
 import { defineProps, defineEmits, ref } from 'vue'
 import { useUnderwritersStore } from '@/stores/underwriters'
 import Modal from '@/components/Modal.vue'
-import notificationService from '@/services/notificationService'
 
 const props = defineProps({
   show: {
@@ -50,12 +49,12 @@ const handleConfirm = async () => {
     // Delete the underwriter
     await store.deleteUnderwriter(props.itemId)
 
-    notificationService.success('Underwriter deleted successfully')
+    // Success notification is handled by the store
     emit('underwriter-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
+    // Error notification is handled by the store
     console.error(error)
-    notificationService.error(error?.response?.data?.detail || 'Error deleting underwriter')
   } finally {
     loading.value = false
   }

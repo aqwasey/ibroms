@@ -1,12 +1,10 @@
 // stores/underwriters.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { createCrudService } from '@/services/crudService'
+import api from '@/services/api'
+import notificationService from '@/services/notificationService'
 
 export const useUnderwritersStore = defineStore('underwriters', () => {
-  // Create CRUD service for underwriters endpoint
-  const underwriterService = createCrudService('/underwriters')
-  
   const underwriters = ref([])
   const loading = ref(false)
   const saving = ref(false)
@@ -23,12 +21,23 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await underwriterService.getAll()
-      // Process the response
-      underwriters.value = response
+      const response = await api.get('/underwriters/')
+      
+      // Check if response.data has the expected structure
+      let underwritersData = []
+      if (response.data && response.data.data) {
+        // API returns {data: [...], info: "...", status: 1}
+        underwritersData = response.data.data
+      } else if (Array.isArray(response.data)) {
+        // API returns data directly as array
+        underwritersData = response.data
+      }
+      
+      underwriters.value = underwritersData
     } catch (err) {
-      error.value = err.message || 'Unexpected error occurred'
-      console.error('Fetch error:', err)
+      error.value = err.message || 'Failed to fetch underwriters'
+      console.error('Fetch underwriters error:', err)
+      notificationService.error(err?.response?.data?.info || 'Failed to fetch underwriters')
       underwriters.value = []
     } finally {
       loading.value = false
@@ -36,17 +45,19 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
   }
 
 
-  const fetchUnderwriters = async () => {
+  const fetchUnderwriterById = async (id) => {
     loading.value = true
     error.value = null
     try {
-      const companyId = localStorage.getItem('company_id')  // Or wherever you store it
-      const response = await underwriterService.getAll({ company_id: companyId })
-      underwriters.value = response
+      const response = await api.get(`/underwriters/${id}`)
+      // Handle different response structures
+      const underwriterData = response.data?.data || response.data
+      return underwriterData
     } catch (err) {
-      error.value = err.message || 'Unexpected error occurred'
-      console.error('Fetch error:', err)
-      underwriters.value = []
+      error.value = err.message || 'Failed to fetch underwriter'
+      console.error('Fetch underwriter by ID error:', err)
+      notificationService.error(err?.response?.data?.info || 'Failed to fetch underwriter')
+      throw err
     } finally {
       loading.value = false
     }
@@ -57,12 +68,16 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      const newUnderwriter = await underwriterService.create(underwriterData)
+      const response = await api.post('/underwriters/', underwriterData)
+      // Handle different response structures
+      const newUnderwriter = response.data?.data || response.data
       underwriters.value.push(newUnderwriter)
+      notificationService.success(response.data?.info || 'Underwriter created successfully')
       return newUnderwriter
     } catch (err) {
       error.value = err
-      console.error('[createUnderwriter]', err.message)
+      console.error('[createUnderwriter]', err)
+      notificationService.error(err?.response?.data?.info || 'Failed to create underwriter')
       throw err
     } finally {
       saving.value = false
@@ -73,13 +88,17 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      const updated = await underwriterService.patch(id, underwriterData)
+      const response = await api.patch(`/underwriters/${id}`, underwriterData)
+      // Handle different response structures
+      const updated = response.data?.data || response.data
       const index = underwriters.value.findIndex(u => u.id === id)
       if (index !== -1) underwriters.value[index] = updated
+      notificationService.success(response.data?.info || 'Underwriter updated successfully')
       return updated
     } catch (err) {
       error.value = err
-      console.error('[updateUnderwriter]', err.message)
+      console.error('[updateUnderwriter]', err)
+      notificationService.error(err?.response?.data?.info || 'Failed to update underwriter')
       throw err
     } finally {
       saving.value = false
@@ -90,11 +109,13 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving.value = true
     error.value = null
     try {
-      await underwriterService.delete(id)
+      const response = await api.delete(`/underwriters/${id}`)
       underwriters.value = underwriters.value.filter(u => u.id !== id)
+      notificationService.success(response.data?.info || 'Underwriter deleted successfully')
     } catch (err) {
       error.value = err
-      console.error('[deleteUnderwriter]', err.message)
+      console.error('[deleteUnderwriter]', err)
+      notificationService.error(err?.response?.data?.info || 'Failed to delete underwriter')
       throw err
     } finally {
       saving.value = false
@@ -109,7 +130,7 @@ export const useUnderwritersStore = defineStore('underwriters', () => {
     saving,
     error,
     fetchAllUnderwriters,
-    fetchUnderwriters,
+    fetchUnderwriterById,
     createUnderwriter,
     updateUnderwriter,
     deleteUnderwriter,

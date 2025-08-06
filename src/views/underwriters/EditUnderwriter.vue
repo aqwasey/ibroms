@@ -84,7 +84,6 @@ import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import { useUnderwritersStore } from '@/stores/underwriters'
-import notificationService from '@/services/notificationService'
 
 const store = useUnderwritersStore()
 const loading = ref(false)
@@ -221,12 +220,12 @@ const handleSubmit = async () => {
     // Save to store/API
     const updatedUnderwriter = await store.updateUnderwriter(formState.id, payload)
     
-    notificationService.success('Underwriter updated successfully!')
+    // Success notification is handled by the store
     emit('underwriter-updated', updatedUnderwriter)
     emit('update:show', false)
   } catch (error) {
+    // Error notification is handled by the store
     console.error(error)
-    notificationService.error(error?.response?.data?.detail || 'Failed to update underwriter')
   } finally {
     loading.value = false
   }

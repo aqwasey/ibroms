@@ -73,7 +73,6 @@ import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import ProvinceSelect from '@/components/ProvinceSelect.vue'
 import { useUnderwritersStore } from '@/stores/underwriters'
-import notificationService from '@/services/notificationService'
 import { isValidEmail } from '@/utils/validation';
 
 const props = defineProps({
@@ -196,13 +195,13 @@ const handleSubmit = async () => {
     // Save to store/API
     const newUnderwriter = await store.createUnderwriter(payload)
     
-    notificationService.success('Underwriter created successfully!')
+    // Success notification is handled by the store
     emit('underwriter-created', newUnderwriter)
     emit('update:show', false)
     resetForm()
   } catch (error) {
+    // Error notification is handled by the store
     console.error(error)
-    notificationService.error(error?.response?.data?.detail || 'Failed to create underwriter')
   } finally {
     loading.value = false
   }

@@ -41,11 +41,7 @@
         Loading underwriters...
       </div>
       <div v-else>
-        <div v-if="!filteredUnderwriters.length" class="text-gray-500 text-center py-4">
-          No underwriters found
-        </div>
         <TableComponent
-          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -57,7 +53,14 @@
           @delete-item="onDeleteItem"
           :selectable="true"
           @selection-change="handleSelectionChange"
-        />
+        >
+          <template #empty-state>
+            <NoDataFound
+              title="No Underwriters Found"
+              description="You haven't added any underwriters yet. Create your first underwriter to get started."
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -72,6 +75,7 @@ import ViewUnderwriter from '@/views/underwriters/ViewUnderwriter.vue'
 import ConfirmDeleteUnderwriter from '@/views/underwriters/ConfirmDeleteUnderwriter.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 import { useTimeAgo } from '@vueuse/core'
 
 const showConfirm = ref(false)
@@ -100,9 +104,7 @@ const columns = [
   { key: 'name', label: 'Name' },
   { key: 'sector', label: 'Sector' },
   { key: 'province', label: 'Province' },
-  { key: 'town_city', label: 'Town/City' },
-  { key: 'created_on', label: 'Created On' },
-  { key: 'updated_on', label: 'Updated On' }
+  { key: 'town_city', label: 'Town/City' }
 ]
 
 // Pagination settings
@@ -138,12 +140,9 @@ const onPageChanged = (page) => {
 }
 
 const onAction = ({ action, item }) => {
-  console.log(`Action ${action} performed on:`, item)
-
   if (action === 'view') {
     // Show view modal
     selectedItem.value = { ...item } // Create a fresh copy of the item
-    console.log('Showing view modal for item:', selectedItem.value)
     showViewModal.value = true
   } else if (action === 'edit') {
     onEditItem(item)
@@ -177,7 +176,6 @@ const handleSearch = (query) => {
 }
 
 const handleSelectionChange = (selectedIds) => {
-  console.log('Selected items:', selectedIds)
   // Do something with the selected IDs
 }
 

@@ -8,8 +8,14 @@
       <PageHeader title="Rules" subtitle="Manage all rules" searchPlaceholder="Search rules..." buttonText="Add Rule" @search="handleSearch" @button-click="showAddModal" />
       <div v-if="store.loading" class="text-gray-500 text-center py-4">Loading rules...</div>
       <div v-else>
-        <div v-if="!filteredRules.length" class="text-gray-500 text-center py-4">No rules found</div>
-        <TableComponent v-else :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems" :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem" @delete-item="onDeleteItem" :selectable="true" @selection-change="handleSelectionChange" />
+        <TableComponent :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems" :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem" @delete-item="onDeleteItem" :selectable="true" @selection-change="handleSelectionChange">
+          <template #empty-state>
+            <NoDataFound
+              title="No Rules Found"
+              description="You haven't added any business rules yet. Create your first rule to get started."
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -23,6 +29,7 @@ import ViewRule from '@/views/rules/ViewRule.vue'
 import ConfirmDeleteRule from '@/views/rules/ConfirmDeleteRule.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 
 const showConfirm = ref(false)
 const showViewModal = ref(false)
