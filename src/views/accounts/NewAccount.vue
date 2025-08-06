@@ -11,11 +11,12 @@
   >
       <form @submit.prevent="handleSubmit" class="flex flex-col gap-4">
         <!-- Bank Name Field -->
-        <InputField
+        <SelectField
           v-model="formState.bank_name"
           label="Bank name"
-          placeholder="Enter your bank name"
+          placeholder="Select your bank"
           id="bank_name"
+          :options="bankOptions"
           :error="errors.bank_name"
         />
 
@@ -108,6 +109,25 @@ const errors = reactive({
 // Using saving state from the store instead of local loading state
 
 // Options for select fields
+const bankOptions = [
+  { label: 'ABSA Bank', value: 'ABSA Bank' },
+  { label: 'Standard Bank', value: 'Standard Bank' },
+  { label: 'FirstRand Bank (FNB)', value: 'FirstRand Bank (FNB)' },
+  { label: 'Nedbank', value: 'Nedbank' },
+  { label: 'Capitec Bank', value: 'Capitec Bank' },
+  { label: 'African Bank', value: 'African Bank' },
+  { label: 'Investec Bank', value: 'Investec Bank' },
+  { label: 'Discovery Bank', value: 'Discovery Bank' },
+  { label: 'TymeBank', value: 'TymeBank' },
+  { label: 'Bidvest Bank', value: 'Bidvest Bank' },
+  { label: 'Sasfin Bank', value: 'Sasfin Bank' },
+  { label: 'Access Bank South Africa', value: 'Access Bank South Africa' },
+  { label: 'Albaraka Bank', value: 'Albaraka Bank' },
+  { label: 'Habib Bank', value: 'Habib Bank' },
+  { label: 'UBank', value: 'UBank' },
+  { label: 'Other', value: 'Other' }
+]
+
 const accountTypeOptions = [
   { label: 'Stokvel', value: 'Stokvel' },
   { label: 'Savings', value: 'Savings' },
@@ -115,7 +135,6 @@ const accountTypeOptions = [
   { label: 'Transmission', value: 'Transmission' },
   { label: 'Other', value: 'Other' }
 ]
-
 
 const purposeOptions = [
   { label: 'Premium', value: 'Premium' },
