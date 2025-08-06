@@ -15,7 +15,7 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRulesStore } from '@/stores/rules'
 import NewRule from '@/views/rules/NewRule.vue'
 import EditRule from '@/views/rules/EditRule.vue'
@@ -31,7 +31,6 @@ const showEditModal = ref(false)
 const selectedItemId = ref(null)
 const selectedItem = ref(null)
 const searchQuery = ref('')
-const messageApi = inject('messageApi')
 const store = useRulesStore()
 
 onMounted(() => {

@@ -29,7 +29,7 @@ import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useRulesStore } from '@/stores/rules'
-import { message } from 'ant-design-vue'
+import notificationService from '@/services/notificationService'
 
 const store = useRulesStore()
 const props = defineProps({ show: { type: Boolean, default: false } })
@@ -41,8 +41,7 @@ const form = ref({
   title: '',
   description: '',
   service_list: [],
-  limit_type: 'RESTRICTED',
-  company_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6' // This would typically come from user context
+  limit_type: 'RESTRICTED'
 })
 
 // Options for select fields
@@ -58,12 +57,12 @@ const handleSave = async () => {
   try {
     loading.value = true
     await store.createRule(form.value)
-    message.success('Rule added successfully')
+    // Success notification is handled by the store
     resetForm()
     emit('rule-created')
     emit('update:show', false)
   } catch (error) {
-    message.error('Failed to add rule')
+    // Error notification is handled by the store
     console.error(error)
   } finally {
     loading.value = false
@@ -75,8 +74,7 @@ const resetForm = () => {
     title: '',
     description: '',
     service_list: [],
-    limit_type: 'RESTRICTED',
-    company_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6'
+    limit_type: 'RESTRICTED'
   }
 }
 </script>

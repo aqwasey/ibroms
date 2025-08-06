@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '@/utils/api'
+import api from '@/services/api'
+import notificationService from '@/services/notificationService'
 
 export const useRulesStore = defineStore('rules', () => {
   // State
@@ -50,18 +51,25 @@ export const useRulesStore = defineStore('rules', () => {
     }
   ]
 
+  // Get company_id from localStorage user data
+  const getCompanyId = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    return user.company_id
+  }
+
   // Actions
   const fetchRules = async () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api('/rules')
-      items.value = response.data || dummyRules
+      const response = await api.get('/rules/')
+      // API returns: {data: [...], info: "X Business rules found", status: 1}
+      items.value = response.data || []
     } catch (err) {
       console.error('Error fetching rules:', err)
       error.value = err.message
-      // Fallback to dummy data for development
-      items.value = dummyRules
+      notificationService.error('Failed to fetch rules')
+      items.value = []
     } finally {
       loading.value = false
     }
@@ -71,13 +79,14 @@ export const useRulesStore = defineStore('rules', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api(`/rules/${id}`)
+      const response = await api.get(`/rules/${id}`)
+      // API returns: {data: {...}, info: "1 Business rule for X found", status: 1}
       return response.data
     } catch (err) {
       console.error(`Error fetching rule ${id}:`, err)
       error.value = err.message
-      // Return fallback data
-      return dummyRules.find(rule => rule.id === id)
+      notificationService.error('Failed to fetch rule details')
+      throw err
     } finally {
       loading.value = false
     }
@@ -87,17 +96,28 @@ export const useRulesStore = defineStore('rules', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api('/rules', {
-        method: 'POST',
-        data: payload
-      })
-      // Add to items list
-      const newRule = response.data || { ...payload, id: String(Math.floor(Math.random() * 1000)) }
-      items.value.unshift(newRule)
-      return newRule
+      // Add company_id from logged-in user
+      const ruleData = {
+        ...payload,
+        company_id: getCompanyId()
+      }
+      
+      const response = await api.post('/rules/', ruleData)
+      // API returns: {data: {...}, info: "Business rule created successful", status: 1}
+      
+      if (response.status === 1) {
+        // Add to items list
+        items.value.unshift(response.data)
+        notificationService.success(response.info || 'Rule created successfully')
+        return response.data
+      } else {
+        throw new Error(response.info || 'Failed to create rule')
+      }
     } catch (err) {
       console.error('Error creating rule:', err)
       error.value = err.message
+      const errorMsg = err.response?.data?.info || err.message || 'Failed to create rule'
+      notificationService.error(errorMsg)
       throw err
     } finally {
       loading.value = false
@@ -108,20 +128,35 @@ export const useRulesStore = defineStore('rules', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api(`/rules/${id}`, {
-        method: 'PATCH',
-        data: payload
-      })
-      // Update in items list
-      const updatedRule = response.data || { ...payload, id }
-      const index = items.value.findIndex(item => item.id === id)
-      if (index !== -1) {
-        items.value[index] = updatedRule
+      // Prepare update payload with required fields
+      const updateData = {
+        title: payload.title,
+        description: payload.description,
+        service_list: payload.service_list,
+        limit_type: payload.limit_type,
+        id: parseInt(id),
+        activate: payload.activate || false
       }
-      return updatedRule
+      
+      const response = await api.patch(`/rules/${id}`, updateData)
+      // API returns: {data: {...}, info: "Business rule updated successful", status: 1}
+      
+      if (response.status === 1) {
+        // Update in items list
+        const index = items.value.findIndex(item => item.id == id)
+        if (index !== -1) {
+          items.value[index] = response.data
+        }
+        notificationService.success(response.info || 'Rule updated successfully')
+        return response.data
+      } else {
+        throw new Error(response.info || 'Failed to update rule')
+      }
     } catch (err) {
       console.error(`Error updating rule ${id}:`, err)
       error.value = err.message
+      const errorMsg = err.response?.data?.info || err.message || 'Failed to update rule'
+      notificationService.error(errorMsg)
       throw err
     } finally {
       loading.value = false
@@ -132,15 +167,22 @@ export const useRulesStore = defineStore('rules', () => {
     loading.value = true
     error.value = null
     try {
-      await api(`/rules/${id}`, {
-        method: 'DELETE'
-      })
-      // Remove from items list
-      items.value = items.value.filter(item => item.id !== id)
-      return true
+      const response = await api.delete(`/rules/${id}`)
+      // API returns: {data: "Business rule deleted successful", status: 1}
+      
+      if (response.status === 1) {
+        // Remove from items list
+        items.value = items.value.filter(item => item.id != id)
+        notificationService.success(response.data || 'Rule deleted successfully')
+        return true
+      } else {
+        throw new Error(response.info || 'Failed to delete rule')
+      }
     } catch (err) {
       console.error(`Error deleting rule ${id}:`, err)
       error.value = err.message
+      const errorMsg = err.response?.data?.info || err.message || 'Failed to delete rule'
+      notificationService.error(errorMsg)
       throw err
     } finally {
       loading.value = false

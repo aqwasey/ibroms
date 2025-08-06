@@ -36,7 +36,7 @@ import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import TagInput from '@/components/TagInput.vue'
 import { useRulesStore } from '@/stores/rules'
-import { message } from 'ant-design-vue'
+import notificationService from '@/services/notificationService'
 
 const store = useRulesStore()
 const props = defineProps({ show: { type: Boolean, default: false }, rule: { type: Object, required: true } })
@@ -76,11 +76,11 @@ const handleSubmit = async () => {
   try {
     loading.value = true
     await store.updateRule(form.value.id, form.value)
-    message.success('Rule updated successfully')
+    // Success notification is handled by the store
     emit('rule-updated')
     emit('update:show', false)
   } catch (error) {
-    message.error('Failed to update rule')
+    // Error notification is handled by the store
     console.error(error)
   } finally {
     loading.value = false

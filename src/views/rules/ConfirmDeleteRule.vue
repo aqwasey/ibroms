@@ -8,24 +8,23 @@
   </Modal>
 </template>
 <script setup>
-import { defineProps, defineEmits, ref, inject } from 'vue'
+import { defineProps, defineEmits, ref } from 'vue'
 import { useRulesStore } from '@/stores/rules'
 import Modal from '@/components/Modal.vue'
 const props = defineProps({ show: { type: Boolean, default: false }, itemId: { type: [String, Number], default: '' }, ruleName: { type: String, default: 'this rule' } })
 const emit = defineEmits(['update:show', 'rule-deleted'])
 const store = useRulesStore()
-const messageApi = inject('messageApi')
 const loading = ref(false)
 const handleConfirm = async () => {
   try {
     loading.value = true
     await store.deleteRule(props.itemId)
-    messageApi.success('Rule deleted successfully')
+    // Success notification is handled by the store
     emit('rule-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
+    // Error notification is handled by the store
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting rule')
   } finally {
     loading.value = false
   }
