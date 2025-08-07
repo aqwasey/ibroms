@@ -129,6 +129,7 @@ const menuItems = [
     children: [
       { label: 'Underwriters', to: '/dashboard/underwriters' },
       { label: 'Packages', to: '/dashboard/packages' },
+      { label: 'Age Groups', to: '/dashboard/age-groups' },
       { label: 'Products', to: '/dashboard/products' }
     ],
     open: ref(false),

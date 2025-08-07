@@ -100,7 +100,7 @@ const router = createRouter({
         {
           path: 'age-groups',
           name: 'age-groups',
-          component: () => import('../views/AgeGroupsView.vue'),
+          component: () => import('../views/age-groups/IndexAgeGroups.vue'),
         },
         // Routes that match the existing directories
         {
