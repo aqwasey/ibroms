@@ -37,15 +37,11 @@
         @button-click="showAddModal"
       />
 
-      <div v-if="store.loading" class="text-gray-500 text-center py-4">
+      <div v-if="packagesStore.loading" class="text-gray-500 text-center py-4">
         Loading packages...
       </div>
       <div v-else>
-        <div v-if="!filteredPackages.length" class="text-gray-500 text-center py-4">
-          No packages found
-        </div>
         <TableComponent
-          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -57,7 +53,14 @@
           @delete-item="onDeleteItem"
           :selectable="true"
           @selection-change="handleSelectionChange"
-        />
+        >
+          <template #empty-state>
+            <NoDataFound
+              title="No Packages Found"
+              description="You haven't added any packages yet. Create your first package to get started."
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -72,6 +75,7 @@ import ViewPackage from '@/views/packages/ViewPackage.vue'
 import ConfirmDeletePackage from '@/views/packages/ConfirmDeletePackage.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 
 const showConfirm = ref(false)
 const showViewModal = ref(false)
@@ -82,73 +86,24 @@ const selectedItem = ref(null)
 const searchQuery = ref('')
 const messageApi = inject('messageApi')
 
-const store = usePackagesStore()
+const packagesStore = usePackagesStore()
 
-// DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
-const USE_DUMMY_DATA = true; // Set this to false to use real data from API
-
-const DUMMY_PACKAGES = [
-  { 
-    id: '1', 
-    title: 'Standard Family', 
-    ageBegin: '18', 
-    ageEnd: '60', 
-    relationship: 'Family',
-    price: '500'
-  },
-  { 
-    id: '2', 
-    title: 'Premium Individual', 
-    ageBegin: '25', 
-    ageEnd: '45', 
-    relationship: 'Individual',
-    price: '300'
-  },
-  { 
-    id: '3', 
-    title: 'Group Enterprise', 
-    ageBegin: '20', 
-    ageEnd: '55', 
-    relationship: 'Group',
-    price: '1200'
-  },
-  { 
-    id: '4', 
-    title: 'Senior Advantage', 
-    ageBegin: '60', 
-    ageEnd: '85', 
-    relationship: 'Individual',
-    price: '450'
-  },
-  { 
-    id: '5', 
-    title: 'Youth Plan', 
-    ageBegin: '8', 
-    ageEnd: '18', 
-    relationship: 'Individual',
-    price: '200'
-  }
-];
-
-// Mock the store's data if using dummy data
-if (USE_DUMMY_DATA) {
-  // Override the store's properties for demo purposes
-  store.items = DUMMY_PACKAGES;
-  store.loading = false;
-}
-
-onMounted(() => {
-  if (!USE_DUMMY_DATA) {
-    store.fetchPackages()
+// Fetch packages when component mounts
+onMounted(async () => {
+  try {
+    await packagesStore.fetchAllPackages()
+  } catch (error) {
+    messageApi.error(error?.message || 'Failed to load packages')
+    console.error('Error fetching packages:', error)
   }
 })
 
 const columns = [
   { key: 'title', label: 'Title' },
-  { key: 'ageBegin', label: 'Age Begin' },
-  { key: 'ageEnd', label: 'Age End' },
-  { key: 'relationship', label: 'Relationship' },
-  { key: 'price', label: 'Price' }
+  { key: 'target', label: 'Target' },
+  { key: 'price', label: 'Price' },
+  { key: 'cover_amount', label: 'Cover Amount' },
+  { key: 'waiting_period', label: 'Waiting Period' }
 ]
 
 // Pagination settings
@@ -167,17 +122,15 @@ const data = computed(() => {
 
 // Filter packages based on search query
 const filteredPackages = computed(() => {
-  if (!searchQuery.value) return USE_DUMMY_DATA ? DUMMY_PACKAGES : store.items;
+  if (!searchQuery.value) return packagesStore.packages;
   
   const query = searchQuery.value.toLowerCase();
-  const items = USE_DUMMY_DATA ? DUMMY_PACKAGES : store.items;
   
-  return items.filter(p =>
+  return packagesStore.packages.filter(p =>
     p.title?.toLowerCase().includes(query) || 
-    p.ageBegin?.toLowerCase().includes(query) ||
-    p.ageEnd?.toLowerCase().includes(query) ||
-    p.relationship?.toLowerCase().includes(query) ||
-    p.price?.toLowerCase().includes(query)
+    p.target?.toLowerCase().includes(query) ||
+    p.description?.toLowerCase().includes(query) ||
+    p.price?.toString().includes(query)
   );
 })
 
@@ -231,33 +184,38 @@ const handleSelectionChange = (selectedIds) => {
 }
 
 // Handle package created event
-const handlePackageCreated = () => {
-  messageApi?.success('Package created successfully!')
-  // In a real app, this might refresh the data
-  // In our dummy data scenario, we would push to the array
-  if (!USE_DUMMY_DATA) {
-    store.fetchPackages()
+const handlePackageCreated = async () => {
+  // Force refresh the packages list to ensure UI is updated
+  // Note: Success message is already shown in NewPackage.vue, no need to duplicate
+  try {
+    await packagesStore.fetchAllPackages()
+  } catch (error) {
+    console.error('Error refreshing packages after creation:', error)
   }
 }
 
 // Handle package updated event
-const handlePackageUpdated = () => {
-  messageApi?.success('Package updated successfully!')
-  // In a real app, the store would be updated
-  if (!USE_DUMMY_DATA) {
-    store.fetchPackages()
+const handlePackageUpdated = async () => {
+  // Force refresh the packages list to ensure UI is updated
+  // Note: Success message is already shown in EditPackage.vue, no need to duplicate
+  try {
+    await packagesStore.fetchAllPackages()
+  } catch (error) {
+    console.error('Error refreshing packages after update:', error)
   }
 }
 
 // Handle package deleted event
-const handlePackageDeleted = () => {
+const handlePackageDeleted = async () => {
   // The actual delete operation is now handled by ConfirmDeletePackage component
   selectedItemId.value = null
   selectedItem.value = null
   
-  messageApi?.success('Package deleted successfully!')
-  if (!USE_DUMMY_DATA) {
-    store.fetchPackages()
+  // Force refresh the packages list to ensure UI is updated
+  try {
+    await packagesStore.fetchAllPackages()
+  } catch (error) {
+    console.error('Error refreshing packages after deletion:', error)
   }
 }
 </script>

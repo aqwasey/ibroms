@@ -4,7 +4,7 @@
     :close="() => $emit('update:show', false)"
     title="Delete Package"
     variant="delete"
-    :loading="loading"
+    :loading="packagesStore.saving"
     showActions
     @confirm="handleConfirm"
     confirmButtonText="Delete"
@@ -39,25 +39,20 @@ const props = defineProps({
 
 const emit = defineEmits(['update:show', 'package-deleted'])
 
-const store = usePackagesStore()
+const packagesStore = usePackagesStore()
 const messageApi = inject('messageApi')
-const loading = ref(false)
 
 const handleConfirm = async () => {
   try {
-    loading.value = true
-
     // Delete the package
-    await store.deletePackage(props.itemId)
+    await packagesStore.deletePackage(props.itemId)
 
-    messageApi.success('Package deleted successfully')
+    messageApi.success('Package deleted successfully!')
     emit('package-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
-    console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting package')
-  } finally {
-    loading.value = false
+    console.error('Error deleting package:', error)
+    messageApi.error(error?.message || 'Failed to delete package')
   }
 }
 </script>

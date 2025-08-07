@@ -1,113 +1,119 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/utils/api.js'
+import { createCrudService } from '@/services/crudService.js'
 
 export const usePackagesStore = defineStore('packages', () => {
-  const items = ref([])
+  const packages = ref([])
   const loading = ref(false)
-  const adding = ref(false)
+  const saving = ref(false)
   const error = ref(null)
+  
+  // Create CRUD service for packages
+  const crudService = createCrudService('/packages')
 
-  const fetchPackages = async () => {
+  // Fetch all packages
+  const fetchAllPackages = async () => {
     loading.value = true
     error.value = null
 
     try {
-      const res = await api().get('/packages/')
-      items.value = res.info
+      const response = await crudService.getAll()
+      packages.value = response.data || []
+      return response
     } catch (err) {
-      // Add dummy data for development
-      items.value = [
-        {
-          id: 1,
-          title: 'Standard Family',
-          ageBegin: '18',
-          ageEnd: '60',
-          relationship: 'Family',
-          price: '500'
-        },
-        {
-          id: 2,
-          title: 'Premium Individual',
-          ageBegin: '25',
-          ageEnd: '45',
-          relationship: 'Individual',
-          price: '300'
-        },
-        {
-          id: 3,
-          title: 'Group Enterprise',
-          ageBegin: '20',
-          ageEnd: '55',
-          relationship: 'Group',
-          price: '1200'
-        }
-      ]
-      error.value = 'Using dummy data for development'
-      console.warn('API call failed, using dummy data for packages')
+      error.value = err.message || 'Failed to fetch packages'
+      console.error('Error fetching packages:', err)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
+  // Fetch single package by ID
+  const fetchPackage = async (id) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await crudService.getById(id)
+      return response.data
+    } catch (err) {
+      error.value = err.message || 'Failed to fetch package'
+      console.error('Error fetching package:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Create new package
   const createPackage = async (packageData) => {
-    adding.value = true
+    saving.value = true
     error.value = null
 
     try {
-      const res = await api().post('/packages/', packageData)
-      items.value.push(res.data)
-      return res.data
+      const response = await crudService.create(packageData)
+      // Add to local array
+      packages.value.push(response.data)
+      return response.data
     } catch (err) {
-      error.value = 'Failed to create package'
+      error.value = err.message || 'Failed to create package'
+      console.error('Error creating package:', err)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
     }
   }
 
-  const deletePackage = async (packageId) => {
-    adding.value = true
-    error.value = null
-
-    try {
-      await api().delete(`/packages/${packageId}`)
-      items.value = items.value.filter(u => u.id !== packageId)
-    } catch (err) {
-      error.value = 'Failed to delete package'
-      throw err
-    } finally {
-      adding.value = false
-    }
-  }
-
+  // Update existing package
   const updatePackage = async (packageId, packageData) => {
-    adding.value = true
+    saving.value = true
     error.value = null
 
     try {
-      const res = await api().patch(`/packages/${packageId}`, packageData)
-      const index = items.value.findIndex(u => u.id === packageId)
+      const response = await crudService.update(packageId, packageData)
+      // Update local array
+      const index = packages.value.findIndex(p => p.id === packageId)
       if (index !== -1) {
-        items.value[index] = res.data
+        packages.value[index] = response.data
       }
-      return res.data
+      return response.data
     } catch (err) {
-      error.value = 'Failed to update package'
+      error.value = err.message || 'Failed to update package'
+      console.error('Error updating package:', err)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
+    }
+  }
+
+  // Delete package
+  const deletePackage = async (packageId) => {
+    saving.value = true
+    error.value = null
+
+    try {
+      await crudService.delete(packageId)
+      // Remove from local array
+      packages.value = packages.value.filter(p => p.id !== packageId)
+    } catch (err) {
+      error.value = err.message || 'Failed to delete package'
+      console.error('Error deleting package:', err)
+      throw err
+    } finally {
+      saving.value = false
     }
   }
 
   return {
-    items,
+    packages,
     loading,
-    adding,
+    saving,
     error,
-    fetchPackages,
+    fetchAllPackages,
+    fetchPackage,
     createPackage,
-    deletePackage,
-    updatePackage
+    updatePackage,
+    deletePackage
   }
 })

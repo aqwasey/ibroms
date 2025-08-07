@@ -4,7 +4,7 @@
       class="modal-container bg-white rounded-lg shadow-lg w-full"
       :class="{
         'max-w-md': variant === 'default',
-        'max-w-lg': variant === 'edit' || variant === 'view',
+        'max-w-lg': variant === 'edit' || variant === 'view' || variant === 'create',
         'max-w-sm': variant === 'delete'
       }"
     >
@@ -75,7 +75,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'default',
-    validator: (value) => ['default', 'edit', 'view', 'delete'].includes(value)
+    validator: (value) => ['default', 'edit', 'view', 'delete', 'create'].includes(value)
   },
   showActions: {
     type: Boolean,

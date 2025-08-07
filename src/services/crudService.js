@@ -40,7 +40,7 @@ export const createCrudService = (endpoint) => {
      * @returns {Promise<object>} Response with updated item
      */
     async update(id, data) {
-      return await api.put(`${endpoint}/${id}`, data);
+      return await api.patch(`${endpoint}/${id}`, data);
     },
 
     /**
