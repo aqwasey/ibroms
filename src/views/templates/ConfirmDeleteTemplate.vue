@@ -1,5 +1,5 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Delete Template" variant="delete" :loading="loading" showActions @confirm="handleConfirm" confirmButtonText="Delete">
+  <Modal :show="show" :close="() => $emit('update:show', false)" title="Delete Template" variant="delete" :loading="store.saving" showActions @confirm="handleConfirm" confirmButtonText="Delete">
     <p class="supporting-text">
       <span class="span">Are you sure you want to delete </span>
       <span class="text-wrapper-2">{{ templateName }}</span>
@@ -8,26 +8,23 @@
   </Modal>
 </template>
 <script setup>
-import { defineProps, defineEmits, ref, inject } from 'vue'
+import { defineProps, defineEmits, ref } from 'vue'
 import { useTemplateStore } from '@/stores/templates'
+import notificationService from '@/services/notificationService'
 import Modal from '@/components/Modal.vue'
 const props = defineProps({ show: { type: Boolean, default: false }, itemId: { type: [String, Number], default: '' }, templateName: { type: String, default: 'this template' } })
 const emit = defineEmits(['update:show', 'template-deleted'])
 const store = useTemplateStore()
-const messageApi = inject('messageApi')
-const loading = ref(false)
 const handleConfirm = async () => {
   try {
-    loading.value = true
     await store.deleteTemplate(props.itemId)
-    messageApi.success('Template deleted successfully')
+    notificationService.success('Template deleted successfully')
     emit('template-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
-    console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting template')
-  } finally {
-    loading.value = false
+    console.error('Error deleting template:', error)
+    const errorMessage = error?.response?.data?.info || error?.message || 'Error deleting template'
+    notificationService.error(errorMessage)
   }
 }
 </script>

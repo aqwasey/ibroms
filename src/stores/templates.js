@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '@/utils/api.js'
+import { createCrudService } from '@/services/crudService.js'
 
 export const useTemplateStore = defineStore('templates', () => {
-  const items = ref([])
+  const templates = ref([])
   const loading = ref(false)
-  const adding = ref(false)
+  const saving = ref(false)
   const error = ref(null)
+  
+  // Create CRUD service for templates
+  const crudService = createCrudService('/templates')
   
   // Template types for dropdown
   const template_types = [
@@ -30,82 +33,117 @@ export const useTemplateStore = defineStore('templates', () => {
     { name: 'client_address', label: 'Client Address', type: 'string', description: 'The address of the client' },
     { name: 'policy_arrears', label: 'Policy Arrears', type: 'number', description: 'Policy premium arrears' }
   ]
-  const fetchTemplates = async () => {
+  // Fetch all templates
+  const fetchAllTemplates = async () => {
     loading.value = true
     error.value = null
+
     try {
-      const res = await api().get('/templates/')
-      items.value = res.info
+      const response = await crudService.getAll()
+      templates.value = response.data || []
+      return response
     } catch (err) {
-      items.value = [
-        { id: 1, title: 'Welcome Email', category: 'POLICY', template_type: 'email', params_list: ['client_firstname', 'policy_number'], template: 'Welcome {{client_firstname}}, your policy {{policy_number}} has been created.' },
-        { id: 2, title: 'Payment Reminder', category: 'NOTIFICATION', template_type: 'sms', params_list: ['client_firstname', 'policy_arrears'], template: 'Hello {{client_firstname}}, your payment of {{policy_arrears}} is due.' },
-        { id: 3, title: 'Policy Renewal', category: 'POLICY', template_type: 'email', params_list: ['client_firstname', 'policy_number', 'policy_premium'], template: 'Dear {{client_firstname}}, your policy {{policy_number}} is up for renewal. The premium is {{policy_premium}}.' }
-      ]
-      error.value = 'Using dummy data for development'
-      console.warn('API call failed, using dummy data for templates')
+      error.value = err.message || 'Failed to fetch templates'
+      console.error('Error fetching templates:', err)
+      throw err
     } finally {
       loading.value = false
     }
   }
 
+  // Fetch single template by ID
+  const fetchTemplate = async (id) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await crudService.getById(id)
+      return response.data
+    } catch (err) {
+      error.value = err.message || 'Failed to fetch template'
+      console.error('Error fetching template:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Create new template
   const createTemplate = async (templateData) => {
-    adding.value = true
+    saving.value = true
     error.value = null
+
     try {
-      const res = await api().post('/templates/', templateData)
-      items.value.push(res.data)
-      return res.data
+      const response = await crudService.create(templateData)
+      const newTemplate = response.data
+      templates.value.push(newTemplate)
+      return newTemplate
     } catch (err) {
-      error.value = 'Failed to create template'
+      error.value = err.message || 'Failed to create template'
+      console.error('Error creating template:', err)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
     }
   }
 
-  const deleteTemplate = async (templateId) => {
-    adding.value = true
+  // Update existing template
+  const updateTemplate = async (id, templateData) => {
+    saving.value = true
     error.value = null
-    try {
-      await api().delete(`/templates/${templateId}`)
-      items.value = items.value.filter(t => t.id !== templateId)
-    } catch (err) {
-      error.value = 'Failed to delete template'
-      throw err
-    } finally {
-      adding.value = false
-    }
-  }
 
-  const updateTemplate = async (templateId, templateData) => {
-    adding.value = true
-    error.value = null
     try {
-      const res = await api().patch(`/templates/${templateId}`, templateData)
-      const index = items.value.findIndex(t => t.id === templateId)
+      const response = await crudService.update(id, templateData)
+      const updatedTemplate = response.data
+      
+      // Update template in local array
+      const index = templates.value.findIndex(t => t.id === id)
       if (index !== -1) {
-        items.value[index] = res.data
+        templates.value[index] = updatedTemplate
       }
-      return res.data
+      
+      return updatedTemplate
     } catch (err) {
-      error.value = 'Failed to update template'
+      error.value = err.message || 'Failed to update template'
+      console.error('Error updating template:', err)
       throw err
     } finally {
-      adding.value = false
+      saving.value = false
+    }
+  }
+
+  // Delete template
+  const deleteTemplate = async (id) => {
+    saving.value = true
+    error.value = null
+
+    try {
+      await crudService.delete(id)
+      
+      // Remove template from local array
+      templates.value = templates.value.filter(t => t.id !== id)
+      
+      return true
+    } catch (err) {
+      error.value = err.message || 'Failed to delete template'
+      console.error('Error deleting template:', err)
+      throw err
+    } finally {
+      saving.value = false
     }
   }
 
   return {
-    items,
+    templates,
     loading,
-    adding,
+    saving,
     error,
     template_types,
     allParams,
-    fetchTemplates,
+    fetchAllTemplates,
+    fetchTemplate,
     createTemplate,
-    deleteTemplate,
-    updateTemplate
+    updateTemplate,
+    deleteTemplate
   }
 })

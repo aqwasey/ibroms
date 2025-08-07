@@ -1,5 +1,14 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Add Template" @save="handleSave">
+  <Modal 
+    :show="show" 
+    :close="() => $emit('update:show', false)" 
+    title="Add Template" 
+    variant="create"
+    :loading="store.saving"
+    showActions
+    @confirm="handleSave"
+    confirmButtonText="Create Template"
+  >
     <div class="w-full flex flex-col gap-4">
       <InputField v-model="form.title" label="Title" placeholder="Enter template title" class="w-full" />
       <SelectField v-model="form.category" label="Category" placeholder="Select category" :options="categoryOptions" class="w-full" />
@@ -13,10 +22,14 @@
         optionValue="name"
         class="w-full"
       />
-      <div class="w-full">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Template Content</label>
-        <textarea v-model="form.template" class="w-full border border-gray-300 rounded-md p-2 min-h-[150px]" placeholder="Enter template content"></textarea>
-      </div>
+      <TextAreaField 
+        v-model="form.template" 
+        label="Template Content" 
+        placeholder="Enter template content" 
+        :rows="6"
+        required
+        class="w-full" 
+      />
     </div>
   </Modal>
 </template>
@@ -26,8 +39,9 @@ import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import TagInput from '@/components/TagInput.vue'
+import TextAreaField from '@/components/TextAreaField.vue'
 import { useTemplateStore } from '@/stores/templates'
-import { message } from 'ant-design-vue'
+import notificationService from '@/services/notificationService'
 const store = useTemplateStore()
 const props = defineProps({ show: { type: Boolean, default: false } })
 const emits = defineEmits(['update:show', 'template-created'])
@@ -38,13 +52,14 @@ const paramOptions = store.allParams
 const handleSave = async () => {
   try {
     await store.createTemplate(form.value)
-    message.success('Template added successfully')
+    notificationService.success('Template created successfully')
     resetForm()
     emits('template-created')
     emits('update:show', false)
   } catch (error) {
-    message.error('Failed to add template')
-    console.error(error)
+    const errorMessage = error?.response?.data?.info || error?.message || 'Failed to create template'
+    notificationService.error(errorMessage)
+    console.error('Error creating template:', error)
   }
 }
 const resetForm = () => { form.value = { title: '', category: 'UNCATEGORIZED', template_type: '', params_list: [], template: '' } }

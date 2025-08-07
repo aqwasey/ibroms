@@ -8,8 +8,14 @@
       <PageHeader title="Templates" subtitle="Manage all templates" searchPlaceholder="Search templates..." buttonText="Add Template" @search="handleSearch" @button-click="showAddModal" />
       <div v-if="store.loading" class="text-gray-500 text-center py-4">Loading templates...</div>
       <div v-else>
-        <div v-if="!filteredTemplates.length" class="text-gray-500 text-center py-4">No templates found</div>
-        <TableComponent v-else :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems" :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem" @delete-item="onDeleteItem" :selectable="true" @selection-change="handleSelectionChange" />
+        <TableComponent :columns="columns" :data="data" :items-per-page="itemsPerPage" :total-items="totalItems" :current-page="currentPage" @page-changed="onPageChanged" @action="onAction" @edit-item="onEditItem" @delete-item="onDeleteItem" :selectable="true" @selection-change="handleSelectionChange">
+          <template #empty-state>
+            <NoDataFound
+              title="No Templates Found"
+              description="Get started by creating your first message template"
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -23,6 +29,7 @@ import ViewTemplate from '@/views/templates/ViewTemplate.vue'
 import ConfirmDeleteTemplate from '@/views/templates/ConfirmDeleteTemplate.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 
 const showConfirm = ref(false)
 const showViewModal = ref(false)
@@ -35,7 +42,7 @@ const messageApi = inject('messageApi')
 const store = useTemplateStore()
 
 onMounted(() => {
-  store.fetchTemplates()
+  store.fetchAllTemplates()
 })
 
 const columns = [
@@ -52,9 +59,9 @@ const data = computed(() => {
   return filteredTemplates.value.slice(start, end)
 })
 const filteredTemplates = computed(() => {
-  if (!searchQuery.value) return store.items
+  if (!searchQuery.value) return store.templates
   const query = searchQuery.value.toLowerCase()
-  return store.items.filter(t =>
+  return store.templates.filter(t =>
     t.title?.toLowerCase().includes(query) ||
     t.category?.toLowerCase().includes(query) ||
     t.template_type?.toLowerCase().includes(query)
@@ -69,9 +76,9 @@ const onAction = ({ action, item }) => {
 const onEditItem = (item) => { selectedItem.value = { ...item }; showEditModal.value = true }
 const onDeleteItem = (item) => { selectedItemId.value = item.id; selectedItem.value = { ...item }; showConfirm.value = true }
 const showAddModal = () => { showNewModal.value = true }
-const handleTemplateCreated = () => { store.fetchTemplates(); showNewModal.value = false }
-const handleTemplateUpdated = () => { store.fetchTemplates(); showEditModal.value = false }
-const handleTemplateDeleted = () => { store.fetchTemplates(); showConfirm.value = false }
+const handleTemplateCreated = () => { store.fetchAllTemplates(); showNewModal.value = false }
+const handleTemplateUpdated = () => { store.fetchAllTemplates(); showEditModal.value = false }
+const handleTemplateDeleted = () => { store.fetchAllTemplates(); showConfirm.value = false }
 const handleSearch = (query) => { searchQuery.value = query }
 const handleSelectionChange = () => {}
 </script>
