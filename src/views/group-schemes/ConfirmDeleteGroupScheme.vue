@@ -39,7 +39,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:show', 'group-scheme-deleted'])
 
-const store = useGroupSchemesStore()
+const groupSchemesStore = useGroupSchemesStore()
 const messageApi = inject('messageApi')
 const loading = ref(false)
 
@@ -48,7 +48,7 @@ const handleConfirm = async () => {
     loading.value = true
 
     // Delete the group scheme
-    await store.deleteGroupScheme(props.itemId)
+    await groupSchemesStore.deleteGroupScheme(props.itemId)
 
     messageApi.success('Group Scheme deleted successfully')
     emit('group-scheme-deleted', props.itemId)

@@ -31,21 +31,17 @@
       <PageHeader 
         title="Group Schemes" 
         subtitle="Manage all group schemes"
-        searchPlaceholder="Search groupSchemes..."
+        searchPlaceholder="Search group schemes..."
         buttonText="Add Group Scheme"
         @search="handleSearch"
         @button-click="showAddModal"
       />
 
-      <div v-if="store.loading" class="text-gray-500 text-center py-4">
-        Loading groupSchemes...
+      <div v-if="groupSchemesStore.loading" class="text-gray-500 text-center py-4">
+        Loading group schemes...
       </div>
       <div v-else>
-        <div v-if="!filteredGroupSchemes.length" class="text-gray-500 text-center py-4">
-          No group schemes found
-        </div>
         <TableComponent
-          v-else
           :columns="columns"
           :data="data"
           :items-per-page="itemsPerPage"
@@ -57,7 +53,14 @@
           @delete-item="onDeleteItem"
           :selectable="true"
           @selection-change="handleSelectionChange"
-        />
+        >
+          <template #empty-state>
+            <NoDataFound
+              title="No Group Schemes Found"
+              description="You haven't added any group schemes yet. Create your first group scheme to get started."
+            />
+          </template>
+        </TableComponent>
       </div>
     </div>
   </div>
@@ -72,6 +75,7 @@ import ViewGroupScheme from '@/views/group-schemes/ViewGroupScheme.vue'
 import ConfirmDeleteGroupScheme from '@/views/group-schemes/ConfirmDeleteGroupScheme.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
+import NoDataFound from '@/components/NoDataFound.vue'
 
 const showConfirm = ref(false)
 const showViewModal = ref(false)
@@ -82,73 +86,27 @@ const selectedItem = ref(null)
 const searchQuery = ref('')
 const messageApi = inject('messageApi')
 
-const store = useGroupSchemesStore()
+const groupSchemesStore = useGroupSchemesStore()
 
-// DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
-const USE_DUMMY_DATA = true; // Set this to false to use real data from API
-
-const DUMMY_PRODUCTS = [
-  { 
-    id: '1', 
-    name: 'Health Insurance Basic', 
-    code: 'HIB-001', 
-    category: 'Health', 
-    underwriter: 'Global Insurance',
-    premium: '250'
-  },
-  { 
-    id: '2', 
-    name: 'Life Insurance Premium', 
-    code: 'LIP-002', 
-    category: 'Life', 
-    underwriter: 'Secure Life Ltd',
-    premium: '500'
-  },
-  { 
-    id: '3', 
-    name: 'Auto Insurance Plus', 
-    code: 'AIP-003', 
-    category: 'Auto', 
-    underwriter: 'Motor Protect Inc',
-    premium: '350'
-  },
-  { 
-    id: '4', 
-    name: 'Property Insurance', 
-    code: 'PI-004', 
-    category: 'Property', 
-    underwriter: 'Home Shield Co',
-    premium: '400'
-  },
-  { 
-    id: '5', 
-    name: 'Travel Insurance', 
-    code: 'TI-005', 
-    category: 'Travel', 
-    underwriter: 'Journey Safe Corp',
-    premium: '150'
-  }
-];
-
-// Mock the store's data if using dummy data
-if (USE_DUMMY_DATA) {
-  // Override the store's properties for demo purposes
-  store.groupSchemes = DUMMY_PRODUCTS;
-  store.loading = false;
-}
-
-onMounted(() => {
-  if (!USE_DUMMY_DATA) {
-    store.fetchGroupSchemes()
+// Fetch group schemes when component mounts
+onMounted(async () => {
+  try {
+    await groupSchemesStore.fetchAllGroupSchemes()
+  } catch (error) {
+    const errorMessage = error?.message || 'Failed to load group schemes'
+    if (!errorMessage.includes('fetch') && !errorMessage.includes('Network Error')) {
+      messageApi.error(errorMessage)
+    }
+    console.error('Error fetching group schemes:', error)
   }
 })
 
 const columns = [
-  { key: 'name', label: 'Group Scheme Name' },
-  { key: 'code', label: 'Group Scheme Code' },
+  { key: 'name', label: 'Name' },
+  { key: 'code', label: 'Code' },
   { key: 'category', label: 'Category' },
-  { key: 'underwriter', label: 'Underwriter' },
-  { key: 'premium', label: 'Premium' }
+  { key: 'province', label: 'Province' },
+  { key: 'manager', label: 'Manager' }
 ]
 
 // Pagination settings
@@ -167,17 +125,16 @@ const data = computed(() => {
 
 // Filter group schemes based on search query
 const filteredGroupSchemes = computed(() => {
-  if (!searchQuery.value) return USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.groupSchemes;
+  if (!searchQuery.value) return groupSchemesStore.groupSchemes;
   
   const query = searchQuery.value.toLowerCase();
-  const items = USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.groupSchemes;
   
-  return items.filter(p =>
-    p.name?.toLowerCase().includes(query) || 
-    p.code?.toLowerCase().includes(query) ||
-    p.category?.toLowerCase().includes(query) ||
-    p.underwriter?.toLowerCase().includes(query) ||
-    p.premium?.toLowerCase().includes(query)
+  return groupSchemesStore.groupSchemes.filter(scheme =>
+    scheme.name?.toLowerCase().includes(query) || 
+    scheme.code?.toLowerCase().includes(query) ||
+    scheme.category?.toLowerCase().includes(query) ||
+    scheme.province?.toLowerCase().includes(query) ||
+    scheme.manager?.toLowerCase().includes(query)
   );
 })
 
@@ -231,33 +188,38 @@ const handleSelectionChange = (selectedIds) => {
 }
 
 // Handle group scheme created event
-const handleGroupSchemeCreated = () => {
-  messageApi?.success('Group Scheme created successfully!')
-  // In a real app, this might refresh the data
-  // In our dummy data scenario, we would push to the array
-  if (!USE_DUMMY_DATA) {
-    store.fetchGroupSchemes()
+const handleGroupSchemeCreated = async () => {
+  // Force refresh the group schemes list to ensure UI is updated
+  // Note: Success message is already shown in NewGroupScheme.vue, no need to duplicate
+  try {
+    await groupSchemesStore.fetchAllGroupSchemes()
+  } catch (error) {
+    console.error('Error refreshing group schemes after creation:', error)
   }
 }
 
 // Handle group scheme updated event
-const handleGroupSchemeUpdated = () => {
-  messageApi?.success('Group Scheme updated successfully!')
-  // In a real app, the store would be updated
-  if (!USE_DUMMY_DATA) {
-    store.fetchGroupSchemes()
+const handleGroupSchemeUpdated = async () => {
+  // Force refresh the group schemes list to ensure UI is updated
+  // Note: Success message is already shown in EditGroupScheme.vue, no need to duplicate
+  try {
+    await groupSchemesStore.fetchAllGroupSchemes()
+  } catch (error) {
+    console.error('Error refreshing group schemes after update:', error)
   }
 }
 
 // Handle group scheme deleted event
-const handleGroupSchemeDeleted = () => {
+const handleGroupSchemeDeleted = async () => {
   // The actual delete operation is now handled by ConfirmDeleteGroupScheme component
   selectedItemId.value = null
   selectedItem.value = null
   
-  messageApi?.success('Group Scheme deleted successfully!')
-  if (!USE_DUMMY_DATA) {
-    store.fetchGroupSchemes()
+  // Force refresh the group schemes list to ensure UI is updated
+  try {
+    await groupSchemesStore.fetchAllGroupSchemes()
+  } catch (error) {
+    console.error('Error refreshing group schemes after deletion:', error)
   }
 }
 </script>
