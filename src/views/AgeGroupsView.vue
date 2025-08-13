@@ -36,8 +36,8 @@
   const itemsPerPage = ref(10);
   const currentPage = ref(1);
   
-  // Dummy data - represents products from an API
-  const allProducts = ref([
+  // Dummy data - represents group schemes from an API
+  const allGroupSchemes = ref([
     { 
       id: 'R492', 
       itemCode: 'R492', 
@@ -108,7 +108,7 @@
       title: 'Serenity', 
       createdOn: 'Jul. 15, 2023', 
       updatedOn: 'Jul. 25, 2023', 
-      description: 'A new product with enhanced features and improved design' 
+      description: 'A new group scheme with enhanced features and improved design' 
     },
     { 
       id: 'Y456', 
@@ -161,13 +161,13 @@
   ]);
   
   // Calculate total items for pagination
-  const totalItems = computed(() => allProducts.value.length);
+  const totalItems = computed(() => allGroupSchemes.value.length);
   
   // Get current page data - in a real app, this would likely come from an API
   const data = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage.value;
     const end = start + itemsPerPage.value;
-    return allProducts.value.slice(start, end);
+    return allGroupSchemes.value.slice(start, end);
   });
   
   // Event handlers
@@ -182,23 +182,23 @@
   };
   
   const onAddItem = () => {
-    console.log('Adding new product');
+    console.log('Adding new group scheme');
     // In a real app, you might show a form or modal here
   };
   
   const onEditItem = (item) => {
-    console.log('Editing product:', item);
+    console.log('Editing groupScheme:', item);
     // In a real app, you might show a form or modal with item data here
   };
   
   const onDeleteItem = (item) => {
-    console.log('Delete request for product:', item);
+    console.log('Delete request for groupScheme:', item);
     
     // Simple confirmation
-    if (confirm(`Are you sure you want to delete product ${item.itemCode}?`)) {
+    if (confirm(`Are you sure you want to delete group scheme ${item.itemCode}?`)) {
       // Remove from our local data
-      allProducts.value = allProducts.value.filter(p => p.id !== item.id);
-      console.log(`Product ${item.itemCode} deleted`);
+      allGroupSchemes.value = allGroupSchemes.value.filter(p => p.id !== item.id);
+      console.log(`Group Scheme ${item.itemCode} deleted`);
       
       // In a real app, you would make an API call here
     }

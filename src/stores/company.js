@@ -33,12 +33,12 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  const createProduct = async (productData) => {
+  const createGroupScheme = async (groupSchemeData) => {
     adding.value = true
     error.value = null
 
     try {
-      const res = await api.post('/company/', productData)
+      const res = await api.post('/company/', groupSchemeData)
       company.value = res.data
       return res.data
     } catch (err) {
@@ -49,12 +49,12 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  const deleteProduct = async (productId) => {
+  const deleteGroupScheme = async (groupSchemeId) => {
     adding.value = true
     error.value = null
 
     try {
-      await api.delete(`/company/${productId}`)
+      await api.delete(`/company/${groupSchemeId}`)
       company.value = null
     } catch (err) {
       error.value = 'Failed to delete company'
@@ -64,10 +64,10 @@ export const useCompanyStore = defineStore('company', () => {
     }
   }
 
-  const updateProduct = async (productData) => {
+  const updateGroupScheme = async (groupSchemeData) => {
     adding.value = true
     error.value = null
-    console.log('📝 Company Store: Starting update with data:', productData)
+    console.log('📝 Company Store: Starting update with data:', groupSchemeData)
 
     try {
       // Get company ID from user data in localStorage
@@ -79,9 +79,9 @@ export const useCompanyStore = defineStore('company', () => {
       }
       
       console.log('🏪 Company Store: Updating company ID:', companyId)
-      console.log('📝 Company Store: Update payload:', productData)
+      console.log('📝 Company Store: Update payload:', groupSchemeData)
       
-      const res = await api.patch(`/company/${companyId}`, productData)
+      const res = await api.patch(`/company/${companyId}`, groupSchemeData)
       console.log('🏪 Company Store: Update response:', res)
       
       // Update the stored company data
@@ -104,8 +104,8 @@ export const useCompanyStore = defineStore('company', () => {
     adding,
     error,
     fetchCompany,
-    createProduct,
-    deleteProduct,
-    updateProduct
+    createGroupScheme,
+    deleteGroupScheme,
+    updateGroupScheme
   }
 })

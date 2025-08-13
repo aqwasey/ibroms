@@ -2,16 +2,16 @@
   <div class="p-4">
     <ConfirmDelete
       :item-id="selectedItemId"
-      :loading="productsStore.adding"
-      :title="'Product'"
+      :loading="groupSchemesStore.adding"
+      :title="'Group Scheme'"
       :text="'Are you sure you want to delete? It will be deleted permanently'"
       @delete-item="handleDelete"
       v-model:show="showConfirm" />
 
     <Modal
       :show="isOpen"
-      :loading="productsStore.adding"
-      :title="`${editing ? 'Edit' : 'Add'} Product`"
+      :loading="groupSchemesStore.adding"
+      :title="`${editing ? 'Edit' : 'Add'} Group Scheme`"
       :close="() => {
         isOpen = false;
       }"
@@ -95,22 +95,22 @@
 
     </Modal>
 
-    <div v-if="productsStore.loading" class="text-black text-2xl">
-      Loading products...
+    <div v-if="groupSchemesStore.loading" class="text-black text-2xl">
+      Loading groupSchemes...
     </div>
     <div v-else>
-      <div v-if="!productsStore.products.length" class="text-gray-500 text-center py-4">
-        No products found
+      <div v-if="!groupSchemesStore.groupSchemes.length" class="text-gray-500 text-center py-4">
+        No group schemes found
       </div>
       <div v-else>
         <div class="flex justify-between items-center py-4">
-          <h2 class="text-[30px] font-medium text-i-gray-900">Products</h2>
+          <h2 class="text-[30px] font-medium text-i-gray-900">Group Schemes</h2>
           <div class="flex gap-4 items-center">
             <InputField
               type="text"
               class="text-center rounded bg-gray-50 text-sm"
             />
-            <Button @click="openModal">New Product</Button>
+            <Button @click="openModal">New Group Scheme</Button>
           </div>
         </div>
         <div>
@@ -139,7 +139,7 @@
 import { computed, inject, onMounted, reactive, ref } from 'vue'
 import TableComponent from '@/components/TableComponent.vue'
 import Modal from '@/components/Modal.vue'
-import { useProductsStore } from '@/stores/products.js'
+import { useGroupSchemesStore } from '@/stores/group-schemes.js'
 import Icon from '@/components/icon.vue'
 import Button from '@/components/Button.vue'
 import InputField from '@/components/InputField.vue'
@@ -168,12 +168,12 @@ let formState = reactive({
 
 const messageApi = inject('messageApi')
 
-const productsStore = useProductsStore()
+const groupSchemesStore = useGroupSchemesStore()
 
 const underwritersStore = useUnderwritersStore()
 
 onMounted(() => {
-  productsStore.fetchProducts()
+  groupSchemesStore.fetchGroupSchemes()
 })
 
 const columns = [
@@ -190,13 +190,13 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 
 // Calculate total items for pagination
-const totalItems = computed(() => productsStore.products.length)
+const totalItems = computed(() => groupSchemesStore.groupSchemes.length)
 
 // Get current page data - in a real app, this would likely come from an API
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return productsStore.products.slice(start, end)
+  return groupSchemesStore.groupSchemes.slice(start, end)
 })
 
 // Event handlers
@@ -230,7 +230,7 @@ const onDeleteItem = (item) => {
 
 const handleDelete = async (itemId) => {
   try {
-    await productsStore.deleteProduct(itemId)
+    await groupSchemesStore.deleteGroupScheme(itemId)
     selectedItemId.value = null
     showConfirm.value = false
     messageApi.success('Deleted successfully!')
@@ -244,14 +244,14 @@ const { resetFields } = useForm(formState)
 const onFinish = async values => {
   try {
     if (editing.value === true) {
-      await productsStore.updateProduct(selectedItem.value.id, {
+      await groupSchemesStore.updateGroupScheme(selectedItem.value.id, {
         ...selectedItem.value,
         ...values
       })
 
       selectedItemId.value = null
     } else {
-      await productsStore.createProduct({
+      await groupSchemesStore.createGroupScheme({
         "id": "",
         ...values,
         active: false,
@@ -262,7 +262,7 @@ const onFinish = async values => {
     }
 
     resetFields()
-    messageApi.success(`Product ${editing ? 'updated' : 'created'} successfully!`)
+    messageApi.success(`Group Scheme ${editing ? 'updated' : 'created'} successfully!`)
 
     closeModal()
   } catch (error) {

@@ -190,7 +190,7 @@ const handleSubmit = async () => {
     // Save to store
     const newPerson = await personnelStore.createPerson({
       ...formState,
-      id: Date.now().toString() // For demo purposes only, would be set by the server in production
+      id: Date.now().toString() // For demo purposes only, would be set by the server in group schemeion
     })
     
     emit('person-created', newPerson)

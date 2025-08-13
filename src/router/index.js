@@ -53,9 +53,9 @@ const router = createRouter({
         },
         // Original routes that work - with adjusted paths
         {
-          path: 'products',
-          name: 'products',
-          component: () => import('../views/products/IndexProduct.vue'),
+          path: 'group-schemes',
+          name: 'group-schemes',
+          component: () => import('../views/group-schemes/IndexGroupScheme.vue'),
         },
         {
           path: 'accounts',

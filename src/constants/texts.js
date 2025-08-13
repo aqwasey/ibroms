@@ -17,7 +17,7 @@ export const NAVIGATION = {
     LABEL: 'Admin',
     UNDERWRITERS: 'Underwriters',
     PACKAGES: 'Packages',
-    PRODUCTS: 'Product'
+    PRODUCTS: 'Group Scheme'
   },
   SERVICES: {
     LABEL: 'Services',

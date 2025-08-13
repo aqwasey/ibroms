@@ -65,7 +65,7 @@ export const useNotifyStore = defineStore('notify', () => {
           }
         ]
       } else {
-        // In production, fetch from API
+        // In group schemeion, fetch from API
         const response = await api.get('/notifications')
         items.value = response.data
       }
@@ -92,7 +92,7 @@ export const useNotifyStore = defineStore('notify', () => {
         items.value.push(newNotification)
         return newNotification
       } else {
-        // In production, send to API
+        // In group schemeion, send to API
         const response = await api.post('/notifications', notification)
         return response.data
       }
@@ -120,7 +120,7 @@ export const useNotifyStore = defineStore('notify', () => {
         }
         throw new Error('Notification not found')
       } else {
-        // In production, send to API
+        // In group schemeion, send to API
         const response = await api.put(`/notifications/${id}`, notification)
         return response.data
       }
@@ -148,7 +148,7 @@ export const useNotifyStore = defineStore('notify', () => {
         }
         throw new Error('Notification not found')
       } else {
-        // In production, send to API
+        // In group schemeion, send to API
         await api.delete(`/notifications/${id}`)
         return true
       }

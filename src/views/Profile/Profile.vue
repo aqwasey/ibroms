@@ -200,7 +200,7 @@ const saveProfile = async () => {
     }
 
     // Use company store to update profile
-    await companyStore.updateProduct(profileData)
+    await companyStore.updateProfile(profileData)
 
     notificationService.success('Profile updated successfully!')
   } catch (error) {

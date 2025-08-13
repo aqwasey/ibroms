@@ -130,7 +130,7 @@ const menuItems = [
       { label: 'Underwriters', to: '/dashboard/underwriters' },
       { label: 'Packages', to: '/dashboard/packages' },
       { label: 'Age Groups', to: '/dashboard/age-groups' },
-      { label: 'Products', to: '/dashboard/products' }
+      { label: 'Group Schemes', to: '/dashboard/group-schemes' }
     ],
     open: ref(false),
     hovered: ref(false)

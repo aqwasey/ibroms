@@ -1,48 +1,48 @@
 <template>
   <div class="p-6">
     <!-- Delete Confirmation Modal -->
-    <ConfirmDeleteProduct 
+    <ConfirmDeleteGroupScheme 
       v-model:show="showConfirm" 
       :itemId="selectedItemId" 
-      :productName="selectedItem?.name" 
-      @product-deleted="handleProductDeleted" 
+      :groupSchemeName="selectedItem?.name" 
+      @group-scheme-deleted="handleGroupSchemeDeleted" 
     />
 
     <!-- View Modal -->
-    <ViewProduct 
+    <ViewGroupScheme 
       v-model:show="showViewModal" 
-      :product="selectedItem" 
+      :groupScheme="selectedItem" 
     />
     
     <!-- New Modal -->
-    <NewProduct 
+    <NewGroupScheme 
       v-model:show="showNewModal" 
-      @product-created="handleProductCreated"
+      @group-scheme-created="handleGroupSchemeCreated"
     />
     
     <!-- Edit Modal -->
-    <EditProduct 
+    <EditGroupScheme 
       v-model:show="showEditModal" 
-      :product="selectedItem"
-      @product-updated="handleProductUpdated"
+      :groupScheme="selectedItem"
+      @group-scheme-updated="handleGroupSchemeUpdated"
     />
 
     <div>
       <PageHeader 
-        title="Products" 
-        subtitle="Manage all products"
-        searchPlaceholder="Search products..."
-        buttonText="Add Product"
+        title="Group Schemes" 
+        subtitle="Manage all group schemes"
+        searchPlaceholder="Search groupSchemes..."
+        buttonText="Add Group Scheme"
         @search="handleSearch"
         @button-click="showAddModal"
       />
 
       <div v-if="store.loading" class="text-gray-500 text-center py-4">
-        Loading products...
+        Loading groupSchemes...
       </div>
       <div v-else>
-        <div v-if="!filteredProducts.length" class="text-gray-500 text-center py-4">
-          No products found
+        <div v-if="!filteredGroupSchemes.length" class="text-gray-500 text-center py-4">
+          No group schemes found
         </div>
         <TableComponent
           v-else
@@ -65,11 +65,11 @@
 
 <script setup>
 import { ref, computed, onMounted, inject } from 'vue'
-import { useProductsStore } from '@/stores/products'
-import NewProduct from '@/views/products/NewProduct.vue'
-import EditProduct from '@/views/products/EditProduct.vue'
-import ViewProduct from '@/views/products/ViewProduct.vue'
-import ConfirmDeleteProduct from '@/views/products/ConfirmDeleteProduct.vue'
+import { useGroupSchemesStore } from '@/stores/group-schemes'
+import NewGroupScheme from '@/views/group-schemes/NewGroupScheme.vue'
+import EditGroupScheme from '@/views/group-schemes/EditGroupScheme.vue'
+import ViewGroupScheme from '@/views/group-schemes/ViewGroupScheme.vue'
+import ConfirmDeleteGroupScheme from '@/views/group-schemes/ConfirmDeleteGroupScheme.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
 
@@ -82,7 +82,7 @@ const selectedItem = ref(null)
 const searchQuery = ref('')
 const messageApi = inject('messageApi')
 
-const store = useProductsStore()
+const store = useGroupSchemesStore()
 
 // DUMMY DATA FOR TESTING - REMOVE IN PRODUCTION
 const USE_DUMMY_DATA = true; // Set this to false to use real data from API
@@ -133,19 +133,19 @@ const DUMMY_PRODUCTS = [
 // Mock the store's data if using dummy data
 if (USE_DUMMY_DATA) {
   // Override the store's properties for demo purposes
-  store.products = DUMMY_PRODUCTS;
+  store.groupSchemes = DUMMY_PRODUCTS;
   store.loading = false;
 }
 
 onMounted(() => {
   if (!USE_DUMMY_DATA) {
-    store.fetchProducts()
+    store.fetchGroupSchemes()
   }
 })
 
 const columns = [
-  { key: 'name', label: 'Product Name' },
-  { key: 'code', label: 'Product Code' },
+  { key: 'name', label: 'Group Scheme Name' },
+  { key: 'code', label: 'Group Scheme Code' },
   { key: 'category', label: 'Category' },
   { key: 'underwriter', label: 'Underwriter' },
   { key: 'premium', label: 'Premium' }
@@ -156,21 +156,21 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 
 // Calculate total items for pagination
-const totalItems = computed(() => filteredProducts.value.length)
+const totalItems = computed(() => filteredGroupSchemes.value.length)
 
 // Get current page data - in a real app, this would likely come from an API
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return filteredProducts.value.slice(start, end)
+  return filteredGroupSchemes.value.slice(start, end)
 })
 
-// Filter products based on search query
-const filteredProducts = computed(() => {
-  if (!searchQuery.value) return USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.products;
+// Filter group schemes based on search query
+const filteredGroupSchemes = computed(() => {
+  if (!searchQuery.value) return USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.groupSchemes;
   
   const query = searchQuery.value.toLowerCase();
-  const items = USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.products;
+  const items = USE_DUMMY_DATA ? DUMMY_PRODUCTS : store.groupSchemes;
   
   return items.filter(p =>
     p.name?.toLowerCase().includes(query) || 
@@ -230,34 +230,34 @@ const handleSelectionChange = (selectedIds) => {
   // Do something with the selected IDs
 }
 
-// Handle product created event
-const handleProductCreated = () => {
-  messageApi?.success('Product created successfully!')
+// Handle group scheme created event
+const handleGroupSchemeCreated = () => {
+  messageApi?.success('Group Scheme created successfully!')
   // In a real app, this might refresh the data
   // In our dummy data scenario, we would push to the array
   if (!USE_DUMMY_DATA) {
-    store.fetchProducts()
+    store.fetchGroupSchemes()
   }
 }
 
-// Handle product updated event
-const handleProductUpdated = () => {
-  messageApi?.success('Product updated successfully!')
+// Handle group scheme updated event
+const handleGroupSchemeUpdated = () => {
+  messageApi?.success('Group Scheme updated successfully!')
   // In a real app, the store would be updated
   if (!USE_DUMMY_DATA) {
-    store.fetchProducts()
+    store.fetchGroupSchemes()
   }
 }
 
-// Handle product deleted event
-const handleProductDeleted = () => {
-  // The actual delete operation is now handled by ConfirmDeleteProduct component
+// Handle group scheme deleted event
+const handleGroupSchemeDeleted = () => {
+  // The actual delete operation is now handled by ConfirmDeleteGroupScheme component
   selectedItemId.value = null
   selectedItem.value = null
   
-  messageApi?.success('Product deleted successfully!')
+  messageApi?.success('Group Scheme deleted successfully!')
   if (!USE_DUMMY_DATA) {
-    store.fetchProducts()
+    store.fetchGroupSchemes()
   }
 }
 </script>
