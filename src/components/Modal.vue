@@ -3,9 +3,13 @@
     <div
       class="modal-container bg-white rounded-lg shadow-lg w-full"
       :class="{
-        'max-w-md': variant === 'default',
-        'max-w-lg': variant === 'edit' || variant === 'view' || variant === 'create',
-        'max-w-sm': variant === 'delete'
+        'max-w-md': variant === 'default' && size === 'default',
+        'max-w-lg': (variant === 'edit' || variant === 'view' || variant === 'create') && size === 'default',
+        'max-w-sm': variant === 'delete' && size === 'default',
+        'max-w-2xl': size === 'large',
+        'max-w-4xl': size === 'xl',
+        'max-w-6xl': size === 'xxl',
+        'max-w-7xl': size === 'full'
       }"
     >
       <a-spin :spinning="loading" tip="Please wait..." class="modal-spinner">
@@ -100,6 +104,11 @@ const props = defineProps({
   confirmButtonDisabled: {
     type: Boolean,
     default: false
+  },
+  size: {
+    type: String,
+    default: 'default',
+    validator: (value) => ['default', 'large', 'xl', 'xxl', 'full'].includes(value)
   }
 })
 

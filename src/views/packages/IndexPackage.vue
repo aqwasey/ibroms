@@ -93,7 +93,10 @@ onMounted(async () => {
   try {
     await packagesStore.fetchAllPackages()
   } catch (error) {
-    messageApi.error(error?.message || 'Failed to load packages')
+    const errorMessage = error?.message || 'Failed to load packages'
+    if (!errorMessage.includes('fetch') && !errorMessage.includes('Network Error')) {
+      messageApi.error(errorMessage)
+    }
     console.error('Error fetching packages:', error)
   }
 })
