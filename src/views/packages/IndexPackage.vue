@@ -25,6 +25,7 @@
     <EditPackage 
       v-model:show="showEditModal" 
       :package="selectedItem"
+      :loading="editLoading"
       @package-updated="handlePackageUpdated"
     />
 
@@ -86,6 +87,7 @@ const selectedItemId = ref(null)
 const selectedItem = ref(null)
 const searchQuery = ref('')
 const viewLoading = ref(false)
+const editLoading = ref(false)
 const messageApi = inject('messageApi')
 
 const packagesStore = usePackagesStore()
@@ -182,9 +184,25 @@ const onViewItem = (item) => {
   showViewModal.value = true
 }
 
-const onEditItem = (item) => {
-  selectedItem.value = { ...item } // Create a fresh copy of the item
-  showEditModal.value = true
+const onEditItem = async (item) => {
+  try {
+    // Show immediate loading feedback
+    editLoading.value = true
+    
+    // Open modal immediately with basic data and loading state
+    selectedItem.value = { ...item }
+    showEditModal.value = true
+    
+    // Fetch complete package details including age_items for editing
+    const fullPackageData = await packagesStore.fetchPackageForView(item.id)
+    selectedItem.value = fullPackageData
+    console.log('Updated edit modal with complete package data:', selectedItem.value)
+  } catch (error) {
+    messageApi.error('Failed to load package details for editing')
+    console.error('Error fetching package details for edit:', error)
+  } finally {
+    editLoading.value = false
+  }
 }
 
 const onDeleteItem = (item) => {

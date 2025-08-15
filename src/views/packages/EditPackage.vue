@@ -4,7 +4,7 @@
     :close="() => $emit('update:show', false)"
     title="Edit Package"
     variant="edit"
-    :loading="packagesStore.saving"
+    :loading="packagesStore.saving || loading"
     showActions
     @confirm="handleSave"
     confirmButtonText="Save Changes"
@@ -110,6 +110,10 @@ const props = defineProps({
   package: {
     type: Object,
     required: true
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
