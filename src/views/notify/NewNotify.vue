@@ -1,6 +1,14 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Add Notification" variant="edit" :loading="loading" showActions @confirm="handleSave" confirmButtonText="Create">
-    <div class="w-full flex flex-col gap-4">
+  <Modal :show="show" :close="() => $emit('update:show', false)"
+    title="Add Notification"
+    variant="add"
+    :loading="store.saving || store.loading"
+    showActions
+    @confirm="handleSave"
+    confirmButtonText="Add Notification"
+    size="large"
+  >
+  <div class="w-full flex flex-col gap-4">
       <InputField v-model="form.title" label="Title" placeholder="Enter notification title" class="w-full" />
       <InputField v-model="form.description" label="Description" placeholder="Enter notification description" class="w-full" />
       <TagInput
@@ -14,20 +22,10 @@
       />
       <div class="flex gap-4">
         <div class="w-1/2">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Begin Date</label>
-          <input
-            type="datetime-local"
-            v-model="form.begin"
-            class="w-full border border-gray-300 rounded-md p-2"
-          />
+          <DateTimeInput v-model="form.begin" label="Begin Date" class="w-full" />
         </div>
         <div class="w-1/2">
-          <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-          <input
-            type="datetime-local"
-            v-model="form.end"
-            class="w-full border border-gray-300 rounded-md p-2"
-          />
+          <DateTimeInput v-model="form.end" label="End Date" class="w-full" />
         </div>
       </div>
       <SelectField
@@ -41,18 +39,34 @@
   </Modal>
 </template>
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, inject, watch, computed } from 'vue'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import TagInput from '@/components/TagInput.vue'
+import DateTimeInput from '@/components/DateTimeInput.vue'
 import { useNotifyStore } from '@/stores/notify'
-import { message } from 'ant-design-vue'
 
 const store = useNotifyStore()
+const messageApi = inject('messageApi')
 const props = defineProps({ show: { type: Boolean, default: false } })
 const emit = defineEmits(['update:show', 'notify-created'])
-const loading = ref(false)
+
+// Fetch message templates when modal is shown (with loading state)
+watch(() => props.show, async (newShow) => {
+  if (newShow && store.messageTemplates.length === 0) {
+    try {
+      // Use store loading state for template fetching
+      store.loading = true
+      await store.fetchMessageTemplates()
+    } catch (error) {
+      console.error('Error fetching message templates:', error)
+      messageApi.error('Failed to load message templates')
+    } finally {
+      store.loading = false
+    }
+  }
+})
 
 // Form data with default values
 const form = ref({
@@ -64,23 +78,20 @@ const form = ref({
   schedule: 'once'
 })
 
-// Get options from store
-const messageTemplateOptions = store.messageTemplateOptions
+// Get options from store (computed properties)
+const messageTemplateOptions = computed(() => store.messageTemplateOptions)
 const scheduleOptions = store.scheduleOptions
 
 const handleSave = async () => {
   try {
-    loading.value = true
     await store.createNotification(form.value)
-    message.success('Notification added successfully')
+    messageApi.success('Notification added successfully')
     resetForm()
     emit('notify-created')
     emit('update:show', false)
   } catch (error) {
-    message.error('Failed to add notification')
+    messageApi.error(error?.message || 'Failed to add notification')
     console.error(error)
-  } finally {
-    loading.value = false
   }
 }
 

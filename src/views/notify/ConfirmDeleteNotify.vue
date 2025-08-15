@@ -1,5 +1,5 @@
 <template>
-  <Modal :show="show" :close="() => $emit('update:show', false)" title="Delete Notification" variant="delete" :loading="loading" showActions @confirm="handleConfirm" confirmButtonText="Delete">
+  <Modal :show="show" :close="() => $emit('update:show', false)" title="Delete Notification" variant="delete" :loading="store.saving" showActions @confirm="handleConfirm" confirmButtonText="Delete">
     <p class="supporting-text">
       <span class="span">Are you sure you want to delete </span>
       <span class="text-wrapper-2">{{ notifyName }}</span>
@@ -15,19 +15,16 @@ const props = defineProps({ show: { type: Boolean, default: false }, itemId: { t
 const emit = defineEmits(['update:show', 'notify-deleted'])
 const store = useNotifyStore()
 const messageApi = inject('messageApi')
-const loading = ref(false)
+
 const handleConfirm = async () => {
   try {
-    loading.value = true
     await store.deleteNotification(props.itemId)
     messageApi.success('Notification deleted successfully')
     emit('notify-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting notification')
-  } finally {
-    loading.value = false
+    messageApi.error(error?.message || 'Error deleting notification')
   }
 }
 </script>

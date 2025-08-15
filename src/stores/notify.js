@@ -1,22 +1,19 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import api from '@/utils/api'
+import { ref, computed } from 'vue'
+import { createCrudService } from '@/services/crudService'
 
 export const useNotifyStore = defineStore('notify', () => {
-  const items = ref([])
+  const notifications = ref([])
+  const messageTemplates = ref([])
   const loading = ref(false)
+  const saving = ref(false)
   const error = ref(null)
 
-  // Template message options for TagInput component
-  const messageTemplateOptions = ref([
-    { name: 'Welcome Message', label: 'Welcome Message', type: 'text', description: 'Welcome message for new users' },
-    { name: 'Reminder', label: 'Reminder', type: 'text', description: 'Reminder notification' },
-    { name: 'Alert', label: 'Alert', type: 'text', description: 'Alert notification' },
-    { name: 'Update', label: 'Update', type: 'text', description: 'Update notification' },
-    { name: 'Confirmation', label: 'Confirmation', type: 'text', description: 'Confirmation message' },
-    { name: 'Newsletter', label: 'Newsletter', type: 'text', description: 'Newsletter notification' },
-    { name: 'Promotional', label: 'Promotional', type: 'text', description: 'Promotional message' }
-  ])
+  // Create CRUD service for notifications
+  const crudService = createCrudService('/notifications')
+  
+  // Create service for templates
+  const templateService = createCrudService('/templates')
 
   // Available schedule options
   const scheduleOptions = ref([
@@ -27,147 +24,145 @@ export const useNotifyStore = defineStore('notify', () => {
   ])
 
   // Fetch all notifications
-  const fetchNotifications = async () => {
+  const fetchAllNotifications = async () => {
     loading.value = true
     error.value = null
+
     try {
-      // Call API to fetch notifications
-      // For development, using placeholder data
-      if (import.meta.env.DEV) {
-        // Dummy data for development
-        items.value = [
-          {
-            id: '1',
-            title: 'System Maintenance',
-            description: 'System will be down for maintenance',
-            message_templates: ['Alert', 'Reminder'],
-            begin: '2025-07-20T08:00:00Z',
-            end: '2025-07-20T16:00:00Z',
-            schedule: 'once'
-          },
-          {
-            id: '2',
-            title: 'Weekly Newsletter',
-            description: 'Weekly newsletter for subscribers',
-            message_templates: ['Newsletter', 'Promotional'],
-            begin: '2025-07-18T09:00:00Z',
-            end: '2025-08-18T09:00:00Z',
-            schedule: 'weekly'
-          },
-          {
-            id: '3',
-            title: 'New Feature Announcement',
-            description: 'Announcing new platform features',
-            message_templates: ['Update', 'Promotional'],
-            begin: '2025-07-25T10:00:00Z',
-            end: '2025-07-25T18:00:00Z',
-            schedule: 'once'
-          }
-        ]
-      } else {
-        // In group schemeion, fetch from API
-        const response = await api.get('/notifications')
-        items.value = response.data
-      }
+      const response = await crudService.getAll()
+      notifications.value = response.data || []
+      return response
     } catch (err) {
-      console.error('Error fetching notifications:', err)
       error.value = err.message || 'Failed to fetch notifications'
+      console.error('Error fetching notifications:', err)
+      throw err
     } finally {
       loading.value = false
+    }
+  }
+
+  // Fetch single notification by ID
+  const fetchNotification = async (id) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await crudService.getById(id)
+      return response.data
+    } catch (err) {
+      error.value = err.message || 'Failed to fetch notification'
+      console.error('Error fetching notification:', err)
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Fetch single notification by ID for viewing (without global loading state)
+  const fetchNotificationForView = async (id) => {
+    try {
+      const response = await crudService.getById(id)
+      return response.data
+    } catch (err) {
+      console.error('Error fetching notification for view:', err)
+      throw err
+    }
+  }
+
+  // Fetch message templates from API
+  const fetchMessageTemplates = async () => {
+    try {
+      const response = await templateService.getAll()
+      messageTemplates.value = response.data || []
+      return response
+    } catch (err) {
+      console.error('Error fetching message templates:', err)
+      // Fallback to empty array if templates can't be fetched
+      messageTemplates.value = []
+      throw err
     }
   }
 
   // Create new notification
-  const createNotification = async (notification) => {
-    loading.value = true
+  const createNotification = async (notificationData) => {
+    saving.value = true
     error.value = null
+
     try {
-      // Call API to create notification
-      if (import.meta.env.DEV) {
-        // Simulate API call for development
-        const newNotification = {
-          id: String(items.value.length + 1),
-          ...notification
-        }
-        items.value.push(newNotification)
-        return newNotification
-      } else {
-        // In group schemeion, send to API
-        const response = await api.post('/notifications', notification)
-        return response.data
-      }
+      const response = await crudService.create(notificationData)
+      // Add to local array
+      notifications.value.push(response.data)
+      return response.data
     } catch (err) {
-      console.error('Error creating notification:', err)
       error.value = err.message || 'Failed to create notification'
+      console.error('Error creating notification:', err)
       throw err
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
   // Update existing notification
-  const updateNotification = async (id, notification) => {
-    loading.value = true
+  const updateNotification = async (id, notificationData) => {
+    saving.value = true
     error.value = null
+
     try {
-      // Call API to update notification
-      if (import.meta.env.DEV) {
-        // Simulate API call for development
-        const index = items.value.findIndex(item => item.id === id)
-        if (index !== -1) {
-          items.value[index] = { ...items.value[index], ...notification }
-          return items.value[index]
-        }
-        throw new Error('Notification not found')
-      } else {
-        // In group schemeion, send to API
-        const response = await api.put(`/notifications/${id}`, notification)
-        return response.data
+      const response = await crudService.update(id, notificationData)
+      // Update local array
+      const index = notifications.value.findIndex(n => n.id === id)
+      if (index !== -1) {
+        notifications.value[index] = response.data
       }
+      return response.data
     } catch (err) {
-      console.error('Error updating notification:', err)
       error.value = err.message || 'Failed to update notification'
+      console.error('Error updating notification:', err)
       throw err
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
   // Delete notification
   const deleteNotification = async (id) => {
-    loading.value = true
+    saving.value = true
     error.value = null
+
     try {
-      // Call API to delete notification
-      if (import.meta.env.DEV) {
-        // Simulate API call for development
-        const index = items.value.findIndex(item => item.id === id)
-        if (index !== -1) {
-          items.value.splice(index, 1)
-          return true
-        }
-        throw new Error('Notification not found')
-      } else {
-        // In group schemeion, send to API
-        await api.delete(`/notifications/${id}`)
-        return true
-      }
+      await crudService.delete(id)
+      // Remove from local array
+      notifications.value = notifications.value.filter(n => n.id !== id)
     } catch (err) {
-      console.error('Error deleting notification:', err)
       error.value = err.message || 'Failed to delete notification'
+      console.error('Error deleting notification:', err)
       throw err
     } finally {
-      loading.value = false
+      saving.value = false
     }
   }
 
+  // Computed property for message template options (for TagInput component)
+  const messageTemplateOptions = computed(() => {
+    return messageTemplates.value.map(template => ({
+      name: template.title,
+      label: template.title,
+      value: template.title
+    }))
+  })
+
   return {
-    items,
+    notifications,
+    messageTemplates,
     loading,
+    saving,
     error,
     messageTemplateOptions,
     scheduleOptions,
-    fetchNotifications,
+    fetchAllNotifications,
+    fetchNotification,
+    fetchNotificationForView,
+    fetchMessageTemplates,
     createNotification,
     updateNotification,
     deleteNotification

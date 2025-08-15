@@ -13,12 +13,12 @@
         <div
           v-for="tag in modelValue"
           :key="tag"
-          class="flex items-center bg-primary-bg text-primary border border-primary border-opacity-30 px-3 py-1 m-1.5 rounded-md"
+          class="flex items-center bg-primary-bg text-primary border border-primary border-opacity-30 px-3 py-1 m-2 rounded-md"
         >
           <span>{{ getOptionLabel(tag) }}</span>
           <button
             @click.stop="removeTag(tag)"
-            class="ml-4 text-primary hover:text-primary-dark"
+            class="ml-3 text-primary hover:text-primary-dark"
             type="button"
           >
             &times;
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Placeholder if nothing selected -->
-        <span v-if="modelValue.length === 0" class="text-gray-500 py-1">{{ placeholder }}</span>
+        <span v-if="modelValue.length === 0" class="text-gray-600 py-1 ml-1">{{ placeholder }}</span>
 
         <!-- Dropdown Icon - positioned absolutely to extreme right -->
         <span class="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -53,18 +53,18 @@
           v-for="option in props.options"
           :key="getOptionValue(option)"
           @click="toggleOption(option)"
-          class="px-3 py-2 cursor-pointer flex items-center"
-          :class="[isSelected(option) ? 'bg-primary-bg text-primary font-medium' : 'hover:bg-gray-100']"
+          class="px-4 py-3 cursor-pointer flex items-center"
+          :class="[isSelected(option) ? 'bg-primary-bg text-primary font-medium' : 'hover:bg-gray-50 text-gray-800']"
         >
           <div
-            class="w-4 h-4 mr-4 flex items-center justify-center rounded border"
+            class="w-4 h-4 mr-8 flex items-center justify-center rounded border"
             :class="[isSelected(option) ? 'bg-primary border-primary' : 'border-gray-400']"
           >
             <svg v-if="isSelected(option)" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-white" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
             </svg>
           </div>
-          <span>{{ getOptionLabel(option) }}</span>
+          <span class="text-sm font-medium">{{ getOptionLabel(option) }}</span>
         </div>
       </div>
     </div>
