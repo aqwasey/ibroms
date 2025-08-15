@@ -46,6 +46,17 @@ export const usePackagesStore = defineStore('packages', () => {
     }
   }
 
+  // Fetch single package by ID for viewing (without global loading state)
+  const fetchPackageForView = async (id) => {
+    try {
+      const response = await crudService.getById(id)
+      return response.data
+    } catch (err) {
+      console.error('Error fetching package for view:', err)
+      throw err
+    }
+  }
+
   // Create new package
   const createPackage = async (packageData) => {
     saving.value = true
@@ -112,6 +123,7 @@ export const usePackagesStore = defineStore('packages', () => {
     error,
     fetchAllPackages,
     fetchPackage,
+    fetchPackageForView,
     createPackage,
     updatePackage,
     deletePackage

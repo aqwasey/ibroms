@@ -12,6 +12,7 @@
     <ViewPackage 
       v-model:show="showViewModal" 
       :package="selectedItem" 
+      :loading="viewLoading"
     />
     
     <!-- New Modal -->
@@ -84,6 +85,7 @@ const showEditModal = ref(false)
 const selectedItemId = ref(null)
 const selectedItem = ref(null)
 const searchQuery = ref('')
+const viewLoading = ref(false)
 const messageApi = inject('messageApi')
 
 const packagesStore = usePackagesStore()
@@ -142,14 +144,28 @@ const onPageChanged = (page) => {
   currentPage.value = page
 }
 
-const onAction = ({ action, item }) => {
+const onAction = async ({ action, item }) => {
   console.log(`Action ${action} performed on:`, item)
 
   if (action === 'view') {
-    // Show view modal
-    selectedItem.value = { ...item } // Create a fresh copy of the item
-    console.log('Showing view modal for item:', selectedItem.value)
-    showViewModal.value = true
+    try {
+      // Show immediate loading feedback
+      viewLoading.value = true
+      
+      // Open modal immediately with basic data and loading state
+      selectedItem.value = { ...item }
+      showViewModal.value = true
+      
+      // Fetch complete package details including age_items
+      const fullPackageData = await packagesStore.fetchPackageForView(item.id)
+      selectedItem.value = fullPackageData
+      console.log('Updated view modal with complete package data:', selectedItem.value)
+    } catch (error) {
+      messageApi.error('Failed to load package details')
+      console.error('Error fetching package details:', error)
+    } finally {
+      viewLoading.value = false
+    }
   } else if (action === 'edit') {
     onEditItem(item)
   } else if (action === 'delete') {

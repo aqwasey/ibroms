@@ -5,6 +5,7 @@
     title="Package Details"
     variant="view"
     :showActions="false"
+    :loading="loading"
   >
     <ViewLayout
       :title="package.title"
@@ -116,7 +117,7 @@
               <InfoItem 
                 v-if="ageItem.correlate !== undefined" 
                 label="Correlate" 
-                :value="ageItem.correlate ? 'Yes' : 'No'" 
+                :value="ageItem.correlate" 
               />
             </div>
           </div>
@@ -167,6 +168,10 @@ const props = defineProps({
   package: {
     type: Object,
     required: true
+  },
+  loading: {
+    type: Boolean,
+    default: false
   }
 })
 
