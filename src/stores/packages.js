@@ -2,12 +2,39 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { createCrudService } from '@/services/crudService.js'
 
+// Helper function to extract meaningful error messages from API response
+const extractErrorMessage = (error) => {
+  // Check if error has validation details
+  if (error.response?.data?.detail && Array.isArray(error.response.data.detail)) {
+    const validationErrors = error.response.data.detail
+    const messages = validationErrors.map(err => {
+      // Create user-friendly field names
+      const fieldPath = err.loc ? err.loc.slice(1).join(' → ') : 'field'
+      const fieldName = fieldPath.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+      return `${fieldName}: ${err.msg}`
+    })
+    return messages.join('\n')
+  }
+
+  // Check for other API error formats
+  if (error.response?.data?.message) {
+    return error.response.data.message
+  }
+
+  if (error.response?.data?.error) {
+    return error.response.data.error
+  }
+
+  // Fallback to generic message
+  return error.message || 'An error occurred'
+}
+
 export const usePackagesStore = defineStore('packages', () => {
   const packages = ref([])
   const loading = ref(false)
   const saving = ref(false)
   const error = ref(null)
-  
+
   // Create CRUD service for packages
   const crudService = createCrudService('/packages')
 
@@ -68,9 +95,13 @@ export const usePackagesStore = defineStore('packages', () => {
       packages.value.push(response.data)
       return response.data
     } catch (err) {
-      error.value = err.message || 'Failed to create package'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error creating package:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }
@@ -82,7 +113,13 @@ export const usePackagesStore = defineStore('packages', () => {
     error.value = null
 
     try {
-      const response = await crudService.update(packageId, packageData)
+      // Ensure the ID is included in the request body as required by the API
+      const dataWithId = {
+        ...packageData,
+        id: packageId
+      }
+
+      const response = await crudService.update(packageId, dataWithId)
       // Update local array
       const index = packages.value.findIndex(p => p.id === packageId)
       if (index !== -1) {
@@ -90,9 +127,13 @@ export const usePackagesStore = defineStore('packages', () => {
       }
       return response.data
     } catch (err) {
-      error.value = err.message || 'Failed to update package'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error updating package:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }
@@ -108,9 +149,13 @@ export const usePackagesStore = defineStore('packages', () => {
       // Remove from local array
       packages.value = packages.value.filter(p => p.id !== packageId)
     } catch (err) {
-      error.value = err.message || 'Failed to delete package'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error deleting package:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }

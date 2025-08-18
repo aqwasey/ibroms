@@ -2,6 +2,33 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { createCrudService } from '@/services/crudService'
 
+// Helper function to extract meaningful error messages from API response
+const extractErrorMessage = (error) => {
+  // Check if error has validation details
+  if (error.response?.data?.detail && Array.isArray(error.response.data.detail)) {
+    const validationErrors = error.response.data.detail
+    const messages = validationErrors.map(err => {
+      // Create user-friendly field names
+      const fieldPath = err.loc ? err.loc.slice(1).join(' → ') : 'field'
+      const fieldName = fieldPath.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+      return `${fieldName}: ${err.msg}`
+    })
+    return messages.join('\n')
+  }
+  
+  // Check for other API error formats
+  if (error.response?.data?.message) {
+    return error.response.data.message
+  }
+  
+  if (error.response?.data?.error) {
+    return error.response.data.error
+  }
+  
+  // Fallback to generic message
+  return error.message || 'An error occurred'
+}
+
 export const useNotifyStore = defineStore('notify', () => {
   const notifications = ref([])
   const messageTemplates = ref([])
@@ -94,9 +121,13 @@ export const useNotifyStore = defineStore('notify', () => {
       notifications.value.push(response.data)
       return response.data
     } catch (err) {
-      error.value = err.message || 'Failed to create notification'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error creating notification:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }
@@ -116,9 +147,13 @@ export const useNotifyStore = defineStore('notify', () => {
       }
       return response.data
     } catch (err) {
-      error.value = err.message || 'Failed to update notification'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error updating notification:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }
@@ -134,9 +169,13 @@ export const useNotifyStore = defineStore('notify', () => {
       // Remove from local array
       notifications.value = notifications.value.filter(n => n.id !== id)
     } catch (err) {
-      error.value = err.message || 'Failed to delete notification'
+      const detailedMessage = extractErrorMessage(err)
+      error.value = detailedMessage
       console.error('Error deleting notification:', err)
-      throw err
+      // Create a new error with the detailed message for the UI
+      const enhancedError = new Error(detailedMessage)
+      enhancedError.originalError = err
+      throw enhancedError
     } finally {
       saving.value = false
     }

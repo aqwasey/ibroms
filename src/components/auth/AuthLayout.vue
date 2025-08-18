@@ -33,7 +33,7 @@
         </div>
       </div>
       <footer class="footer">
-        <div class="copyright">© Agent App 2023</div>
+        <div class="copyright">© Fusem {{ new Date().getFullYear() }}</div>
       </footer>
     </div>
     <AuthSideSection :title="title" />

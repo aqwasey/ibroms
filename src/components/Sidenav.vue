@@ -1,7 +1,8 @@
+
 <template>
   <aside class="h-screen" :style="{ backgroundColor: colors.BACKGROUND, borderRight: `1px solid ${colors.BORDER}` }">
     <div class="flex items-center justify-between pl-8 pr-10 pt-5 pb-8">
-      <span class="text-[22px] font-bold" :style="{ color: colors.TEXT_PRIMARY }">Pito iBROMS</span>
+      <span class="text-[22px] font-bold" :style="{ color: colors.TEXT_PRIMARY }">Fusem</span>
       <div class="rounded-lg px-2 py-1" :style="{ border: `1px solid ${colors.BORDER}` }">
         <Icon name="chevron-left" :color="colors.SECONDARY" />
       </div>
@@ -42,9 +43,9 @@
               <component :is="item.icon" :color="item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY" />
               <span class="font-medium">{{ item.label }}</span>
             </span>
-            <component 
-              :is="item.open.value ? ChevronDown : ChevronUp" 
-              :color="item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY" 
+            <component
+              :is="item.open.value ? ChevronDown : ChevronUp"
+              :color="item.hovered.value || item.open.value ? colors.PRIMARY : colors.TEXT_BODY"
             />
           </button>
 
@@ -73,7 +74,7 @@
 
 
 <script setup>
-import { ref, shallowRef, computed } from 'vue'
+import { ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { Users, Layers, Wrench, Settings, FileBox, FileSliders, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import Icon from '@/components/icon.vue'

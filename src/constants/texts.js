@@ -1,7 +1,7 @@
 export const APP = {
-  NAME: 'Pito iBROMS',
+  NAME: 'Fusem',
   TAGLINE: 'Insurance Broker Management System',
-  COPYRIGHT: '© 2025 Pito Insurance. All rights reserved.',
+  COPYRIGHT: '© 2025 Fusem. All rights reserved.',
   VERSION: '1.0.0'
 }
 
