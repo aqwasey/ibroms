@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { authService } from '@/services/authService'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -141,6 +142,26 @@ const router = createRouter({
       ]
     }
   ],
+})
+
+// Navigation guards
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = authService.isLoggedIn()
+  
+  // Public routes that don't require authentication
+  const publicRoutes = ['/login', '/register', '/forgot-password']
+  const isPublicRoute = publicRoutes.includes(to.path)
+  
+  if (!isAuthenticated && !isPublicRoute) {
+    // User is not authenticated and trying to access protected route
+    next('/login')
+  } else if (isAuthenticated && isPublicRoute) {
+    // User is authenticated and trying to access auth pages, redirect to dashboard
+    next('/dashboard')
+  } else {
+    // Allow navigation
+    next()
+  }
 })
 
 export default router

@@ -28,7 +28,7 @@
         />
       </div>
 
-      <TextAreaField 
+      <TextAreaField
         v-model="form.description"
         label="Description"
         placeholder="Enter scheme description"
@@ -46,7 +46,7 @@
           required
         />
 
-        <SelectField 
+        <SelectField
           v-model="form.province"
           label="Province"
           placeholder="Select province"
@@ -57,21 +57,24 @@
 
       <!-- Manager and Phone in one row -->
       <div class="grid grid-cols-2 gap-4">
-        <InputField 
+        <InputField
           v-model="form.manager"
           label="Manager"
           placeholder="Enter manager name"
+          validation-type="text"
+          :validation-options="{ allowNumbers: false, allowSpecialChars: false, capitalizeWords: true, maxLength: 50 }"
         />
 
-        <InputField 
+        <InputField
           v-model="form.phone"
           label="Phone"
           placeholder="Enter phone number"
-          type="tel"
+          validation-type="phone"
+          :validation-options="{ maxLength: 15, allowCountryCode: true }"
         />
       </div>
 
-      <TextAreaField 
+      <TextAreaField
         v-model="form.address"
         label="Address"
         placeholder="Enter address"
@@ -130,7 +133,8 @@ watch(() => props.groupScheme, (newVal) => {
       category: newVal.category || '',
       phone: newVal.phone || '',
       code: newVal.code || '',
-      address: newVal.address || ''
+      address: newVal.address || '',
+      bin: newVal.bin || '' // Add bin field if it exists in API
     }
   }
 }, { immediate: true, deep: true })

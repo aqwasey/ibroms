@@ -68,6 +68,8 @@ onMounted(async () => {
 const columns = [
   { key: 'title', label: 'Title' },
   { key: 'description', label: 'Description' },
+  { key: 'begin', label: 'Begin Date', type: 'date' },
+  { key: 'status', label: 'Status', type: 'badge' },
   { key: 'schedule', label: 'Schedule' }
 ]
 const itemsPerPage = ref(10)
@@ -76,8 +78,35 @@ const totalItems = computed(() => filteredNotifications.value.length)
 const data = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return filteredNotifications.value.slice(start, end)
+  const processedData = filteredNotifications.value.slice(start, end).map(notification => {
+    const statusObj = getNotificationStatus(notification)
+    console.log('Notification status for', notification.title, ':', statusObj)
+    return {
+      ...notification,
+      begin: notification.begin ? new Date(notification.begin).toLocaleDateString() : '',
+      status: statusObj
+    }
+  })
+  console.log('Processed notification data:', processedData)
+  return processedData
 })
+
+// Helper function to determine notification status
+const getNotificationStatus = (notification) => {
+  const now = new Date()
+  const beginDate = notification.begin ? new Date(notification.begin) : null
+  const endDate = notification.end ? new Date(notification.end) : null
+  
+  if (!beginDate) return { text: 'Inactive', color: 'red' }
+  
+  if (beginDate > now) {
+    return { text: 'Scheduled', color: 'yellow' }
+  } else if (endDate && endDate < now) {
+    return { text: 'Expired', color: 'red' }
+  } else {
+    return { text: 'Active', color: 'green' }
+  }
+}
 const filteredNotifications = computed(() => {
   if (!searchQuery.value) return store.notifications
   const query = searchQuery.value.toLowerCase()

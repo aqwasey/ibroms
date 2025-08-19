@@ -79,7 +79,26 @@
                 class="px-5 py-4 align-middle"
                 :class="column.class"
                 :style="{ color: colors.TEXT_BODY }">
-                {{ truncateText(item[column.key]) }}
+                <!-- Badge type column -->
+                <div v-if="column.type === 'badge' && item[column.key]" class="flex items-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="{
+                      'bg-green-100 text-green-800': item[column.key].color === 'green',
+                      'bg-red-100 text-red-800': item[column.key].color === 'red',
+                      'bg-yellow-100 text-yellow-800': item[column.key].color === 'yellow'
+                    }">
+                    <span class="w-2 h-2 rounded-full mr-1.5"
+                      :class="{
+                        'bg-green-400': item[column.key].color === 'green',
+                        'bg-red-400': item[column.key].color === 'red',
+                        'bg-yellow-400': item[column.key].color === 'yellow'
+                      }">
+                    </span>
+                    {{ item[column.key].text }}
+                  </span>
+                </div>
+                <!-- Regular text column -->
+                <span v-else>{{ truncateText(item[column.key]) }}</span>
               </td>
               <td class="px-5 py-4 text-right">
                 <div class="relative inline-block">

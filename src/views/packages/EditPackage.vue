@@ -20,10 +20,12 @@
           required
         />
 
-        <InputField
+        <SelectField
           v-model="form.target"
           label="Target"
-          placeholder="Enter package target"
+          placeholder="Select target"
+          :options="targetOptions"
+          required
         />
       </div>
 
@@ -40,8 +42,8 @@
           v-model="form.base_price"
           label="Base Price"
           placeholder="Enter base price"
-          type="number"
-          step="0.01"
+          validation-type="currency"
+          :validation-options="{ maxDecimals: 2, min: 0 }"
           required
         />
         
@@ -49,8 +51,8 @@
           v-model="form.resell_price"
           label="Resell Price"
           placeholder="Enter resell price"
-          type="number"
-          step="0.01"
+          validation-type="currency"
+          :validation-options="{ maxDecimals: 2, min: 0 }"
           required
         />
       </div>
@@ -61,16 +63,16 @@
           v-model="form.cover_amount"
           label="Cover Amount"
           placeholder="Enter cover amount"
-          type="number"
-          step="0.01"
+          validation-type="currency"
+          :validation-options="{ maxDecimals: 2, min: 0 }"
         />
 
         <InputField
           v-model="form.waiting_period"
           label="Waiting Period (days)"
           placeholder="Enter waiting period"
-          type="number"
-          min="0"
+          validation-type="number"
+          :validation-options="{ allowDecimals: false, min: 0, max: 365 }"
         />
 
         <SelectField
@@ -161,6 +163,15 @@ watch(() => props.package, (newVal) => {
     }
   }
 }, { immediate: true, deep: true })
+
+// Target options
+const targetOptions = [
+  { value: 'Single', label: 'Single' },
+  { value: 'Family', label: 'Family' },
+  { value: 'Single-Parent with Child', label: 'Single-Parent with Child' },
+  { value: 'Group', label: 'Group' },
+  { value: 'Single Parent + Children', label: 'Single Parent + Children' }
+]
 
 // Computed underwriter options
 const underwriterOptions = computed(() => {

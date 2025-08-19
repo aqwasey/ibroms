@@ -9,8 +9,22 @@
     size="large"
   >
   <div class="w-full flex flex-col gap-4">
-      <InputField v-model="form.title" label="Title" placeholder="Enter notification title" class="w-full" />
-      <InputField v-model="form.description" label="Description" placeholder="Enter notification description" class="w-full" />
+      <InputField 
+        v-model="form.title" 
+        label="Title" 
+        placeholder="Enter notification title" 
+        validation-type="text"
+        :validation-options="{ maxLength: 100, minLength: 3, capitalizeWords: true }"
+        class="w-full" 
+      />
+      <InputField 
+        v-model="form.description" 
+        label="Description" 
+        placeholder="Enter notification description" 
+        validation-type="text"
+        :validation-options="{ maxLength: 500, minLength: 10 }"
+        class="w-full" 
+      />
       <TagInput
         v-model="form.message_templates"
         label="Message Templates"

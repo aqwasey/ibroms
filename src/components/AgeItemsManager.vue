@@ -75,10 +75,8 @@
             </label>
             <input
               :value="item.start_age"
-              @input="updateItem(index, 'start_age', $event.target.value)"
-              type="number"
-              min="0"
-              max="120"
+              @input="handleNumericInput(index, 'start_age', $event)"
+              type="text"
               placeholder="Start age"
               class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
               :style="{ 
@@ -96,10 +94,8 @@
             </label>
             <input
               :value="item.end_age"
-              @input="updateItem(index, 'end_age', $event.target.value)"
-              type="number"
-              min="0"
-              max="120"
+              @input="handleNumericInput(index, 'end_age', $event)"
+              type="text"
               placeholder="End age"
               class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
               :style="{ 
@@ -113,13 +109,11 @@
           
           <div class="space-y-2">
             <label class="block text-sm font-medium" :style="{ color: COLORS.TEXT_PRIMARY }">
-              Correlate
+              Relationship
             </label>
-            <input
+            <select
               :value="item.correlate"
-              @input="updateItem(index, 'correlate', $event.target.value)"
-              type="text"
-              placeholder="Correlate"
+              @change="updateItem(index, 'correlate', $event.target.value)"
               class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
               :style="{ 
                 borderColor: COLORS.BORDER_DARK, 
@@ -127,7 +121,25 @@
                 'focus:ring-color': COLORS.PRIMARY_LIGHT,
                 'focus:border-color': COLORS.PRIMARY
               }"
-            />
+            >
+              <option value="">Select relationship</option>
+              <option value="Principal Member">Principal Member</option>
+              <option value="Son">Son</option>
+              <option value="Child">Child</option>
+              <option value="Daughter">Daughter</option>
+              <option value="Uncle">Uncle</option>
+              <option value="Aunty">Aunty</option>
+              <option value="Extended Family">Extended Family</option>
+              <option value="Mother">Mother</option>
+              <option value="Father">Father</option>
+              <option value="Cousin">Cousin</option>
+              <option value="Niece">Niece</option>
+              <option value="Nephew">Nephew</option>
+              <option value="Grand-Mother">Grand-Mother</option>
+              <option value="Grand-Father">Grand-Father</option>
+              <option value="Spouse">Spouse</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           
           <div class="space-y-2">
@@ -136,10 +148,8 @@
             </label>
             <input
               :value="item.premium"
-              @input="updateItem(index, 'premium', $event.target.value)"
-              type="number"
-              step="0.01"
-              min="0"
+              @input="handleCurrencyInput(index, 'premium', $event)"
+              type="text"
               placeholder="Premium"
               class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
               :style="{ 
@@ -157,10 +167,8 @@
             </label>
             <input
               :value="item.payout"
-              @input="updateItem(index, 'payout', $event.target.value)"
-              type="number"
-              step="0.01"
-              min="0"
+              @input="handleCurrencyInput(index, 'payout', $event)"
+              type="text"
               placeholder="Payout"
               class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
               :style="{ 
@@ -180,6 +188,9 @@
 <script setup>
 import { PlusIcon, TrashIcon } from 'lucide-vue-next'
 import { COLORS } from '@/constants/colors.js'
+import { useInputValidation } from '@/composables/useInputValidation'
+
+const { validateNumber, validateCurrency } = useInputValidation()
 
 const props = defineProps({
   modelValue: {
@@ -220,5 +231,30 @@ const updateItem = (index, field, value) => {
     [field]: value
   }
   emits('update:modelValue', updatedItems)
+}
+
+// Handle numeric input for age fields
+const handleNumericInput = (index, field, event) => {
+  const validatedValue = validateNumber(event.target.value, {
+    allowDecimals: false,
+    min: 0,
+    max: 120
+  })
+  
+  // Update the input value immediately
+  event.target.value = validatedValue
+  updateItem(index, field, validatedValue)
+}
+
+// Handle currency input for premium and payout fields
+const handleCurrencyInput = (index, field, event) => {
+  const validatedValue = validateCurrency(event.target.value, {
+    maxDecimals: 2,
+    min: 0
+  })
+  
+  // Update the input value immediately
+  event.target.value = validatedValue
+  updateItem(index, field, validatedValue)
 }
 </script>

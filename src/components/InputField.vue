@@ -8,13 +8,15 @@
     }">
       <div class="input-content">
         <input
-          :type="type"
+          :type="inputType"
           :id="id"
           :placeholder="placeholder"
           v-model="localValue"
+          @input="handleInput"
           class="input-field"
           :style="{ color: colors.TEXT_PRIMARY }"
           :disabled="disabled"
+          v-bind="additionalAttrs"
         />
       </div>
     </div>
@@ -25,8 +27,10 @@
 <script setup>
 import { computed } from 'vue';
 import { COLORS } from '@/constants/colors';
+import { useInputValidation } from '@/composables/useInputValidation';
 
 const colors = COLORS;
+const { createInputHandler } = useInputValidation();
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -36,15 +40,68 @@ const props = defineProps({
     type: String,
     default: 'text',
   },
+  // New validation props
+  validationType: {
+    type: String,
+    default: null, // 'number', 'phone', 'email', 'text', 'currency'
+    validator: (value) => [null, 'number', 'phone', 'email', 'text', 'currency'].includes(value)
+  },
+  validationOptions: {
+    type: Object,
+    default: () => ({})
+  },
   id: String,
   error: String,
   disabled: {
     type: Boolean,
     default: false
-  }
+  },
+  // Additional HTML attributes
+  step: [String, Number],
+  min: [String, Number],
+  max: [String, Number],
+  maxlength: [String, Number]
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+// Computed input type - use 'text' for validated inputs to prevent browser interference
+const inputType = computed(() => {
+  if (props.validationType) {
+    return props.validationType === 'email' ? 'email' : 'text'
+  }
+  return props.type
+});
+
+// Additional attributes to pass to input
+const additionalAttrs = computed(() => {
+  const attrs = {}
+  if (props.step !== undefined) attrs.step = props.step
+  if (props.min !== undefined) attrs.min = props.min
+  if (props.max !== undefined) attrs.max = props.max
+  if (props.maxlength !== undefined) attrs.maxlength = props.maxlength
+  return attrs
+});
+
+// Create validation handler if validation type is specified
+const validationHandler = computed(() => {
+  if (props.validationType) {
+    return createInputHandler(props.validationType, props.validationOptions)
+  }
+  return null
+});
+
+// Handle input with validation
+const handleInput = (event) => {
+  let value = event.target.value
+  
+  // Apply validation if specified
+  if (validationHandler.value) {
+    value = validationHandler.value(event)
+  }
+  
+  emit('update:modelValue', value)
+};
 
 // Writable computed to bridge v-model usage
 const localValue = computed({

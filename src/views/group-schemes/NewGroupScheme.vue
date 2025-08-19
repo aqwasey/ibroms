@@ -13,40 +13,40 @@
     <div class="w-full flex flex-col gap-4">
       <!-- Name and Code in one row -->
       <div class="grid grid-cols-2 gap-4">
-        <InputField 
+        <InputField
           v-model="form.name"
           label="Name"
           placeholder="Enter scheme name"
           required
         />
-        
-        <InputField 
+
+        <InputField
           v-model="form.code"
           label="Code"
           placeholder="Enter scheme code"
           required
         />
       </div>
-      
-      <TextAreaField 
+
+      <TextAreaField
         v-model="form.description"
         label="Description"
         placeholder="Enter scheme description"
         rows="3"
         class="w-full"
       />
-      
+
       <!-- Category and Province in one row -->
       <div class="grid grid-cols-2 gap-4">
-        <SelectField 
+        <SelectField
           v-model="form.category"
           label="Category"
           placeholder="Select category"
           :options="categoryOptions"
           required
         />
-        
-        <SelectField 
+
+        <SelectField
           v-model="form.province"
           label="Province"
           placeholder="Select province"
@@ -54,24 +54,27 @@
           required
         />
       </div>
-      
+
       <!-- Manager and Phone in one row -->
       <div class="grid grid-cols-2 gap-4">
-        <InputField 
+        <InputField
           v-model="form.manager"
           label="Manager"
           placeholder="Enter manager name"
+          validation-type="text"
+          :validation-options="{ allowNumbers: false, allowSpecialChars: false, capitalizeWords: true, maxLength: 50 }"
         />
-        
-        <InputField 
+
+        <InputField
           v-model="form.phone"
           label="Phone"
           placeholder="Enter phone number"
-          type="tel"
+          validation-type="phone"
+          :validation-options="{ maxLength: 15, allowCountryCode: true }"
         />
       </div>
-      
-      <TextAreaField 
+
+      <TextAreaField
         v-model="form.address"
         label="Address"
         placeholder="Enter address"
@@ -93,12 +96,6 @@ import { useGroupSchemesStore } from '@/stores/group-schemes'
 const groupSchemesStore = useGroupSchemesStore()
 const messageApi = inject('messageApi')
 
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
-  }
-})
 
 const emits = defineEmits(['update:show', 'group-scheme-created'])
 
