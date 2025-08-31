@@ -99,6 +99,11 @@ const router = createRouter({
           component: () => import('../views/packages/IndexPackage.vue'),
         },
         {
+          path: 'duty',
+          name: 'duty',
+          component: () => import('../views/duty/IndexDuty.vue'),
+        },
+        {
           path: 'age-groups',
           name: 'age-groups',
           component: () => import('../views/age-groups/IndexAgeGroups.vue'),

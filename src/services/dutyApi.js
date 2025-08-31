@@ -1,8 +1,8 @@
 import axios from 'axios';
 import authService from './authService';
 
-// People API configuration using separate service URL
-const peopleApi = axios.create({
+// Duty API configuration using OTHER_SERVICE_URL
+const dutyApi = axios.create({
   baseURL: import.meta.env.OTHER_SERVICE_URL || 'https://people-api-service.onrender.com',
   headers: {
     'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const processQueue = (error, token = null) => {
 };
 
 // Request interceptor for adding auth token
-peopleApi.interceptors.request.use(async config => {
+dutyApi.interceptors.request.use(async config => {
   // For all routes, ensure we have a valid token
   const token = localStorage.getItem('token');
   
@@ -76,7 +76,7 @@ peopleApi.interceptors.request.use(async config => {
 });
 
 // Response interceptor for handling errors
-peopleApi.interceptors.response.use(
+dutyApi.interceptors.response.use(
   response => {
     // Return just the data portion if successful
     return response.data;
@@ -138,136 +138,59 @@ peopleApi.interceptors.response.use(
     // Handle other errors
     if (error.response) {
       // Server returned an error response
-      console.error('People API Error:', error.response.data);
+      console.error('Duty API Error:', error.response.data);
       return Promise.reject(error.response.data);
     } else if (error.request) {
       // Request was made but no response received
-      console.error('People API Request Error:', error.request);
+      console.error('Duty API Request Error:', error.request);
       return Promise.reject({ message: 'No response from server' });
     } else {
       // Something else happened while setting up the request
-      console.error('People API Setup Error:', error.message);
+      console.error('Duty API Setup Error:', error.message);
       return Promise.reject({ message: error.message });
     }
   }
 );
 
-// People API Methods
-export const peopleApiService = {
+// Duty API Methods
+export const dutyApiService = {
   // CREATE Operations
   
-  // Add basic person
-  async addPerson(personData) {
-    return await peopleApi.post('/person/', personData);
-  },
-
-  // Add person with contact
-  async addPersonWithContact(personData, contactData) {
-    return await peopleApi.post('/person/with-contact', {
-      person: personData,
-      contact: contactData
-    });
-  },
-
-  // Add person with documents
-  async addPersonWithDocs(personData, docsData) {
-    return await peopleApi.post('/person/with-docs', {
-      person: personData,
-      docs: docsData
-    });
-  },
-
-  // Add person with full details
-  async addPersonFull(personData, contactData, documentsData) {
-    return await peopleApi.post('/person/full', {
-      person: personData,
-      contact: contactData,
-      documents: documentsData
-    });
+  // Add new duty
+  async addDuty(dutyData) {
+    return await dutyApi.post('/duty/', dutyData);
   },
 
   // READ Operations
   
-  // Get person by ID or ID number
-  async getPerson(param, value) {
-    // param should be 'id' or 'idno'
-    return await peopleApi.get(`/person/by/${param}/${value}`);
+  // Get all duties
+  async getAllDuties() {
+    return await dutyApi.get('/duty/');
   },
 
-  // Get person full profile by ID number (direct endpoint)
-  async getPersonFull(idno) {
-    return await peopleApi.get(`/person/${idno}`);
+  // Get duty by ID
+  async getDutyById(dutyId) {
+    return await dutyApi.get(`/duty/id/${dutyId}`);
   },
 
-  // Get person by ID number (simplified for search)
-  async getPersonByIdno(idno) {
-    return await peopleApi.get(`/person/${idno}`);
+  // Get all duty titles
+  async getDutyTitles() {
+    return await dutyApi.get('/duty/title/');
   },
-
 
   // UPDATE Operations
   
-  // Update person
-  async updatePerson(personData) {
-    return await peopleApi.patch('/person/', personData);
+  // Update duty
+  async updateDuty(dutyId, dutyData) {
+    return await dutyApi.patch(`/duty/${dutyId}`, dutyData);
   },
 
   // DELETE Operations
   
-  // Delete person by ID
-  async deletePerson(personId) {
-    return await peopleApi.delete(`/person/${personId}`);
-  },
-
-  // UTILITY Methods for common operations
-  
-  // Search people by name with limit
-  async searchByName(name, limit = 50) {
-    return await peopleApi.get(`/person/search/by-name/${encodeURIComponent(name)}/limit/${limit}`);
-  },
-
-  // Search people by contact
-  async searchByContact(item, value) {
-    return await peopleApi.get(`/person/search/by-contact/${encodeURIComponent(item)}/${encodeURIComponent(value)}`);
-  },
-
-  // Get people by period
-  async getByPeriod(period) {
-    return await peopleApi.get(`/person/search/by-period/${period}`);
-  },
-
-  // Get all people (using period search as fallback)
-  async getAllPeople() {
-    try {
-      // Use 'all' period to get all people
-      return await this.getByPeriod('all');
-    } catch (error) {
-      console.error('Error fetching all people:', error);
-      // Return empty array if fails
-      return [];
-    }
-  },
-
-  // Search people by various criteria
-  async searchPeople(searchTerm, searchType = 'name', limit = 50, contactType = 'email') {
-    try {
-      switch (searchType) {
-        case 'name':
-          return await this.searchByName(searchTerm, limit);
-        case 'idno':
-          return await this.getPersonByIdno(searchTerm);
-        case 'id':
-          return await this.getPerson('id', searchTerm);
-        case 'contact':
-          return await this.searchByContact(contactType, searchTerm);
-        default:
-          return await this.searchByName(searchTerm, limit);
-      }
-    } catch (error) {
-      console.error('Error searching people:', error);
-      throw error;
-    }
+  // Delete duty by ID
+  async deleteDuty(dutyId) {
+    return await dutyApi.delete(`/duty/${dutyId}`);
   }
 };
 
-export default peopleApi;
+export default dutyApi;

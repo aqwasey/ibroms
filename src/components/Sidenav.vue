@@ -118,6 +118,7 @@ const menuItems = [
       { label: 'Profile', to: '/dashboard/profile' },
       { label: 'Accounts', to: '/dashboard/accounts' },
       { label: 'Personnel', to: '/dashboard/personnel' },
+      { label: 'Duties', to: '/dashboard/duty' },
       { label: 'User Accounts', to: '/dashboard/user-accounts' }
     ],
     open: ref(false),

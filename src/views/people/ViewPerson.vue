@@ -14,68 +14,62 @@
       <!-- Personal Information Card -->
       <InfoCard title="Personal Information" :icon="CARD_ICONS.INFO">
         <InfoGrid>
-          <InfoItem label="Other Name(s)" :value="person?.otherNames || 'N/A'" />
-          <InfoItem label="Surname" :value="person?.surname || 'N/A'" />
-          <InfoItem label="Gender" :value="person?.gender || 'N/A'" />
-          <InfoItem label="Date of Birth" :value="person?.dateOfBirth || 'N/A'" :formatter="formatDate" />
+          <InfoItem label="Other Name(s)" :value="personData?.othername || 'N/A'" />
+          <InfoItem label="Surname" :value="personData?.surname || 'N/A'" />
+          <InfoItem label="Gender" :value="personData?.gender || 'N/A'" />
+          <InfoItem label="Date of Birth" :value="personData?.birthdate || 'N/A'" :formatter="formatDate" />
+          <InfoItem label="Status" :value="personData?.is_alive ? 'Alive' : 'Deceased'" :class="personData?.is_alive ? 'text-green-600' : 'text-red-600'" />
         </InfoGrid>
       </InfoCard>
 
       <!-- Identification Card -->
       <InfoCard title="Identification" :icon="CARD_ICONS.DOCUMENT">
         <InfoGrid>
-          <InfoItem label="ID Type" :value="person?.idType || 'N/A'" />
-          <InfoItem label="ID Number" :value="person?.idNumber || 'N/A'" />
+          <InfoItem label="ID Type" :value="personData?.id_type || 'N/A'" />
+          <InfoItem label="ID Number" :value="personData?.idno || 'N/A'" />
         </InfoGrid>
       </InfoCard>
 
       <!-- Contact Information Card -->
-      <InfoCard title="Contact Information" :icon="CARD_ICONS.CONTACT" v-if="person?.email || person?.mobile || person?.whatsapp">
+      <InfoCard title="Contact Information" :icon="CARD_ICONS.CONTACT" v-if="contactsData && contactsData.length > 0">
         <InfoGrid>
-          <InfoItem v-if="person?.email" label="Email" :value="person.email" />
-          <InfoItem v-if="person?.mobile" label="Mobile" :value="person.mobile" />
-          <InfoItem v-if="person?.whatsapp" label="WhatsApp" :value="person.whatsapp" />
+          <InfoItem 
+            v-for="contact in contactsData" 
+            :key="contact.id"
+            :label="formatContactType(contact.item)" 
+            :value="contact.value" 
+            :description="contact.remarks || undefined"
+          />
         </InfoGrid>
       </InfoCard>
 
-      <!-- Address Information Card -->
-      <InfoCard title="Address Information" :icon="CARD_ICONS.LOCATION" v-if="person?.address || person?.city || person?.province">
+      <!-- Documents Card -->
+      <InfoCard title="Documents" :icon="CARD_ICONS.DOCUMENT" v-if="documentsData && documentsData.length > 0">
         <InfoGrid>
-          <InfoItem v-if="person?.province" label="Province" :value="person.province" />
-          <InfoItem v-if="person?.city" label="City" :value="person.city" />
           <InfoItem 
-            v-if="person?.address" 
-            label="Address" 
-            :value="person.address" 
+            v-for="doc in documentsData" 
+            :key="doc.id"
+            :label="doc.type || 'Document'" 
+            :value="doc.filename || doc.path || 'N/A'" 
+            :description="doc.notes || undefined"
             :full-width="true"
           />
         </InfoGrid>
       </InfoCard>
 
-      <!-- Status Information Card -->
-      <InfoCard title="Status Information" :icon="CARD_ICONS.STATUS">
-        <InfoGrid>
-          <InfoItem 
-            label="Status" 
-            :value="person?.alive ? 'Active' : 'Inactive'" 
-            :class="person?.alive ? 'text-green-600' : 'text-red-600'"
-          />
-        </InfoGrid>
-      </InfoCard>
-
       <!-- System Information Card -->
-      <InfoCard title="System Information" :icon="CARD_ICONS.TIME" v-if="person?.created_on || person?.updated_on">
+      <InfoCard title="System Information" :icon="CARD_ICONS.TIME" v-if="personData?.created_at || personData?.updated_at">
         <InfoGrid>
           <InfoItem 
-            v-if="person?.created_on" 
+            v-if="personData?.created_at" 
             label="Created On" 
-            :value="person.created_on" 
+            :value="personData.created_at" 
             :formatter="formatDate" 
           />
           <InfoItem 
-            v-if="person?.updated_on" 
+            v-if="personData?.updated_at" 
             label="Last Updated" 
-            :value="person.updated_on" 
+            :value="personData.updated_at" 
             :formatter="formatDate" 
           />
         </InfoGrid>
@@ -113,10 +107,48 @@ const props = defineProps({
 
 defineEmits(['update:show'])
 
+// Extract nested data from the person object
+const personData = computed(() => {
+  // Handle nested structure from API response
+  if (props.person?.data?.person) {
+    return props.person.data.person
+  }
+  // Handle direct person object
+  if (props.person?.person) {
+    return props.person.person
+  }
+  // Handle flat structure
+  return props.person || {}
+})
+
+const contactsData = computed(() => {
+  // Handle nested structure from API response
+  if (props.person?.data?.contacts) {
+    return props.person.data.contacts
+  }
+  // Handle direct contacts array
+  if (props.person?.contacts) {
+    return props.person.contacts
+  }
+  return []
+})
+
+const documentsData = computed(() => {
+  // Handle nested structure from API response
+  if (props.person?.data?.docs) {
+    return props.person.data.docs
+  }
+  // Handle direct documents array
+  if (props.person?.docs || props.person?.documents) {
+    return props.person.docs || props.person.documents
+  }
+  return []
+})
+
 // Computed person full name
 const personFullName = computed(() => {
-  const otherNames = props.person?.otherNames || ''
-  const surname = props.person?.surname || ''
+  const otherNames = personData.value?.othername || ''
+  const surname = personData.value?.surname || ''
   return `${otherNames} ${surname}`.trim() || 'Unknown Person'
 })
 
@@ -125,27 +157,39 @@ const metaItems = computed(() => {
   const items = []
   
   // Show gender if available
-  if (props.person?.gender) {
+  if (personData.value?.gender) {
     items.push({
-      text: props.person.gender,
+      text: personData.value.gender,
       class: 'meta-tag'
     })
   }
   
   // Show status
   items.push({
-    text: props.person?.alive ? 'Active' : 'Inactive',
-    class: `meta-tag ${props.person?.alive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`
+    text: personData.value?.is_alive ? 'Alive' : 'Deceased',
+    class: `meta-tag ${personData.value?.is_alive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`
   })
   
   // Show ID type if available
-  if (props.person?.idType) {
+  if (personData.value?.id_type) {
     items.push({
-      text: props.person.idType,
+      text: personData.value.id_type.replace('_', ' '),
       class: 'meta-tag'
     })
   }
   
   return items
 })
+
+// Format contact type for display
+const formatContactType = (type) => {
+  const typeMap = {
+    'email': 'Email',
+    'mobile': 'Mobile',
+    'whatsapp': 'WhatsApp', 
+    'phone': 'Phone',
+    'landline': 'Landline'
+  }
+  return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1)
+}
 </script>

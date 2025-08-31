@@ -3,11 +3,12 @@
     :show="show"
     :close="() => $emit('update:show', false)"
     title="Add Person"
-    variant="edit"
+    variant="create"
     :loading="loading"
     showActions
     @confirm="handleSubmit"
-    confirmButtonText="Save"
+    confirmButtonText="Create Person"
+    size="xl"
   >
     <div class="w-full flex flex-col gap-4">
       <!-- Creation Type Selection -->
@@ -22,7 +23,7 @@
       <!-- Basic Person Fields (Always shown) -->
       <div class="border-t pt-4">
         <h3 class="text-sm font-medium text-gray-700 mb-3">Personal Information</h3>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-2 gap-4">
           <InputField
             v-model="formData.person.othername"
             label="Other Name(s)"
@@ -49,6 +50,9 @@
             class="w-full"
           />
 
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mt-4">
           <InputField
             v-model="formData.person.birthdate"
             label="Date of Birth"
@@ -79,7 +83,7 @@
       <!-- Contact Information (for with-contact and full types) -->
       <div v-if="showContactFields" class="border-t pt-4">
         <h3 class="text-sm font-medium text-gray-700 mb-3">Contact Information</h3>
-        <div class="grid grid-cols-1 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <SelectField
             v-model="formData.contact.item"
             label="Contact Type"
@@ -97,6 +101,9 @@
             class="w-full"
           />
 
+        </div>
+
+        <div class="mt-4">
           <InputField
             v-model="formData.contact.remarks"
             label="Remarks"
@@ -110,67 +117,7 @@
 
       <!-- Document Information (for with-docs and full types) -->
       <div v-if="showDocumentFields" class="border-t pt-4">
-        <h3 class="text-sm font-medium text-gray-700 mb-3">Document Information</h3>
-        <div class="space-y-4">
-          <div v-for="(doc, index) in formData.docs" :key="index" class="border rounded-lg p-4 bg-gray-50">
-            <div class="grid grid-cols-1 gap-4">
-              <div class="flex justify-between items-center">
-                <span class="text-sm font-medium">Document {{ index + 1 }}</span>
-                <button 
-                  v-if="formData.docs.length > 1"
-                  @click="removeDocument(index)"
-                  type="button"
-                  class="text-red-500 hover:text-red-700 text-sm"
-                >
-                  Remove
-                </button>
-              </div>
-              
-              <SelectField
-                v-model="doc.doc_kind"
-                label="Document Type"
-                placeholder="Select document type"
-                :options="documentTypeOptions"
-                class="w-full"
-              />
-
-              <InputField
-                v-model="doc.doc_path"
-                label="Document Path"
-                placeholder="Enter document path"
-                validation-type="text"
-                :validation-options="{ maxLength: 255 }"
-                class="w-full"
-              />
-
-              <InputField
-                v-model="doc.filename"
-                label="Filename"
-                placeholder="Enter filename"
-                validation-type="text"
-                :validation-options="{ maxLength: 100 }"
-                class="w-full"
-              />
-
-              <InputField
-                v-model="doc.notes"
-                label="Notes"
-                placeholder="Enter notes (optional)"
-                validation-type="text"
-                :validation-options="{ maxLength: 500 }"
-                class="w-full"
-              />
-            </div>
-          </div>
-          
-          <button 
-            @click="addDocument"
-            type="button"
-            class="w-full py-2 px-4 border border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-gray-400 hover:text-gray-700 transition-colors"
-          >
-            + Add Another Document
-          </button>
-        </div>
+        <DocumentsManager v-model="formData.docs" />
       </div>
     </div>
   </Modal>
@@ -181,6 +128,7 @@ import { ref, reactive, computed, defineProps, defineEmits, inject } from 'vue'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
+import DocumentsManager from '@/components/DocumentsManager.vue'
 import { usePeopleStore } from '@/stores/people.js'
 
 const { show } = defineProps({
@@ -252,13 +200,6 @@ const contactTypeOptions = [
   { value: 'address', label: 'Address' }
 ]
 
-const documentTypeOptions = [
-  { value: 'ID_COPY', label: 'ID Copy' },
-  { value: 'PASSPORT_COPY', label: 'Passport Copy' },
-  { value: 'BIRTH_CERTIFICATE', label: 'Birth Certificate' },
-  { value: 'PROOF_OF_ADDRESS', label: 'Proof of Address' },
-  { value: 'OTHER', label: 'Other' }
-]
 
 // Computed properties for conditional field display
 const showContactFields = computed(() => {
@@ -269,27 +210,12 @@ const showDocumentFields = computed(() => {
   return creationType.value === 'with-docs' || creationType.value === 'full'
 })
 
-// Document management
-const addDocument = () => {
-  formData.docs.push({
-    doc_kind: '',
-    doc_path: '',
-    filename: '',
-    notes: ''
-  })
-}
-
-const removeDocument = (index) => {
-  if (formData.docs.length > 1) {
-    formData.docs.splice(index, 1)
-  }
-}
 
 // Form validation
 const validateForm = () => {
   // Validate person fields
-  if (!formData.person.othername || !formData.person.surname || 
-      !formData.person.gender || !formData.person.id_type || 
+  if (!formData.person.othername || !formData.person.surname ||
+      !formData.person.gender || !formData.person.id_type ||
       !formData.person.idno || !formData.person.birthdate) {
     return false
   }
@@ -318,10 +244,10 @@ const handleSubmit = async () => {
     messageApi.error('Please fill in all required fields')
     return
   }
-  
+
   try {
     loading.value = true
-    
+
     // Call appropriate API method based on creation type
     switch (creationType.value) {
       case 'basic':
@@ -339,11 +265,11 @@ const handleSubmit = async () => {
       default:
         await store.createPerson(formData.person)
     }
-    
+
     messageApi.success('Person created successfully')
     emit('person-created')
     emit('update:show', false)
-    
+
     // Reset form data
     resetForm()
   } catch (error) {
