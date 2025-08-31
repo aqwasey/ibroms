@@ -45,6 +45,7 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue'
 import { usePolicyStore } from '@/stores/policy'
+import { peopleApiService } from '@/services/peopleApi.js'
 import PageHeader from '@/components/PageHeader.vue'
 import TableComponent from '@/components/TableComponent.vue'
 import NewPolicy from '@/views/policy/NewPolicy.vue'
@@ -57,12 +58,13 @@ const policyStore = usePolicyStore()
 
 // Table config
 const columns = [
-  { label: 'Other Name(s)', key: 'otherNames' },
-  { label: 'Surname', key: 'surname' },
-  { label: 'Gender', key: 'gender' },
-  { label: 'Date of Birth', key: 'dateOfBirth' },
-  { label: 'ID Type', key: 'idType' },
-  { label: 'ID Number', key: 'idNumber' }
+  { label: 'Policy No.', key: 'policy_no' },
+  { label: 'Status', key: 'status' },
+  { label: 'BIN', key: 'bin' },
+  { label: 'Cover Amount', key: 'cover_amount' },
+  { label: 'Premium', key: 'premium' },
+  { label: 'Inception Date', key: 'inception_date' },
+  { label: 'Waiting Period', key: 'waiting_period' }
 ]
 
 // State
@@ -85,10 +87,20 @@ onMounted(async () => {
 const fetchPolicies = async () => {
   loading.value = true
   try {
-    const result = await policyStore.fetchPolicies()
-    policies.value = result
+    const response = await peopleApiService.getPoliciesThisWeek()
+    console.log('Fetched policies:', response)
+
+    if (response && response.data) {
+      policies.value = response.data
+    } else if (Array.isArray(response)) {
+      policies.value = response
+    } else {
+      policies.value = []
+    }
   } catch (error) {
+    console.error('Error fetching policies:', error)
     messageApi.error('Failed to fetch policies')
+    policies.value = []
   } finally {
     loading.value = false
   }
@@ -129,6 +141,7 @@ const confirmDelete = async () => {
     showDeleteModal.value = false
     messageApi.success('Policy deleted successfully')
   } catch (error) {
+    console.error('Error deleting policy:', error)
     messageApi.error('Failed to delete policy')
   } finally {
     loading.value = false

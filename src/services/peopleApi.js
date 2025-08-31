@@ -243,28 +243,82 @@ export const peopleApiService = {
       return await this.getByPeriod('all');
     } catch (error) {
       console.error('Error fetching all people:', error);
-      // Return empty array if fails
-      return [];
+      return { data: [] };
     }
   },
 
   // Search people by various criteria
-  async searchPeople(searchTerm, searchType = 'name', limit = 50, contactType = 'email') {
+  searchPeople: async (query, searchType = 'name') => {
     try {
+      let endpoint;
+      
       switch (searchType) {
-        case 'name':
-          return await this.searchByName(searchTerm, limit);
         case 'idno':
-          return await this.getPersonByIdno(searchTerm);
-        case 'id':
-          return await this.getPerson('id', searchTerm);
-        case 'contact':
-          return await this.searchByContact(contactType, searchTerm);
+          endpoint = `/person/${query}`;
+          break;
+        case 'email':
+          endpoint = `/person/search/by-email/${query}`;
+          break;
+        case 'mobile':
+          endpoint = `/person/search/by-mobile/${query}`;
+          break;
+        case 'whatsapp':
+          endpoint = `/person/search/by-whatsapp/${query}`;
+          break;
+        case 'phone':
+          endpoint = `/person/search/by-phone/${query}`;
+          break;
+        case 'landline':
+          endpoint = `/person/search/by-landline/${query}`;
+          break;
         default:
-          return await this.searchByName(searchTerm, limit);
+          break;
       }
+
+      const response = await peopleApi.get(endpoint);
+      return response.data;
     } catch (error) {
       console.error('Error searching people:', error);
+      throw error;
+    }
+  },
+
+  // Create a new policy
+  async createPolicy(policyData) {
+    try {
+      const response = await peopleApi.post('/policy/', policyData);
+      console.log('Raw API Response:', response);
+      console.log('Response Data:', response.data);
+      console.log('Response Status:', response.status);
+      
+      // The API returns the response directly, not wrapped in axios response
+      // Based on console: response = {message: 'Policy created successful', status: 1}
+      if (response && (response.status === 1 || response.message)) {
+        return response;
+      }
+      
+      return response.data || response;
+    } catch (error) {
+      console.error('Error creating policy:', error);
+      console.log('Error Response:', error.response);
+      
+      // Check if it's actually a success response in error
+      if (error.response && error.response.data) {
+        return error.response.data;
+      }
+      
+      throw error;
+    }
+  },
+
+  // Get policies created this week
+  async getPoliciesThisWeek() {
+    try {
+      const response = await peopleApi.get('/policy/created/this-week');
+      console.log('Policies API Response:', response);
+      return response.data || response;
+    } catch (error) {
+      console.error('Error fetching policies:', error);
       throw error;
     }
   }

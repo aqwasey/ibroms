@@ -240,7 +240,7 @@ const onViewItem = async (item) => {
     selectedItem.value = { ...item }
     showViewModal.value = true
     viewModalLoading.value = true
-    
+
     // Fetch full person data with contacts and documents
     const fullPersonData = await peopleApiService.getPersonFull(item.idno)
     selectedItem.value = fullPersonData
@@ -292,7 +292,7 @@ const performSearch = async (query, type) => {
 
     // Handle different response formats and extract person data
     let processedResults = []
-    
+
     if (Array.isArray(results)) {
       processedResults = results
     } else if (results.data && Array.isArray(results.data)) {
@@ -309,7 +309,7 @@ const performSearch = async (query, type) => {
     } else {
       processedResults = []
     }
-    
+
     // Extract person data from nested structures if needed
     searchResults.value = processedResults.map(item => {
       // If item has a person property, extract it
@@ -346,7 +346,7 @@ const loadByPeriod = async (period) => {
 
     // Handle different response formats for period loading
     let processedResults = []
-    
+
     if (Array.isArray(results)) {
       processedResults = results
     } else if (results.data && Array.isArray(results.data)) {
@@ -356,7 +356,7 @@ const loadByPeriod = async (period) => {
     } else {
       processedResults = []
     }
-    
+
     // Extract person data from nested structures if needed
     searchResults.value = processedResults.map(item => {
       // If item has a person property, extract it
@@ -387,7 +387,6 @@ const loadByPeriod = async (period) => {
 
 // Handle person created event
 const handlePersonCreated = () => {
-  // Refresh current search if we have one
   if (hasSearched.value && searchQuery.value) {
     performSearch(searchQuery.value, searchType.value)
   }
@@ -395,7 +394,6 @@ const handlePersonCreated = () => {
 
 // Handle person updated event
 const handlePersonUpdated = () => {
-  // Refresh current search if we have one
   if (hasSearched.value && searchQuery.value) {
     performSearch(searchQuery.value, searchType.value)
   }
