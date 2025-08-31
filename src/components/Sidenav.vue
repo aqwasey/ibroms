@@ -1,4 +1,3 @@
-
 <template>
   <aside class="h-screen" :style="{ backgroundColor: colors.BACKGROUND, borderRight: `1px solid ${colors.BORDER}` }">
     <div class="flex items-center justify-between pl-8 pr-10 pt-5 pb-8">
@@ -140,7 +139,7 @@ const menuItems = [
     label: 'Services',
     icon: Layers,
     children: [
-      { label: 'CRM', to: '/dashboard/crm' },
+      { label: 'People', to: '/dashboard/people' },
       { label: 'Policy', to: '/dashboard/policy' },
       { label: 'Premium', to: '/dashboard/premium' }
     ],

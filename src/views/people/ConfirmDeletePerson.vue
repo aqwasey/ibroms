@@ -2,7 +2,7 @@
   <Modal
     :show="show"
     :close="() => $emit('update:show', false)"
-    title="Delete CRM"
+    title="Delete Person"
     variant="delete"
     :loading="loading"
     showActions
@@ -11,7 +11,7 @@
   >
     <p class="supporting-text">
       <span class="span">Are you sure you want to delete </span>
-      <span class="text-wrapper-2">{{ crmName }}</span>
+      <span class="text-wrapper-2">{{ personName }}</span>
       <span class="span">? It will be deleted permanently</span>
     </p>
   </Modal>
@@ -19,7 +19,7 @@
 
 <script setup>
 import { defineProps, defineEmits, ref, inject } from 'vue'
-import { useCrmStore } from '@/stores/crm.js'
+import { usePeopleStore } from '@/stores/people.js'
 import Modal from '@/components/Modal.vue'
 
 const props = defineProps({
@@ -31,15 +31,15 @@ const props = defineProps({
     type: [String, Number],
     default: ''
   },
-  crmName: {
+  personName: {
     type: String,
-    default: 'this CRM'
+    default: 'this Person'
   }
 })
 
-const emit = defineEmits(['update:show', 'crm-deleted'])
+const emit = defineEmits(['update:show', 'person-deleted'])
 
-const store = useCrmStore()
+const store = usePeopleStore()
 const messageApi = inject('messageApi')
 const loading = ref(false)
 
@@ -47,15 +47,15 @@ const handleConfirm = async () => {
   try {
     loading.value = true
 
-    // Delete the CRM
-    await store.deleteCrm(props.itemId)
+    // Delete the Person
+    await store.deletePerson(props.itemId)
 
-    messageApi.success('CRM deleted successfully')
-    emit('crm-deleted', props.itemId)
+    messageApi.success('Person deleted successfully')
+    emit('person-deleted', props.itemId)
     emit('update:show', false)
   } catch (error) {
     console.error(error)
-    messageApi.error(error?.response?.data?.info ?? 'Error deleting CRM')
+    messageApi.error(error?.response?.data?.info ?? 'Error deleting Person')
   } finally {
     loading.value = false
   }

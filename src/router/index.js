@@ -84,9 +84,9 @@ const router = createRouter({
           component: () => import('../views/underwriters/IndexUnderwriter.vue'),
         },
         {
-          path: 'crm',
-          name: 'crm',
-          component: () => import('../views/crm/IndexCrm.vue'),
+          path: 'people',
+          name: 'people',
+          component: () => import('../views/people/IndexPeople.vue'),
         },
         {
           path: 'profile',
