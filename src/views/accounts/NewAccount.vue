@@ -47,6 +47,7 @@
           type="email"
           id="email"
           :error="errors.email"
+          @input="validateEmailRealTime"
         />
 
         <!-- Purpose Field -->
@@ -63,12 +64,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, inject } from 'vue'
+import { reactive, inject } from 'vue'
 import { useBankAccountsStore } from '@/stores/bank-accounts.js'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
-import ButtonBase from '@/components/ButtonBase.vue'
+import { isValidEmail, validateAccountNumber } from '@/utils/validation'
 
 const props = defineProps({
   show: {
@@ -157,8 +158,9 @@ const validateForm = () => {
   }
 
   // Account number validation
-  if (!formState.account_no) {
-    errors.account_no = 'Account number is required'
+  const accountValidation = validateAccountNumber(formState.account_no)
+  if (!accountValidation.isValid) {
+    errors.account_no = accountValidation.errors[0]
     isValid = false
   }
 
@@ -172,7 +174,7 @@ const validateForm = () => {
   if (!formState.email) {
     errors.email = 'Email is required'
     isValid = false
-  } else if (!/^\S+@\S+\.\S+$/.test(formState.email)) {
+  } else if (!isValidEmail(formState.email)) {
     errors.email = 'Please enter a valid email address'
     isValid = false
   }

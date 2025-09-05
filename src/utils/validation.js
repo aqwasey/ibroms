@@ -114,3 +114,48 @@ export const validatePassword = (password, options = {}) => {
     errors
   };
 };
+
+/**
+ * Validates account number format and requirements
+ * @param {string} accountNumber - Account number to validate
+ * @param {object} options - Validation options
+ * @param {number} options.minLength - Minimum length (default: 8)
+ * @param {number} options.maxLength - Maximum length (default: 20)
+ * @returns {object} { isValid: boolean, errors: string[] }
+ */
+export const validateAccountNumber = (accountNumber, options = {}) => {
+  const errors = [];
+  const minLength = options.minLength || 8;
+  const maxLength = options.maxLength || 20;
+
+  if (!accountNumber || typeof accountNumber !== 'string') {
+    return { isValid: false, errors: ['Account number is required'] };
+  }
+
+  // Remove any spaces or special characters for validation
+  const cleanAccountNo = accountNumber.replace(/\D/g, '');
+
+  if (cleanAccountNo.length === 0) {
+    errors.push('Account number is required');
+  } else {
+    // Check if it contains only numbers
+    if (!/^\d+$/.test(cleanAccountNo)) {
+      errors.push('Account number must contain only numbers');
+    }
+
+    // Check minimum length
+    if (cleanAccountNo.length < minLength) {
+      errors.push(`Account number must be at least ${minLength} digits`);
+    }
+
+    // Check maximum length
+    if (cleanAccountNo.length > maxLength) {
+      errors.push(`Account number cannot exceed ${maxLength} digits`);
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+};

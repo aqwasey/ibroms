@@ -116,6 +116,7 @@ const localValue = computed({
   flex-direction: column;
   gap: 6px;
   width: 100%;
+  margin-bottom: 0;
 }
 
 .label {
