@@ -86,6 +86,9 @@
       
       <!-- Age Items Section -->
       <AgeItemsManager v-model="form.age_items" />
+      
+      <!-- Add Button moved below Age Items -->
+      <SpaceComponent direction="vertical" size="sm" />
     </div>
   </Modal>
 </template>
@@ -97,6 +100,7 @@ import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import TextAreaField from '@/components/TextAreaField.vue'
 import AgeItemsManager from '@/components/AgeItemsManager.vue'
+import SpaceComponent from '@/components/SpaceComponent.vue'
 import { usePackagesStore } from '@/stores/packages'
 import { useUnderwritersStore } from '@/stores/underwriters'
 

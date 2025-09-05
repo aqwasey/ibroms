@@ -306,14 +306,14 @@ const formData = ref({
   additional_members: []
 })
 
-// Loading states
-
+// Selected items
 const selectedProduct = ref(null)
 const selectedGroupScheme = ref(null)
 const selectedMainMember = ref(null)
 const selectedBeneficiary = ref(null)
 const selectedAdditionalMembers = ref([])
 
+// Computed properties
 const groupSchemeOptions = computed(() => {
   return groupSchemesStore.groupSchemes.map(scheme => ({
     label: `${scheme.name} (${scheme.code})`,
@@ -328,6 +328,7 @@ const packageOptions = computed(() => {
   }))
 })
 
+// Event handlers
 const onProductChange = (productId) => {
   const product = packagesStore.packages.find(p => p.id === productId)
   if (product) {
@@ -426,7 +427,7 @@ const isConfirmationValid = computed(() => {
   return confirmationInput.value.toLowerCase() === (selectedMainMember.value?.surname || '').toLowerCase()
 })
 
-
+// API functions
 const createPolicy = async () => {
   if (!isConfirmationValid.value) {
     messageApi.error('Please confirm by typing the main member\'s surname')
@@ -500,7 +501,6 @@ const createPolicy = async () => {
   }
 }
 
-
 // Step navigation
 const getStepTitle = () => {
   const titles = {
@@ -525,6 +525,7 @@ const previousStep = () => {
   }
 }
 
+// Utility functions
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -555,6 +556,7 @@ const handleClose = () => {
   emit('update:show', false)
 }
 
+// Lifecycle hooks
 onMounted(() => {
   groupSchemesStore.fetchAllGroupSchemes()
   packagesStore.fetchAllPackages()

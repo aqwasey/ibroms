@@ -1,22 +1,7 @@
 <template>
   <div class="w-full">
-    <div class="flex items-center justify-between mb-4">
+    <div class="mb-4">
       <h3 class="text-lg font-semibold" :style="{ color: COLORS.TEXT_PRIMARY }">Age Items</h3>
-      <button
-        type="button"
-        @click="addAgeItem"
-        class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
-        :style="{ 
-          backgroundColor: COLORS.PRIMARY, 
-          ':hover': { backgroundColor: COLORS.PRIMARY_DARK },
-          'focus:ring-color': COLORS.PRIMARY_LIGHT
-        }"
-        @mouseover="$event.target.style.backgroundColor = COLORS.PRIMARY_DARK"
-        @mouseleave="$event.target.style.backgroundColor = COLORS.PRIMARY"
-      >
-        <PlusIcon class="w-4 h-4 mr-1" />
-        Add Age Item
-      </button>
     </div>
     
     <div v-if="modelValue.length === 0" class="text-center py-8" :style="{ color: COLORS.TEXT_SECONDARY }">
@@ -181,6 +166,25 @@
           </div>
         </div>
       </div>
+    </div>
+    
+    <!-- Add Age Item Button moved to bottom -->
+    <div class="mt-6 flex justify-center">
+      <button
+        type="button"
+        @click="addAgeItem"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2"
+        :style="{ 
+          backgroundColor: COLORS.PRIMARY, 
+          ':hover': { backgroundColor: COLORS.PRIMARY_DARK },
+          'focus:ring-color': COLORS.PRIMARY_LIGHT
+        }"
+        @mouseover="$event.target.style.backgroundColor = COLORS.PRIMARY_DARK"
+        @mouseleave="$event.target.style.backgroundColor = COLORS.PRIMARY"
+      >
+        <PlusIcon class="w-4 h-4 mr-1" />
+        Add Age Item
+      </button>
     </div>
   </div>
 </template>

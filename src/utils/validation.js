@@ -159,3 +159,54 @@ export const validateAccountNumber = (accountNumber, options = {}) => {
     errors
   };
 };
+
+/**
+ * Validates age against package age groups
+ * @param {number} age - Age to validate
+ * @param {Array} ageGroups - Array of age group objects with start_age and end_age
+ * @param {string} relationship - Relationship type
+ * @returns {object} { isValid: boolean, errors: string[], matchingGroups: Array }
+ */
+export const validateAgeAgainstPackage = (age, ageGroups, relationship) => {
+  const errors = [];
+  
+  if (!age || typeof age !== 'number' || age < 0) {
+    return { isValid: false, errors: ['Valid age is required'], matchingGroups: [] };
+  }
+  
+  if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
+    return { isValid: false, errors: ['No age groups available in package'], matchingGroups: [] };
+  }
+  
+  // Find matching age groups
+  const matchingGroups = ageGroups.filter(group => {
+    const startAge = parseInt(group.start_age) || 0;
+    const endAge = parseInt(group.end_age) || 0;
+    const groupRelationship = group.correlate || '';
+    
+    // Check if age falls within range
+    const ageInRange = age >= startAge && age <= endAge;
+    
+    // Check if relationship matches (if specified in group)
+    const relationshipMatches = !groupRelationship || 
+                               groupRelationship === relationship || 
+                               groupRelationship === 'Any' ||
+                               relationship === 'Any';
+    
+    return ageInRange && relationshipMatches;
+  });
+  
+  if (matchingGroups.length === 0) {
+    if (relationship) {
+      errors.push(`Age ${age} with relationship "${relationship}" is not covered by this package`);
+    } else {
+      errors.push(`Age ${age} is not covered by this package`);
+    }
+  }
+  
+  return {
+    isValid: matchingGroups.length > 0,
+    errors,
+    matchingGroups
+  };
+};

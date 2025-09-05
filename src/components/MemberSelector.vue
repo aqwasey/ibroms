@@ -214,20 +214,60 @@
             </div>
           </div>
 
-          <div v-if="member.selected" class="mt-4 p-4 rounded-md" :style="{ backgroundColor: COLORS.SUCCESS_LIGHT, borderColor: COLORS.SUCCESS, border: '1px solid' }">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium" :style="{ color: COLORS.TEXT_PRIMARY }">Selected Member</p>
-                <p class="text-base font-semibold" :style="{ color: COLORS.TEXT_PRIMARY }">{{ member.selected.name }}</p>
-                <p class="text-sm" :style="{ color: COLORS.TEXT_PRIMARY }">ID: {{ member.selected.idno }}</p>
-              </div>
-              <button
-                @click="clearMemberSelection(index)"
-                class="p-2 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
-                :style="{ color: COLORS.ERROR }"
+          <!-- Relationship Selection -->
+          <div v-if="member.selected" class="mt-4 space-y-4">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium" :style="{ color: COLORS.TEXT_PRIMARY }">
+                Relationship *
+              </label>
+              <select
+                v-model="member.relationship"
+                @change="updateMemberRelationship(index, $event.target.value)"
+                class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:border-transparent text-base"
+                :style="{ 
+                  borderColor: COLORS.BORDER_DARK, 
+                  color: COLORS.TEXT_BODY,
+                  'focus:ring-color': COLORS.PRIMARY_LIGHT,
+                  'focus:border-color': COLORS.PRIMARY
+                }"
+                required
               >
-                <XIcon class="w-4 h-4" />
-              </button>
+                <option value="">Select relationship</option>
+                <option value="Principal Member">Principal Member</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Son">Son</option>
+                <option value="Daughter">Daughter</option>
+                <option value="Child">Child</option>
+                <option value="Mother">Mother</option>
+                <option value="Father">Father</option>
+                <option value="Uncle">Uncle</option>
+                <option value="Aunty">Aunty</option>
+                <option value="Cousin">Cousin</option>
+                <option value="Niece">Niece</option>
+                <option value="Nephew">Nephew</option>
+                <option value="Grand-Mother">Grand-Mother</option>
+                <option value="Grand-Father">Grand-Father</option>
+                <option value="Extended Family">Extended Family</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            
+            <div class="p-4 rounded-md" :style="{ backgroundColor: COLORS.SUCCESS_LIGHT, borderColor: COLORS.SUCCESS, border: '1px solid' }">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium" :style="{ color: COLORS.TEXT_PRIMARY }">Selected Member</p>
+                  <p class="text-base font-semibold" :style="{ color: COLORS.TEXT_PRIMARY }">{{ member.selected.name }}</p>
+                  <p class="text-sm" :style="{ color: COLORS.TEXT_PRIMARY }">ID: {{ member.selected.idno }}</p>
+                  <p v-if="member.relationship" class="text-sm font-medium" :style="{ color: COLORS.PRIMARY }">Relationship: {{ member.relationship }}</p>
+                </div>
+                <button
+                  @click="clearMemberSelection(index)"
+                  class="p-2 rounded-md hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  :style="{ color: COLORS.ERROR }"
+                >
+                  <XIcon class="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -262,7 +302,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'member-selected', 'member-removed'])
+const emit = defineEmits(['update:modelValue', 'member-selected', 'member-removed', 'member-updated'])
 const messageApi = inject('messageApi')
 
 // Single member selection (for main member/beneficiary)
@@ -436,7 +476,9 @@ const selectMultiplePerson = (index, person) => {
   member.selected = {
     id: person.id,
     name: `${person.othername || ''} ${person.surname || ''}`.trim(),
-    idno: person.idno
+    idno: person.idno,
+    age: calculateAge(person.birthdate),
+    birthdate: person.birthdate
   }
   member.id = person.id
   member.searchResults = []
@@ -476,6 +518,7 @@ const addMember = () => {
     id: null,
     searchTerm: '',
     selected: null,
+    relationship: '',
     searching: false,
     searchResults: []
   })
@@ -494,6 +537,7 @@ const clearMemberSelection = (index) => {
   member.selected = null
   member.id = null
   member.searchTerm = ''
+  member.relationship = ''
   updateMultipleSelection()
 }
 
@@ -519,7 +563,9 @@ watch(() => props.modelValue, (newValue) => {
           id,
           searchTerm: '',
           selected: null,
-          searching: false
+          relationship: '',
+          searching: false,
+          searchResults: []
         })
       }
     })
@@ -530,6 +576,32 @@ watch(() => props.modelValue, (newValue) => {
     )
   }
 }, { immediate: true })
+
+// Calculate age from birthdate
+const calculateAge = (birthdate) => {
+  if (!birthdate) return null
+  const today = new Date()
+  const birth = new Date(birthdate)
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age
+}
+
+// Update member relationship
+const updateMemberRelationship = (index, relationship) => {
+  const member = members.value[index]
+  member.relationship = relationship
+  
+  // Emit updated member data including relationship
+  const memberData = {
+    ...member.selected,
+    relationship: relationship
+  }
+  emit('member-updated', { index, member: memberData })
+}
 
 // Initialize component
 initializeComponent()

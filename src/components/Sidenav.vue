@@ -86,16 +86,28 @@ const colors = COLORS;
 const hoveredItem = ref(null);
 const hoveredSub = ref(null);
 
-// Check if route is active
+// Check if route is active - exact match only for menu items
 const isActive = (path) => {
   if (!path) return false;
-  return route.path === path || route.path.startsWith(`${path}/`);
+  return route.path === path;
 };
 
-// Debug navigation clicks
+// Handle navigation clicks and collapse other groups
 const handleNavClick = (item) => {
   console.log('Navigation clicked:', item);
   console.log('Navigating to:', item.to);
+  
+  // Close all other groups when navigating to a new item
+  menuItems.forEach(menuItem => {
+    if (menuItem.children) {
+      const hasActiveChild = menuItem.children.some(child => child.to === item.to);
+      if (!hasActiveChild) {
+        menuItem.open.value = false;
+      } else {
+        menuItem.open.value = true;
+      }
+    }
+  });
 };
 
 // Auto-open the section that contains the current active route

@@ -19,6 +19,8 @@
         :options="creationTypeOptions"
         class="w-full"
       />
+      
+      <SpaceComponent direction="vertical" size="lg" />
 
       <!-- Basic Person Fields (Always shown) -->
       <div class="border-t pt-4">
@@ -51,8 +53,10 @@
           />
 
         </div>
+        
+        <SpaceComponent direction="vertical" size="lg" />
 
-        <div class="grid grid-cols-3 gap-4 mt-4">
+        <div class="grid grid-cols-3 gap-4">
           <InputField
             v-model="formData.person.birthdate"
             label="Date of Birth"
@@ -102,8 +106,10 @@
           />
 
         </div>
+        
+        <SpaceComponent direction="vertical" size="lg" />
 
-        <div class="mt-4">
+        <div>
           <InputField
             v-model="formData.contact.remarks"
             label="Remarks"
@@ -119,6 +125,8 @@
       <div v-if="showDocumentFields" class="border-t pt-4">
         <DocumentsManager v-model="formData.docs" />
       </div>
+      
+      <SpaceComponent direction="vertical" size="lg" />
     </div>
   </Modal>
 </template>
@@ -129,6 +137,7 @@ import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
 import DocumentsManager from '@/components/DocumentsManager.vue'
+import SpaceComponent from '@/components/SpaceComponent.vue'
 import { usePeopleStore } from '@/stores/people.js'
 
 const { show } = defineProps({

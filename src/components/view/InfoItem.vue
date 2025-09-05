@@ -70,7 +70,7 @@ const displayValue = computed(() => {
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .info-item.full-width {

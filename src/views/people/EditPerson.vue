@@ -10,23 +10,27 @@
     confirmButtonText="Save Changes"
   >
     <div class="w-full flex flex-col gap-4">
-      <InputField
-        v-model="formData.otherNames"
-        label="Other Name(s)"
-        placeholder="Enter other names"
-        validation-type="text"
-        :validation-options="{ maxLength: 100 }"
-        class="w-full"
-      />
+      <div class="grid grid-cols-2 gap-4">
+        <InputField
+          v-model="formData.otherNames"
+          label="Other Name(s)"
+          placeholder="Enter other names"
+          validation-type="text"
+          :validation-options="{ maxLength: 100 }"
+          class="w-full"
+        />
 
-      <InputField
-        v-model="formData.surname"
-        label="Surname"
-        placeholder="Enter surname"
-        validation-type="text"
-        :validation-options="{ maxLength: 50 }"
-        class="w-full"
-      />
+        <InputField
+          v-model="formData.surname"
+          label="Surname"
+          placeholder="Enter surname"
+          validation-type="text"
+          :validation-options="{ maxLength: 50 }"
+          class="w-full"
+        />
+      </div>
+      
+      <SpaceComponent direction="vertical" size="lg" />
 
       <SelectField
         v-model="formData.gender"
@@ -35,31 +39,37 @@
         :options="genderOptions"
         class="w-full"
       />
+      
+      <SpaceComponent direction="vertical" size="lg" />
 
-      <InputField
-        v-model="formData.dateOfBirth"
-        label="Date of Birth"
-        placeholder="DD/MM/YYYY"
-        type="date"
-        class="w-full"
-      />
+      <div class="grid grid-cols-3 gap-4">
+        <InputField
+          v-model="formData.dateOfBirth"
+          label="Date of Birth"
+          placeholder="DD/MM/YYYY"
+          type="date"
+          class="w-full"
+        />
 
-      <SelectField
-        v-model="formData.idType"
-        label="ID Type"
-        placeholder="Select ID type"
-        :options="idTypeOptions"
-        class="w-full"
-      />
+        <SelectField
+          v-model="formData.idType"
+          label="ID Type"
+          placeholder="Select ID type"
+          :options="idTypeOptions"
+          class="w-full"
+        />
 
-      <InputField
-        v-model="formData.idNumber"
-        label="ID Number"
-        placeholder="Enter ID number"
-        validation-type="text"
-        :validation-options="{ maxLength: 20 }"
-        class="w-full"
-      />
+        <InputField
+          v-model="formData.idNumber"
+          label="ID Number"
+          placeholder="Enter ID number"
+          validation-type="text"
+          :validation-options="{ maxLength: 20 }"
+          class="w-full"
+        />
+      </div>
+      
+      <SpaceComponent direction="vertical" size="lg" />
     </div>
   </Modal>
 </template>
@@ -69,6 +79,7 @@ import { ref, reactive, defineProps, defineEmits, inject, watch } from 'vue'
 import Modal from '@/components/Modal.vue'
 import InputField from '@/components/InputField.vue'
 import SelectField from '@/components/SelectField.vue'
+import SpaceComponent from '@/components/SpaceComponent.vue'
 import { usePeopleStore } from '@/stores/people.js'
 
 const props = defineProps({
