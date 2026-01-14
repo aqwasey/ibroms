@@ -3,9 +3,8 @@
 ## Project Context
 This is a Vue 3 + Vite application using Composition API and Pinia for state management. The project follows a consistent CRUD pattern across all modules with reusable components and standardized architecture.
 
-## Dual Service Architecture
-- **Main Service**: `import.meta.env.VITE_API_BASE_URL` - Primary business endpoints
-- **Other Service**: `import.meta.env.OTHER_SERVICE_URL` (https://people-api-service.onrender.com) - Secondary service for People, Duty, etc.
+## API Base
+- **Unified Service**: `import.meta.env.VITE_API_BASE_URL` (https://beeco-api.onrender.com) - All modules use the same API host
 
 ## Established CRUD Pattern
 
@@ -15,7 +14,7 @@ import axios from 'axios';
 import authService from './authService';
 
 const moduleApi = axios.create({
-  baseURL: import.meta.env.OTHER_SERVICE_URL || 'https://people-api-service.onrender.com',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://beeco-api.onrender.com',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'
@@ -97,7 +96,7 @@ export const useModuleStore = defineStore('module', () => {
 - **Underwriters**: Basic CRUD with main service
 - **Packages**: Full CRUD with currency validation
 - **Group Schemes**: Complete CRUD matching packages pattern
-- **People**: Advanced CRUD with OTHER_SERVICE_URL, multiple creation types
+- **People**: Advanced CRUD on unified API, multiple creation types
 
 ## Development Checklist
 1. [ ] Create API service with auth interceptors

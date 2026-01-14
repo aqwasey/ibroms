@@ -5,7 +5,7 @@ Please read the DEVELOPMENT_TEMPLATE.md file in the project root to understand t
 ## Module Requirements:
 - **Name**: Duty
 - **Location**: Add to Sidenav under "Business" section
-- **Service**: Use OTHER_SERVICE_URL (https://people-api-service.onrender.com)
+- **Service**: Use VITE_API_BASE_URL (https://beeco-api.onrender.com)
 - **Route**: /duty
 
 ## API Endpoints:

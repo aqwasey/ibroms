@@ -13,7 +13,7 @@ export const useUserAccountStore = defineStore('userAccounts', () => {
     error.value = null
 
     try {
-      const res = await api("users").get('/user-accounts')
+      const res = await api().get('/user-accounts')
       users.value = res.info
     } catch (err) {
       error.value = 'Failed to load user accounts'
@@ -28,7 +28,7 @@ export const useUserAccountStore = defineStore('userAccounts', () => {
     error.value = null
 
     try {
-      const res = await api("users").post('/user-accounts', userData)
+      const res = await api().post('/user-accounts', userData)
       users.value.push(res.data || userData) // Fallback to userData for testing
       return res.data || userData
     } catch (err) {
@@ -45,7 +45,7 @@ export const useUserAccountStore = defineStore('userAccounts', () => {
     error.value = null
 
     try {
-      await api("users").delete(`/user-accounts/${userId}`)
+      await api().delete(`/user-accounts/${userId}`)
       users.value = users.value.filter(u => u.id !== userId)
     } catch (err) {
       error.value = 'Failed to delete user account'
@@ -61,7 +61,7 @@ export const useUserAccountStore = defineStore('userAccounts', () => {
     error.value = null
 
     try {
-      const res = await api("users").patch(`/user-accounts/${userId}`, userData)
+      const res = await api().patch(`/user-accounts/${userId}`, userData)
       const index = users.value.findIndex(u => u.id === userId)
 
       if (index !== -1) {

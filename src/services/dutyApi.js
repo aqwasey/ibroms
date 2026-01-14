@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { API_BASE_URL } from '@/constants/api';
 import authService from './authService';
 
-// Duty API configuration using OTHER_SERVICE_URL
+// Duty API configuration using unified service URL
 const dutyApi = axios.create({
-  baseURL: import.meta.env.OTHER_SERVICE_URL || 'https://people-api-service.onrender.com',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json'

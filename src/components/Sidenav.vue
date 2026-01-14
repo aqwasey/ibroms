@@ -96,7 +96,7 @@ const isActive = (path) => {
 const handleNavClick = (item) => {
   console.log('Navigation clicked:', item);
   console.log('Navigating to:', item.to);
-  
+
   // Close all other groups when navigating to a new item
   menuItems.forEach(menuItem => {
     if (menuItem.children) {

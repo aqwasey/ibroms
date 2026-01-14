@@ -1,5 +1,6 @@
 // api.js
 import axios from 'axios';
+import { API_BASE_URL } from '@/constants/api';
 
 class Api {
   static _instances = {};
@@ -69,19 +70,6 @@ class Api {
 }
 
 // Factory method to get instance based on name
-const api = (service = 'business') => {
-  const baseUrls = {
-    business: import.meta.env.VITE_BUSINESS_BASE_API,
-    people: import.meta.env.VITE_PEOPLE_BASE_API,
-    // Add more services here
-  };
-
-  const baseURL = baseUrls[service];
-  if (!baseURL) {
-    throw new Error(`[Api] Unknown service: ${service}`);
-  }
-
-  return new Api(baseURL);
-};
+const api = () => new Api(API_BASE_URL);
 
 export default api;

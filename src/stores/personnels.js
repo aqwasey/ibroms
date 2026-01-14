@@ -13,7 +13,7 @@ export const usePersonnelStore = defineStore('personnel', () => {
     error.value = null
 
     try {
-      const res = await api("people").get('/person/period/today')
+      const res = await api().get('/person/period/today')
       person.value = res.info
     } catch (err) {
       error.value = 'Failed to load personnel'
@@ -27,7 +27,7 @@ export const usePersonnelStore = defineStore('personnel', () => {
     error.value = null
 
     try {
-      const res = await api("people").post('/person/', personData)
+      const res = await api().post('/person/', personData)
       person.value.push(res.data)
       return res.data
     } catch (err) {
@@ -43,7 +43,7 @@ export const usePersonnelStore = defineStore('personnel', () => {
     error.value = null
 
     try {
-      await api("people").delete(`/person/${personId}`)
+      await api().delete(`/person/${personId}`)
       person.value = person.value.filter(u => u.id !== personId)
     } catch (err) {
       error.value = 'Failed to delete person'
@@ -58,7 +58,7 @@ export const usePersonnelStore = defineStore('personnel', () => {
     error.value = null
 
     try {
-      const res = await api("people").patch(`/person/${personId}`, personData)
+      const res = await api().patch(`/person/${personId}`, personData)
       const index = person.value.findIndex(u => u.id === personId)
 
       if (index !== -1) {
